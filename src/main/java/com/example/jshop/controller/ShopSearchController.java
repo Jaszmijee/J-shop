@@ -1,0 +1,49 @@
+package com.example.jshop.controller;
+
+import com.example.jshop.domain.category.Category;
+import com.example.jshop.domain.category.CategoryWithProductsDto;
+import com.example.jshop.domain.warehouse.Warehouse;
+import com.example.jshop.domain.warehouse.WarehouseDto;
+import com.example.jshop.exception.CategoryNotFoundException;
+import com.example.jshop.exception.ItemNotFoundEXception;
+import com.example.jshop.mapper.CategoryMapper;
+import com.example.jshop.mapper.WarehouseMapper;
+import com.example.jshop.service.CategoryService;
+import com.example.jshop.service.WarehouseService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+
+@RestController
+@RequestMapping("search")
+public class ShopSearchController {
+
+    @Autowired
+    CategoryService categoryService;
+    @Autowired
+    CategoryMapper categoryMapper;
+
+    @Autowired
+    WarehouseService warehouseService;
+    @Autowired
+    WarehouseMapper warehouseMapper;
+
+    @GetMapping("warehouse")
+    ResponseEntity<List<WarehouseDto>> showProductsInCategory(@RequestParam String categoryName, int limit) throws CategoryNotFoundException {
+        List<Warehouse> warehouse = warehouseService.findProductsByCategory(categoryName, limit);
+        return ResponseEntity.ok(warehouseMapper.mapToWarehouseDtoList(warehouse));
+    }
+
+    @GetMapping("warehouse\select")
+    ResponseEntity<List<WarehouseDto>> showSelectedProducts(@RequestParam String categoryName, @RequestParam String productName, @RequestParam BigDecimal productPrice, Integer limit) throws CategoryNotFoundException {
+        List<Warehouse> warehouse = warehouseService.findProductsWithSelection(categoryName, productName, productPrice, limit);
+        return ResponseEntity.ok(warehouseMapper.mapToWarehouseDtoList(warehouse));
+    }
+}
