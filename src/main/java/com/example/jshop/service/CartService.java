@@ -1,22 +1,26 @@
 package com.example.jshop.service;
 
-import com.example.jshop.domain.cart.Cart;
-import com.example.jshop.domain.cart.CartItemsDto;
-import com.example.jshop.domain.cart.CartStatus;
-import com.example.jshop.domain.cart.Item;
+import com.example.jshop.domain.ORDER_STATUS;
+import com.example.jshop.domain.Order;
+import com.example.jshop.domain.cart.*;
+import com.example.jshop.domain.customer.Customer_Logged;
+import com.example.jshop.domain.customer.LoggedCustomerDto;
+import com.example.jshop.domain.mail.Mail;
+import com.example.jshop.domain.order.OrderDtoToCustomer;
 import com.example.jshop.domain.product.Product;
 import com.example.jshop.domain.warehouse.Warehouse;
-import com.example.jshop.exception.CartNotFoundException;
-import com.example.jshop.exception.ItemNotAvailableException;
-import com.example.jshop.exception.ItemNotFoundEXception;
-import com.example.jshop.exception.NotEnoughItemsException;
+import com.example.jshop.exception.*;
+import com.example.jshop.mapper.CartMapper;
+import com.example.jshop.mapper.ItemMapper;
+import com.example.jshop.mapper.OrderMapper;
 import com.example.jshop.repository.CartRepository;
-import com.example.jshop.repository.WarehouseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CartService {
@@ -24,7 +28,30 @@ public class CartService {
     @Autowired
     CartRepository cartRepository;
 
+    @Autowired
     WarehouseService warehouseService;
+
+    @Autowired
+    CartMapper cartMapper;
+
+    @Autowired
+    ItemService itemService;
+
+    @Autowired
+    ItemMapper itemMapper;
+
+
+    @Autowired
+    CustomerService customerService;
+
+  @Autowired
+    SimpleEmailService emailService;
+
+  @Autowired
+  OrderService orderService;
+
+    @Autowired
+    OrderMapper orderMapper;
 
     private Cart findCartById(Long cartId) throws CartNotFoundException {
         return cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
@@ -61,61 +88,138 @@ public class CartService {
     }
 
     private void validateCartForProcessing(Cart cart) throws CartNotFoundException {
-        if (cart.getCartStatus() == CartStatus.PAID) {
+        if (cart.getCartStatus() == CartStatus.FINALIZED) {
             throw new CartNotFoundException();
         }
     }
 
-/*    public Cart addToCart(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException, ItemNotAvailableException, NotEnoughItemsException {
+    private Warehouse validateProductInWarehouse(Long productId) throws ProductNotFoundException {
+        Warehouse warehouse = warehouseService.findItemByID(productId);
+        if (warehouse == null) {
+            throw new ProductNotFoundException();
+        } else return warehouse;
+    }
+
+    public CartDto addToCart(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException, ItemNotAvailableException, NotEnoughItemsException, ProductNotFoundException {
         Cart cartToUpdate = findCartById(cartId);
         validateCartForProcessing(cartToUpdate);
-        Warehouse warehouse = warehouseService.findItemByID(cartItemsDto.getProductId());
+        Warehouse warehouse = validateProductInWarehouse(cartItemsDto.getProductId());
         findIfQuantityInWarehouseIsEnough(warehouse, cartItemsDto.getQuantity());
         Product product = warehouse.getProduct();
-        Item item = new Item(product, cartItemsDto.getQuantity());
+        Item item;
+        List<Item> items = cartToUpdate.getListOfItems().stream().filter(i -> i.getProduct().getProductID() == product.getProductID())
+                .toList();
+        if (items.size() > 0) {
+            item = items.get(0);
+            item.setQuantity(item.getQuantity() + cartItemsDto.getQuantity());
+        } else {
+            item = new Item(product, cartItemsDto.getQuantity(), cartToUpdate);
+        }
+        itemService.save(item);
         cartToUpdate.getListOfItems().add(item);
         cartToUpdate.setCalculatedPrice(calculateCurrentCartValue(cartToUpdate));
         cartToUpdate.setCartStatus(CartStatus.PROCESSING);
         updateProductInWarehouse(warehouse, cartItemsDto.getQuantity());
         cartRepository.save(cartToUpdate);
-        return cartToUpdate;*/
+        itemService.save(item);
+        return cartMapper.mapCartToCartDto(cartToUpdate);
+    }
 
+    public Cart showCart(Long cartId) throws CartNotFoundException {
+        return cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
+    }
 
-   /* public Cart removeFromCart(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException {
+    public CartDto removeFromCart(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException, ProductNotFoundException {
         Cart cartToUpdate = findCartById(cartId);
         validateCartForProcessing(cartToUpdate);
-        Warehouse warehouse = warehouseService.findItemByID(cartItemsDto.getProductId());
-        Product product = warehouse.getProduct();
-        updateProductInWarehouse(warehouse, -(cartItemsDto.getQuantity()));
-
-
-        cartToUpdate.getListOfItems().remove(item);
-        cartToUpdate.getListOfProducts().computeIfPresent(product, (key, quantity) -> quantity - cartItemsDto.getQuantity());
-        if (cartToUpdate.getListOfProducts().get(product) <= 0) {
-            cartToUpdate.getListOfProducts().remove(product);
+        Item item;
+        List<Item> items = cartToUpdate.getListOfItems().stream().filter(i -> i.getProduct().getProductID().equals(cartItemsDto.getProductId()))
+                .toList();
+        if (items.size() == 0) {
+            throw new ProductNotFoundException();
         }
-        if (cartToUpdate.getListOfProducts().isEmpty()) {
+        Warehouse warehouse = warehouseService.findItemByID(cartItemsDto.getProductId());
+        if (items.size() > 0) {
+            item = items.get(0);
+            if (item.getQuantity() <= cartItemsDto.getQuantity()) {
+                updateProductInWarehouse(warehouse, -(cartItemsDto.getQuantity()));
+                cartToUpdate.getListOfItems().remove(item);
+                itemService.delete(item);
+            } else {
+                updateProductInWarehouse(warehouse, -(cartItemsDto.getQuantity()));
+                item.setQuantity(item.getQuantity() - cartItemsDto.getQuantity());
+                itemService.save(item);
+                cartToUpdate.getListOfItems().set(cartToUpdate.getListOfItems().indexOf(item), item);
+            }
+        }
+        if (cartToUpdate.getListOfItems().isEmpty()) {
             cartToUpdate.setCartStatus(CartStatus.EMPTY);
         }
         cartToUpdate.setCalculatedPrice(calculateCurrentCartValue(cartToUpdate));
         cartRepository.save(cartToUpdate);
-        return cartToUpdate;
+        return cartMapper.mapCartToCartDto(cartToUpdate);
     }
 
     public void removeCart(Long cartId) throws CartNotFoundException {
         Cart cart = findCartById(cartId);
         validateCartForProcessing(cart);
-        if (!(cart.getListOfProducts().isEmpty())) {
-            for (Map.Entry<Product, Integer> items : cart.getListOfProducts().entrySet()) {
-                Warehouse warehouse = warehouseService.findItemByID(items.getKey().getProductID());
-                warehouse.setProductQuantity(warehouse.getProductQuantity() + items.getValue());
+        if (!(cart.getListOfItems().isEmpty())) {
+            for (Item items : cart.getListOfItems()) {
+                Warehouse warehouse = warehouseService.findItemByID(items.getProduct().getProductID());
+                warehouse.setProductQuantity(warehouse.getProductQuantity() + items.getQuantity());
                 warehouseService.save(warehouse);
+                itemService.delete(items);
+                itemService.save(items);
             }
-            cartRepository.deleteById(cartId);
         }
-    }*/
+        cartRepository.deleteById(cartId);
+    }
 
-    public void finalizeCart(Long cartId) {
+   private Order createNewOrder(Long cartId, LoggedCustomerDto loggedCustomerDto) throws CartNotFoundException, UserNotFoundException, AccessDeniedException {
+       Cart cart = findCartById(cartId);
+       Customer_Logged customer = customerService.verifyLogin(loggedCustomerDto.getUsername(), loggedCustomerDto.getPassword());
+
+       String listOfItems = cart.getListOfItems().stream()
+               .map(item -> itemMapper.mapToItemDto(item))
+               .map(result -> "\n product: " + result.getProductName() + ", quantity: " + result.getProductQuantity() + ", total price: " + result.getCalculatedPrice())
+               .collect(Collectors.joining("\n"));
+       Order createdOrder = new Order(customer, cart, LocalDate.now(), ORDER_STATUS.UNPAID, listOfItems, cart.getCalculatedPrice());
+       customer.getListOfOrders().add(createdOrder);
+       customerService.saveCustomer(customer);
+       orderService.save(createdOrder);
+       return createdOrder;
+   }
+
+   private Mail createContent(Order order) {
+
+        String subject = "Your order: " + order.getOrderID();
+        String message = "Your order: " + order.getOrderID() + ", created on: " + order.getCreated() +
+                " " + order.getListOfProducts() + " " +
+                "\n total sum: " + order.getCalculatedPrice() +
+                "\n Your payment is due on: " + order.getCreated().plusDays(14) +
+                "\n Thank you for your purchase" +
+                "\n Your J-Shop";
+
+        return new Mail(
+                order.getCustomer().getEmail(),
+                subject,
+                message,
+                "admin@j-shop.com"
+        );
+    }
+
+    public OrderDtoToCustomer finalizeCart(Long cartId, LoggedCustomerDto loggedCustomerDto) throws CartNotFoundException, UserNotFoundException, AccessDeniedException {
+        customerService.verifyLogin(loggedCustomerDto.getUsername(),loggedCustomerDto.getPassword());
+        Order order = createNewOrder(cartId, loggedCustomerDto);
+        emailService.send(createContent(order));
+        Cart cart = findCartById(cartId);
+        cart.setCartStatus(CartStatus.FINALIZED);
+        cartRepository.save(cart);
+        return orderMapper.mapToOrderDtoToCustomer(order);
     }
 }
+
+
+    /*    public void finalizeCart (Long cartId){
+        }*/
 

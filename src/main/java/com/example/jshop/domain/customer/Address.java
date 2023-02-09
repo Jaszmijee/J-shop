@@ -30,4 +30,13 @@ public class Address {
     String city;
     @NonNull
     String country;
+
+    public Address(@NonNull String street, @NonNull String houseNo, @NonNull String flatNo, @NonNull String zipCode, @NonNull String city, @NonNull String country) {
+        this.street = street;
+        this.houseNo = houseNo;
+        this.flatNo = flatNo;
+        this.zipCode = zipCode;
+        this.city = city;
+        this.country = country;
+    }
 }

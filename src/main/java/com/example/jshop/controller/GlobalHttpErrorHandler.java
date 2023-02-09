@@ -64,5 +64,10 @@ public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleInvalidQuantityException(InvalidQuantityException exception) {
         return new ResponseEntity<>("Provided quantity is out of range 0 - 2 147 483 647", HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException exception) {
+        return new ResponseEntity<>("User does not exist", HttpStatus.BAD_REQUEST);
+    }
 }
 

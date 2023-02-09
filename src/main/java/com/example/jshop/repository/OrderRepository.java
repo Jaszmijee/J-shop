@@ -1,20 +1,15 @@
 package com.example.jshop.repository;
 
-import com.example.jshop.domain.cart.Cart;
+import com.example.jshop.domain.Order;
 import jakarta.transaction.Transactional;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 @Repository
 @Transactional
-public interface CartRepository extends CrudRepository<Cart, Long> {
+public interface OrderRepository extends CrudRepository<Order, Long> {
 
     @Override
-    Cart save(Cart cart);
+    Order save(Order order);
 
-    @Override
-    Optional<Cart> findById(Long aLong);
 }
-

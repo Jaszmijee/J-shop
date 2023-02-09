@@ -3,6 +3,7 @@ package com.example.jshop.service;
 import com.example.jshop.exception.CategoryNotFoundException;
 import com.example.jshop.exception.ItemNotFoundEXception;
 import com.example.jshop.domain.warehouse.Warehouse;
+import com.example.jshop.exception.ProductNotFoundException;
 import com.example.jshop.repository.WarehouseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,8 @@ public class WarehouseService {
         return warehouseRepository.findAll();
     }
 
-    public Warehouse findItemByID(Long itemId) {
-        return warehouseRepository.findWarehouseByProductId(itemId);
+    public Warehouse findItemByID(Long itemId)  {
+        return warehouseRepository.findWarehouseByProductId(itemId).orElse(null);
     }
 
     public List<Warehouse> findProductsByCategory(String category, Integer limit) throws CategoryNotFoundException {

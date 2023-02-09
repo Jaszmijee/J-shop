@@ -6,6 +6,7 @@ import com.example.jshop.domain.warehouse.Warehouse;
 import com.example.jshop.domain.warehouse.WarehouseDto;
 import com.example.jshop.exception.CategoryNotFoundException;
 import com.example.jshop.exception.ItemNotFoundEXception;
+import com.example.jshop.exception.ProductNotFoundException;
 import com.example.jshop.mapper.CategoryMapper;
 import com.example.jshop.mapper.WarehouseMapper;
 import com.example.jshop.service.CategoryService;
@@ -41,9 +42,14 @@ public class ShopSearchController {
         return ResponseEntity.ok(warehouseMapper.mapToWarehouseDtoList(warehouse));
     }
 
-    @GetMapping("warehouse\select")
-    ResponseEntity<List<WarehouseDto>> showSelectedProducts(@RequestParam String categoryName, @RequestParam String productName, @RequestParam BigDecimal productPrice, Integer limit) throws CategoryNotFoundException {
+    @GetMapping("warehouse/select")
+    ResponseEntity<List<WarehouseDto>> showSelectedProducts(@RequestParam(required = false) String categoryName, @RequestParam(required = false) String productName, @RequestParam(required = false) BigDecimal productPrice, Integer limit) throws CategoryNotFoundException {
         List<Warehouse> warehouse = warehouseService.findProductsWithSelection(categoryName, productName, productPrice, limit);
         return ResponseEntity.ok(warehouseMapper.mapToWarehouseDtoList(warehouse));
+    }
+
+    @GetMapping("warehouse/selectById")
+    public WarehouseDto findItemByID(@RequestParam Long itemId) throws ProductNotFoundException {
+        return warehouseMapper.mapToWarehouseDto(warehouseService.findItemByID(itemId));
     }
 }

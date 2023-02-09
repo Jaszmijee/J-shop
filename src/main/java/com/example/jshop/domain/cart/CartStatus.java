@@ -4,5 +4,5 @@ public enum CartStatus {
 
     EMPTY,
     PROCESSING,
-    PAID,
+    FINALIZED,
     }

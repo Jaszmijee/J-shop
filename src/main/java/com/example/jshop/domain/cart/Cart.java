@@ -1,6 +1,5 @@
 package com.example.jshop.domain.cart;
 
-import com.example.jshop.domain.customer.Customer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

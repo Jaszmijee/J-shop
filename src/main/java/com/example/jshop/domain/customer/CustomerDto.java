@@ -11,12 +11,10 @@ public class CustomerDto {
 
     String userName;
     String password;
-
     String firstName;
     String lastName;
     String email;
-    Address address;
-    Address correspondenceAddress;
+
     String street;
     String houseNo;
     String flatNo;

@@ -79,7 +79,7 @@ public class CategoryService {
     }
 
     public List<Category> showAllCategories(){
-        return categoryRepository.showAllCategoriesAndProducts();
+        return categoryRepository.findAll();
     }
 
 

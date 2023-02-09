@@ -131,9 +131,8 @@ public class AdminService {
     }
 
     public void deleteProductFromWarehouse(Long productId) throws ProductNotFoundException {
-        if (warehouseService.findItemByID(productId) == null) {
-            throw new ProductNotFoundException();
-        } else warehouseService.deleteById(productId);
+        warehouseService.findItemByID(productId);
+        warehouseService.deleteById(productId);
     }
 
     public List<WarehouseDto> displayAllItemsInWarehouse() {

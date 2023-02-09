@@ -1,10 +1,10 @@
 package com.example.jshop.controller;
 
+import com.example.jshop.domain.order.OrderDtoToCustomer;
 import com.example.jshop.domain.cart.CartDto;
 import com.example.jshop.domain.cart.CartItemsDto;
-import com.example.jshop.exception.CartNotFoundException;
-import com.example.jshop.exception.ItemNotAvailableException;
-import com.example.jshop.exception.NotEnoughItemsException;
+import com.example.jshop.domain.customer.LoggedCustomerDto;
+import com.example.jshop.exception.*;
 import com.example.jshop.mapper.CartMapper;
 import com.example.jshop.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,38 +22,59 @@ public class CartController {
     CartMapper cartMapper;
 
     @PostMapping
-    ResponseEntity<Void> createCart(){
-        cartService.createCart();
-        return ResponseEntity.ok().build();
+    ResponseEntity<CartDto> createCart() {
+        return ResponseEntity.ok(cartMapper.mapCartToCartDto(cartService.createCart()));
     }
 
-/*    @PutMapping
-    ResponseEntity<CartDto> addToCart(@RequestParam Long cartId, @RequestBody CartItemsDto cartItemsDto) throws CartNotFoundException, NotEnoughItemsException, ItemNotAvailableException {
-        cartService.addToCart(cartId, cartItemsDto);
-        return ResponseEntity.ok(cartMapper.mapToCartDto);
-  }*/
+    @PutMapping("add")
+    ResponseEntity<CartDto> addToCart(@RequestParam Long cartId, @RequestBody CartItemsDto cartItemsDto) throws CartNotFoundException, NotEnoughItemsException, ItemNotAvailableException, ProductNotFoundException {
+        return ResponseEntity.ok(cartService.addToCart(cartId, cartItemsDto));
+    }
 
-/*    @PutMapping
-    ResponseEntity<CartDto> removeFromCart(@RequestParam Long cartId, @RequestBody CartItemsDto cartItemsDto) throws CartNotFoundException {
-        cartService.removeFromCart(cartId, cartItemsDto);
-        return ResponseEntity.ok(cartMapper.mapToCartDto);
+    @GetMapping
+    ResponseEntity<CartDto> showCart(Long cartId) throws CartNotFoundException {
+        return ResponseEntity.ok(cartMapper.mapCartToCartDto(cartService.showCart(cartId)));
+    }
+
+    @PutMapping("remove")
+    ResponseEntity<CartDto> removeFromCart(@RequestParam Long cartId, @RequestBody CartItemsDto cartItemsDto) throws CartNotFoundException, ProductNotFoundException {
+        return ResponseEntity.ok(cartService.removeFromCart(cartId, cartItemsDto));
     }
 
     @DeleteMapping
     ResponseEntity<Void> cancelCart(@RequestParam Long cartId) throws CartNotFoundException {
         cartService.removeCart(cartId);
         return ResponseEntity.ok().build();
-    }*/
+    }
 
-/*    @PutMapping
-    ResponseEntity<Void> finalizeCart(@RequestParam Long cartId, @RequestBody CustomerDto customerDto) {
-        cartService.finalizeCart(cartId);
+
+  @PutMapping("finalize/login")
+    ResponseEntity<OrderDtoToCustomer> finalizeCart(@RequestParam Long cartId, @RequestBody LoggedCustomerDto loggedCustomerDto) throws CartNotFoundException, UserNotFoundException, AccessDeniedException {
+        cartService.finalizeCart(cartId, loggedCustomerDto);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping
-    ResponseEntity<Void> payForCart(@RequestParam Long cartId, @RequestBody UserDto userDto) {
+ /*   @PutMapping
+    ResponseEntity<Void> payForCart(@RequestParam Long cartId, @RequestBody String username UserDto userDto) {
         cartService.payForCart(cartId);
         return ResponseEntity.ok().build();
     }*/
 }
+
+/*
+    @PostMapping("/login")
+    public AuthenticationResponse login(@RequestBody @Valid AuthenticationRequest request) throws GeneralSecurityException {
+        return mapper.map(authenticationService.login(request.getUsername(), request.getPassword()), AuthenticationResponse.class);
+    }
+}
+
+@Data
+@ToString(exclude = { "password" })
+public class AuthenticationRequest {
+
+    @NotEmpty
+    private String username;
+
+    @NotEmpty
+    private char[] password;
+}*/

@@ -16,14 +16,7 @@ public interface CategoryRepository extends CrudRepository<Category, Long> {
     @Override
     List<Category> findAll();
 
-    @Query(value = "SELECT c.categoryID, c.category, p.product_id, p.product_name, p.price "
-            + "FROM categories c " +
-            "JOIN products p ON p.categories_categoryID = c.categoryID",nativeQuery = true)
-//    @Query(value = "SELECT * FROM categories", nativeQuery = true)
-    List<Category> showAllCategoriesAndProducts();
-
-
-   /* @Query(value = "SELECT * FROM CATEGORIES" +
+     /* @Query(value = "SELECT * FROM CATEGORIES" +
             "WHERE Category_name = :NAME", nativeQuery = true)
     Category showAllCategoriesAndProducts(@Param("NAME") String name);*/
 /*
@@ -56,7 +49,6 @@ public interface CategoryRepository extends CrudRepository<Category, Long> {
             "WHERE COMPANY_NAME LIKE %:NAME%", nativeQuery = true)
     List<Company> retrieveNameContaining(@Param("NAME") String nameFragment);
  */
-
 
 
     Category findByCategoryID(Long categoryId);
