@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,9 @@ public class Cart {
     @Column(name = "total")
     BigDecimal calculatedPrice;
 
+    @Column(name = "created")
+    LocalDate created;
+
 
     public void setCartStatus(CartStatus cartStatus) {
         this.cartStatus = cartStatus;
@@ -42,7 +46,7 @@ public class Cart {
         this.calculatedPrice = calculatedPrice;
     }
 
-    public void setListOfItems(List<Item> listOfItems) {
-        this.listOfItems = listOfItems;
+    public void setCreated(LocalDate created) {
+        this.created = created;
     }
 }

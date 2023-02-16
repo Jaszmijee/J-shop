@@ -1,8 +1,8 @@
 package com.example.jshop.controller;
 
 import com.example.jshop.admin.config.AdminConfig;
-import com.example.jshop.domain.category.Category;
 import com.example.jshop.domain.category.CategoryWithProductsDto;
+import com.example.jshop.domain.order.OrderDtoToCustomer;
 import com.example.jshop.domain.product.ProductDto;
 import com.example.jshop.domain.product.ProductDtoAllInfo;
 import com.example.jshop.domain.warehouse.WarehouseDto;
@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
 import java.util.List;
 
 @RestController
@@ -61,15 +62,15 @@ public class AdminController {
     }
 
     @PostMapping("product")
-    ResponseEntity<ProductDto> addProduct(@RequestParam String key, @RequestParam String token, @RequestBody ProductDto
-            productDto) throws AccessDeniedException, InvalidArgumentException, CategoryExistsException {
+    ResponseEntity<ProductDtoAllInfo> addProduct(@RequestParam String key, @RequestParam String token, @RequestBody ProductDto
+            productDto) throws AccessDeniedException, InvalidArgumentException, CategoryExistsException, SQLException, InvalidPriceException {
         verifyAdmin(key, token);
         return ResponseEntity.ok(adminService.addProduct(productDto));
     }
 
     @PutMapping("product")
-    ResponseEntity<ProductDto> updateProduct(@RequestParam String key, @RequestParam String token, @RequestParam Long productId, @RequestBody ProductDto
-            productDto) throws AccessDeniedException, CategoryNotFoundException, ProductNotFoundException, InvalidArgumentException, CategoryExistsException {
+    ResponseEntity<ProductDtoAllInfo> updateProduct(@RequestParam String key, @RequestParam String token, @RequestParam Long productId, @RequestBody ProductDto
+            productDto) throws AccessDeniedException, CategoryNotFoundException, ProductNotFoundException, InvalidArgumentException, CategoryExistsException, InvalidPriceException {
         verifyAdmin(key, token);
         return ResponseEntity.ok(adminService.updateProduct(productId, productDto));
     }
@@ -108,61 +109,11 @@ public class AdminController {
         verifyAdmin(key, token);
         return ResponseEntity.ok(adminService.displayAllItemsInWarehouse());
     }
-/*
 
-
-
-    @PostMapping("warehouse")
-    ResponseEntity<Void> addProductToWarehouse(@RequestParam String key, @RequestParam String token, @RequestParam Long productId, @RequestParam Integer productQuantity) throws
-            AccessDeniedException, ItemNotFoundEXception, ProductAlreadyExistsException {
+    @GetMapping("orders")
+    ResponseEntity<List<OrderDtoToCustomer>> displayAllOrders(@RequestParam String key, @RequestParam String token, @RequestParam(required = false) String order_status) throws
+            AccessDeniedException {
         verifyAdmin(key, token);
-        adminService.addProductToWarehouse(productId, productQuantity);
-        return ResponseEntity.ok().build();
-     }
-
-    @PutMapping("warehouse")
-    ResponseEntity<Void> updateQuantityOfProduct(@RequestParam String key, @RequestParam String token, @RequestParam Long productId, @RequestParam Integer productQuantity) throws AccessDeniedException, ItemNotFoundEXception {
-        verifyAdmin(key, token);
-        adminService.updateProductInWarehouse(productId, productQuantity);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(adminService.displayOrders(order_status));
     }
-
-    @DeleteMapping("warehouse")
-    ResponseEntity<Void> removeProductFromWareHouse(@RequestParam String key, @RequestParam String token, @RequestParam Long productId) throws AccessDeniedException {
-        verifyAdmin(key, token);
-        adminService.removeProductFromWareHouse(productId);
-        return ResponseEntity.ok().build();
-    }*/
-
- /*   @GetMapping("users")
-    ResponseEntity<List<UserDto>> findAllUsers(@RequestParam String key, @RequestParam String token) {
-        return null;
-    }
-
-    @GetMapping("users")
-    ResponseEntity<UserDto> searchForUser(@RequestParam String key, @RequestParam String token, @RequestBody UserDto userDto) {
-        return null;
-    }
-
-    @GetMapping("cart")
-    ResponseEntity<List<CartDto>> showAllCarts(@RequestParam String key, @RequestParam String token, @RequestBody CartDto cartDto) {
-        return null;
-    }
-
-    @GetMapping("cart")
-    ResponseEntity<List<OrderDto>> showAllCarts(@RequestParam String key, @RequestParam String token, @RequestBody OrderDto cartDto) {
-        return null;
-    }
-
-    @GetMapping("order")
-    ResponseEntity<List<OrderDto>> searchForOrder(@RequestParam String key, @RequestParam String token, @RequestBody OrderDto cartDto) {
-        return null;
-    }
-
-    @GetMapping("invoice")
-    ResponseEntity<List<InvoiceDto>> showAllInvoices(@RequestParam String key, @RequestParam String token, @RequestBody OrderDto cartDto) {
-        return null;
-    }
-*/
-
 }

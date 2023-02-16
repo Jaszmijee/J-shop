@@ -1,11 +1,9 @@
 package com.example.jshop.controller;
 
-import com.example.jshop.domain.category.Category;
-import com.example.jshop.domain.category.CategoryWithProductsDto;
 import com.example.jshop.domain.warehouse.Warehouse;
 import com.example.jshop.domain.warehouse.WarehouseDto;
 import com.example.jshop.exception.CategoryNotFoundException;
-import com.example.jshop.exception.ItemNotFoundEXception;
+import com.example.jshop.exception.LimitException;
 import com.example.jshop.exception.ProductNotFoundException;
 import com.example.jshop.mapper.CategoryMapper;
 import com.example.jshop.mapper.WarehouseMapper;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.List;
-
 
 @RestController
 @RequestMapping("search")
@@ -43,13 +40,13 @@ public class ShopSearchController {
     }
 
     @GetMapping("warehouse/select")
-    ResponseEntity<List<WarehouseDto>> showSelectedProducts(@RequestParam(required = false) String categoryName, @RequestParam(required = false) String productName, @RequestParam(required = false) BigDecimal productPrice, Integer limit) throws CategoryNotFoundException {
+    ResponseEntity<List<WarehouseDto>> showSelectedProducts(@RequestParam(required = false) String categoryName, @RequestParam(required = false) String productName, @RequestParam(required = false) BigDecimal productPrice, Integer limit) throws CategoryNotFoundException, LimitException {
         List<Warehouse> warehouse = warehouseService.findProductsWithSelection(categoryName, productName, productPrice, limit);
         return ResponseEntity.ok(warehouseMapper.mapToWarehouseDtoList(warehouse));
     }
 
     @GetMapping("warehouse/selectById")
-    public WarehouseDto findItemByID(@RequestParam Long itemId) throws ProductNotFoundException {
+    public WarehouseDto findItemByID(@RequestParam Long itemId) {
         return warehouseMapper.mapToWarehouseDto(warehouseService.findItemByID(itemId));
     }
 }

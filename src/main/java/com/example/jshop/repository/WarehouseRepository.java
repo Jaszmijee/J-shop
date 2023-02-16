@@ -42,6 +42,7 @@ public interface WarehouseRepository extends CrudRepository<Warehouse, Long> {
             "where (:CATEGORY_NAME IS NULL OR c.category LIKE %:CATEGORY_NAME%) " +
             "AND (:PRODUCT_NAME IS NULL OR p.product_name LIKE %:PRODUCT_NAME%) " +
             "AND (:PRICE IS NULL OR p.price <=:PRICE) " +
+            "AND w.quantity > 0 " +
             "ORDER BY p.price ASC " +
             "LIMIT :limit", nativeQuery = true)
     List<Warehouse> findWarehouseByProduct_CategoryOrProduct_ProductNameOAndProduct_Price(@Param("CATEGORY_NAME") String categoryName, @Param("PRODUCT_NAME") String productName,

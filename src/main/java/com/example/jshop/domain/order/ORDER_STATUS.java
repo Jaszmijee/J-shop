@@ -1,4 +1,4 @@
-package com.example.jshop.domain;
+package com.example.jshop.domain.order;
 
 public enum ORDER_STATUS {
 

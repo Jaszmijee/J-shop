@@ -1,6 +1,6 @@
 package com.example.jshop.domain.customer;
 
-import com.example.jshop.domain.Order;
+import com.example.jshop.domain.order.Order;
 import com.example.jshop.domain.cart.Cart;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -60,6 +60,14 @@ public class Customer_Logged {
         this.lastName = lastName;
         this.email = email;
         this.address = address;
+    }
+
+    public void setListOfOrders(List<Order> listOfOrders) {
+        this.listOfOrders = listOfOrders;
+    }
+
+    public void setPassword(char[] password) {
+        this.password = password;
     }
 }
 

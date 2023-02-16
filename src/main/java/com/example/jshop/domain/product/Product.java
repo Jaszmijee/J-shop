@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "products")
+//@Table (uniqueConstraints = @UniqueConstraint(columnNames = {"product_name", "product_description", "price"}))
 public class Product {
 
     @Id
@@ -31,6 +32,8 @@ public class Product {
 
     @Column(name = "price", precision = 19, scale = 2, columnDefinition="DECIMAL(19,2)")
     private BigDecimal price;
+
+
 
     public Product(String productName, String description, Category category, BigDecimal price) {
         this.productName = productName;

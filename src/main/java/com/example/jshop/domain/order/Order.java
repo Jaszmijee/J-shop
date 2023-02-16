@@ -1,10 +1,7 @@
-package com.example.jshop.domain;
+package com.example.jshop.domain.order;
 
 import com.example.jshop.domain.cart.Cart;
-import com.example.jshop.domain.cart.CartStatus;
-import com.example.jshop.domain.cart.ItemDto;
 import com.example.jshop.domain.customer.Customer_Logged;
-import com.example.jshop.domain.product.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -56,6 +52,14 @@ public class Order {
         this.cart = cart;
     }
 
+    public Order(Cart cart, LocalDate created, ORDER_STATUS order_status, String listOfProducts, BigDecimal calculatedPrice) {
+        this.created = created;
+        this.order_status = order_status;
+        this.listOfProducts = listOfProducts;
+        this.calculatedPrice = calculatedPrice;
+        this.cart = cart;
+    }
+
     public void setPaid(LocalDate paid) {
         this.paid = paid;
     }
@@ -66,6 +70,10 @@ public class Order {
 
     public void setCart(Cart cart) {
         this.cart = cart;
+    }
+
+    public void setCustomer(Customer_Logged customer) {
+        this.customer = customer;
     }
 }
 

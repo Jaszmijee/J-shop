@@ -1,8 +1,10 @@
 package com.example.jshop.mapper;
 
-import com.example.jshop.domain.Order;
+import com.example.jshop.domain.order.Order;
 import com.example.jshop.domain.order.OrderDtoToCustomer;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class OrderMapper {
@@ -17,4 +19,8 @@ public class OrderMapper {
                 order.getCreated().plusDays(14)
         );
     }
-}
+
+    public List<OrderDtoToCustomer> mapToOrderDtoToCustomerList(List<Order> listOfOrders) {
+        return listOfOrders.stream().map(order -> mapToOrderDtoToCustomer(order)).toList();
+    }
+    }

@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.sql.SQLException;
+
 @ControllerAdvice
 public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
 
@@ -68,6 +70,31 @@ public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException exception) {
         return new ResponseEntity<>("User does not exist", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<Object> handleOrderNotFoundException(OrderNotFoundException exception) {
+        return new ResponseEntity<>("Order does not exist", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PaymentErrorException.class)
+    public ResponseEntity<Object> handlePaymentErrorException(PaymentErrorException exception) {
+        return new ResponseEntity<>("failure with payment", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(SQLException.class)
+    public ResponseEntity<Object> handleSQLException(SQLException exception) {
+        return new ResponseEntity<>("This entry already exists", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidPriceException.class)
+    public ResponseEntity<Object> handleInvalidPriceException(InvalidPriceException exception) {
+        return new ResponseEntity<>("Price is incorrect", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(LimitException.class)
+    public ResponseEntity<Object> handleLimitException(LimitException exception) {
+        return new ResponseEntity<>("Limit range should be between 1 and 100", HttpStatus.BAD_REQUEST);
     }
 }
 

@@ -1,7 +1,7 @@
 /*
 package com.example.jshop.domain.customer;
 
-import com.example.jshop.domain.Order;
+import com.example.jshop.domain.order.Order;
 import com.example.jshop.domain.cart.Cart;
 import com.example.jshop.domain.product.Product;
 import jakarta.persistence.*;

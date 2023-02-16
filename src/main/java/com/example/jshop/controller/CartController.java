@@ -1,5 +1,6 @@
 package com.example.jshop.controller;
 
+import com.example.jshop.domain.customer.UnlogedCustomerDto;
 import com.example.jshop.domain.order.OrderDtoToCustomer;
 import com.example.jshop.domain.cart.CartDto;
 import com.example.jshop.domain.cart.CartItemsDto;
@@ -43,29 +44,29 @@ public class CartController {
 
     @DeleteMapping
     ResponseEntity<Void> cancelCart(@RequestParam Long cartId) throws CartNotFoundException {
-        cartService.removeCart(cartId);
+        cartService.cancelCart(cartId);
         return ResponseEntity.ok().build();
     }
 
-
-  @PutMapping("finalize/login")
+    @PutMapping("finalize/login")
     ResponseEntity<OrderDtoToCustomer> finalizeCart(@RequestParam Long cartId, @RequestBody LoggedCustomerDto loggedCustomerDto) throws CartNotFoundException, UserNotFoundException, AccessDeniedException {
-        cartService.finalizeCart(cartId, loggedCustomerDto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(cartService.finalizeCart(cartId, loggedCustomerDto));
     }
 
- /*   @PutMapping
-    ResponseEntity<Void> payForCart(@RequestParam Long cartId, @RequestBody String username UserDto userDto) {
-        cartService.payForCart(cartId);
-        return ResponseEntity.ok().build();
-    }*/
+    @PutMapping("pay/login")
+    ResponseEntity<OrderDtoToCustomer> payForCartLogged(@RequestParam Long orderId, @RequestBody LoggedCustomerDto loggedCustomerDto) throws UserNotFoundException, AccessDeniedException, OrderNotFoundException, PaymentErrorException {
+        return ResponseEntity.ok(cartService.payForCart(orderId, loggedCustomerDto));
+    }
+
+    @PutMapping("pay/unloged")
+    ResponseEntity<OrderDtoToCustomer> payForCartUnLogged(@RequestParam Long cartId, @RequestBody UnlogedCustomerDto unlogedCustomerDto) throws PaymentErrorException, CartNotFoundException, UserNotFoundException, AccessDeniedException {
+        cartService.payForCartUnlogged(cartId, unlogedCustomerDto);
+        return ResponseEntity.ok(cartService.payForCartUnlogged(cartId, unlogedCustomerDto));
+    }
 }
 
 /*
-    @PostMapping("/login")
-    public AuthenticationResponse login(@RequestBody @Valid AuthenticationRequest request) throws GeneralSecurityException {
-        return mapper.map(authenticationService.login(request.getUsername(), request.getPassword()), AuthenticationResponse.class);
-    }
+
 }
 
 @Data

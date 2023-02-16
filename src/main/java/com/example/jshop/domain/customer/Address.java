@@ -1,8 +1,6 @@
 package com.example.jshop.domain.customer;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +28,10 @@ public class Address {
     String city;
     @NonNull
     String country;
+
+    @OneToOne
+    @JoinColumn(name = "logged_customers_customerID")
+    Customer_Logged customer_logged;
 
     public Address(@NonNull String street, @NonNull String houseNo, @NonNull String flatNo, @NonNull String zipCode, @NonNull String city, @NonNull String country) {
         this.street = street;

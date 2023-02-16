@@ -1,9 +1,9 @@
 package com.example.jshop.service;
 
+import com.example.jshop.domain.order.Order;
 import com.example.jshop.exception.CategoryNotFoundException;
-import com.example.jshop.exception.ItemNotFoundEXception;
 import com.example.jshop.domain.warehouse.Warehouse;
-import com.example.jshop.exception.ProductNotFoundException;
+import com.example.jshop.exception.LimitException;
 import com.example.jshop.repository.WarehouseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,14 @@ public class WarehouseService {
         warehouseRepository.deleteByProduct_ProductID(productId);
     }
 
-    public List<Warehouse> findProductsWithSelection(String categoryName, String productName, BigDecimal productPrice, Integer limit) {
+    public List<Warehouse> findProductsWithSelection(String categoryName, String productName, BigDecimal productPrice, Integer limit) throws LimitException {
+        if (limit > 100 || limit < 1){
+            throw new LimitException();
+        }
       return warehouseRepository.findWarehouseByProduct_CategoryOrProduct_ProductNameOAndProduct_Price(categoryName,productName,productPrice,limit);
+    }
+
+    public void sentForShipment(Order createdOrder) {
+       String shipment =  createdOrder.getListOfProducts() + createdOrder.getCustomer().getAddress();
     }
 }
