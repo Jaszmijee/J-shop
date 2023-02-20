@@ -2,6 +2,7 @@ package com.example.jshop.carts_and_orders.service;
 
 import com.example.jshop.carts_and_orders.domain.order.Order;
 import com.example.jshop.error_handlers.exceptions.AccessDeniedException;
+import com.example.jshop.error_handlers.exceptions.InvalidOrderStatusException;
 import com.example.jshop.error_handlers.exceptions.OrderNotFoundException;
 import com.example.jshop.error_handlers.exceptions.UserNotFoundException;
 import com.example.jshop.carts_and_orders.repository.OrderRepository;
@@ -30,7 +31,9 @@ public class OrderService {
     }
 
 
-    public List<Order> findOrders(String order_status) {
+    public List<Order> findOrders(String order_status) throws InvalidOrderStatusException {
+        if (order_status != null && ((!(order_status.equalsIgnoreCase("paid"))) || (!(order_status.equalsIgnoreCase("unpaid")))))
+            throw new InvalidOrderStatusException();
         return orderRepository.findOrders(order_status);
     }
 

@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.List;
 
 @Service
@@ -53,7 +52,6 @@ public class AdminService {
 
     @Autowired
     OrderMapper orderMapper;
-
 
     public void addNewCategory(CategoryDto categoryDto) throws InvalidArgumentException, CategoryExistsException {
         Category category = categoryMapper.mapToCategory(categoryDto);
@@ -159,7 +157,7 @@ public class AdminService {
         return warehouseMapper.mapToWarehouseDtoList(listOfAllItems);
     }
 
-    public List<OrderDtoToCustomer> displayOrders(String order_status) {
+    public List<OrderDtoToCustomer> displayOrders(String order_status) throws OrderNotFoundException, InvalidOrderStatusException {
        List<Order> listOfOrders = orderService.findOrders(order_status);
         return orderMapper.mapToOrderDtoToCustomerList(listOfOrders);
     }

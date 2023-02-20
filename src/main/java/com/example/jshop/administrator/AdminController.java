@@ -54,7 +54,7 @@ public class AdminController {
     }
 
     @GetMapping("category/name")
-    ResponseEntity<CategoryWithProductsDto> showCategories(@RequestParam String key, @RequestParam String token, @RequestParam String categoryName) throws CategoryNotFoundException, AccessDeniedException {
+    ResponseEntity<CategoryWithProductsDto> showCategoriesByName(@RequestParam String key, @RequestParam String token, @RequestParam String categoryName) throws CategoryNotFoundException, AccessDeniedException {
         verifyAdmin(key, token);
         return ResponseEntity.ok(adminService.searchForProductsInCategory(categoryName));
     }
@@ -72,7 +72,7 @@ public class AdminController {
     }
 
     @DeleteMapping("product")
-    ResponseEntity<Void> removeProduct(@RequestParam String key, @RequestParam String token, @RequestParam Long productId) throws AccessDeniedException, ItemNotFoundEXception, ProductNotFoundException {
+    ResponseEntity<Void> removeProduct(@RequestParam String key, @RequestParam String token, @RequestParam Long productId) throws AccessDeniedException,ProductNotFoundException {
         verifyAdmin(key, token);
         adminService.deleteProductById(productId);
         return ResponseEntity.ok().build();
@@ -98,13 +98,13 @@ public class AdminController {
     }
 
     @GetMapping("warehouse")
-    ResponseEntity<List<WarehouseDto>> displayAllItemsInWareHouse(@RequestParam String key, @RequestParam String token) throws AccessDeniedException {
+    ResponseEntity<List<WarehouseDto>> displayAllProductsInWarehouse(@RequestParam String key, @RequestParam String token) throws AccessDeniedException {
         verifyAdmin(key, token);
         return ResponseEntity.ok(adminService.displayAllItemsInWarehouse());
     }
 
-    @GetMapping("orders")
-    ResponseEntity<List<OrderDtoToCustomer>> displayAllOrders(@RequestParam String key, @RequestParam String token, @RequestParam(required = false) String order_status) throws AccessDeniedException {
+    @GetMapping("order")
+    ResponseEntity<List<OrderDtoToCustomer>> displayAllOrders(@RequestParam String key, @RequestParam String token, @RequestParam(required = false) String order_status) throws AccessDeniedException, OrderNotFoundException, InvalidOrderStatusException {
         verifyAdmin(key, token);
         return ResponseEntity.ok(adminService.displayOrders(order_status));
     }

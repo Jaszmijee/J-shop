@@ -96,5 +96,10 @@ public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleLimitException(LimitException exception) {
         return new ResponseEntity<>("Limit range should be between 1 and 100", HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(InvalidOrderStatusException.class)
+    public ResponseEntity<Object> handleLimitException(InvalidOrderStatusException exception) {
+        return new ResponseEntity<>("Provide proper status. Status can be \"paid\" or \"unpaid\"", HttpStatus.BAD_REQUEST);
+    }
 }
 

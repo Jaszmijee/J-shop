@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class OrderDtoToCustomer {
 
-    Long orderID;
+    Long orderId;
     LocalDate createdOn;
     String listOfProducts;
     String totalPrice;
