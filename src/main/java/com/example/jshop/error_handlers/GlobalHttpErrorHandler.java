@@ -22,8 +22,8 @@ public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>("Category already exists", HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(InvalidArgumentException.class)
-    public ResponseEntity<Object> handleInvalidArgumentException(InvalidArgumentException exception) {
+    @ExceptionHandler(InvalidCategoryNameException.class)
+    public ResponseEntity<Object> handleInvalidArgumentException(InvalidCategoryNameException exception) {
         return new ResponseEntity<>("Provide proper name", HttpStatus.BAD_REQUEST);
     }
 

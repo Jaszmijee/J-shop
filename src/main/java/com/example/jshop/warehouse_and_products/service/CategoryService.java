@@ -1,11 +1,11 @@
 package com.example.jshop.warehouse_and_products.service;
 
+import com.example.jshop.error_handlers.exceptions.InvalidCategoryNameException;
 import com.example.jshop.warehouse_and_products.domain.category.Category;
 import com.example.jshop.warehouse_and_products.domain.product.Product;
 import com.example.jshop.error_handlers.exceptions.CategoryException;
 import com.example.jshop.error_handlers.exceptions.CategoryExistsException;
 import com.example.jshop.error_handlers.exceptions.CategoryNotFoundException;
-import com.example.jshop.error_handlers.exceptions.InvalidArgumentException;
 import com.example.jshop.warehouse_and_products.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,13 +38,13 @@ public class CategoryService {
         return category1;
     }
 
-    public Category addCategory(Category category) throws InvalidArgumentException, CategoryExistsException {
+    public Category addCategory(Category category) throws InvalidCategoryNameException, CategoryExistsException {
         if ((category.getName() == null)
                 || (category.getName().isEmpty())
                 || (category.getName().trim().isEmpty())
                 || (category.getName().length() < 3)
                 || (Pattern.compile("\\W").matcher(category.getName()).find())) {
-            throw new InvalidArgumentException();
+            throw new InvalidCategoryNameException();
         }
         if (findByName(category.getName()) != null) {
             throw new CategoryExistsException();

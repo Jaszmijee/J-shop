@@ -3,16 +3,18 @@ package com.example.jshop.warehouse_and_products.service;
 import com.example.jshop.warehouse_and_products.domain.product.Product;
 import com.example.jshop.error_handlers.exceptions.ProductNotFoundException;
 import com.example.jshop.warehouse_and_products.repository.ProductRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
     @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     public Product saveProduct(Product product) {
         return productRepository.save(product);
