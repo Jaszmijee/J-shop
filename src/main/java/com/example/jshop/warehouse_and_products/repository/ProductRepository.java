@@ -14,6 +14,8 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
 
     Product save(Product product);
 
+    Product findByProductName(String name);
+
     @Override
     Optional<Product> findById(Long productId);
 

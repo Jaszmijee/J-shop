@@ -74,7 +74,6 @@ public class AdminService {
             if (category == null) {
                 category = categoryService.addCategory(new Category("Unknown"));
             }
-
         }
         return category;
     }
@@ -91,26 +90,22 @@ public class AdminService {
     }
 
     public ProductDtoAllInfo updateProduct(Long productId, ProductDto productDto) throws ProductNotFoundException, InvalidCategoryNameException, CategoryExistsException, InvalidPriceException {
-        if (productDto.getPrice().compareTo(BigDecimal.ZERO) < 0) {
-            throw new InvalidPriceException();
-        }
+        validatePrice(productDto.getPrice());
         Product productToUpdate = productService.findProductById(productId);
-        Category categoryToUpdate = categoryService.findByName(productDto.getCategoryName());
-        if (categoryToUpdate == null) {
-            categoryToUpdate = categoryService.findByName("unknown");
-            if (categoryToUpdate == null) {
-                categoryToUpdate = categoryService.addCategory(new Category("Unknown"));
-            }
-        }
+        Product product = productMapper.mapToProduct(productDto);
+        Category categoryToUpdate = setUpCategoryNameForNewProduct(product);
         productToUpdate.setCategory(categoryToUpdate);
+        productToUpdate.setPrice(productDto.getPrice());
         categoryToUpdate.getListOfProducts().add(productToUpdate);
         categoryService.save(categoryToUpdate);
-        productToUpdate.setPrice(productDto.getPrice());
         productService.saveProduct(productToUpdate);
         return productMapper.mapToProductDtoAllInfo(productToUpdate);
     }
 
     public void deleteProductById(Long productId) throws ProductNotFoundException {
+        if (warehouseService.findItemByID(productId) != null) {
+            deleteProductFromWarehouse(productId);
+        }
         Product productToRemove = productService.findProductById(productId);
         Category category = productToRemove.getCategory();
         category.getListOfProducts().remove(productToRemove);
@@ -123,10 +118,14 @@ public class AdminService {
         return productMapper.mapToProductDtoList(productList);
     }
 
-    public WarehouseDto addOrUpdateProductInWarehouse(Long productId, Integer productQuantity) throws InvalidQuantityException, ProductNotFoundException, CategoryNotFoundException {
-        if (productQuantity < 0 || productQuantity > Integer.MAX_VALUE) {
+    private void validateQuantity(Integer quantity) throws InvalidQuantityException {
+        if (quantity < 0 || quantity > Integer.MAX_VALUE) {
             throw new InvalidQuantityException();
         }
+    }
+
+    public WarehouseDto addOrUpdateProductInWarehouse(Long productId, Integer productQuantity) throws InvalidQuantityException, ProductNotFoundException, CategoryNotFoundException {
+       validateQuantity(productQuantity);
         Product product = productService.findProductById(productId);
         if (product.getCategory().getName().equalsIgnoreCase("Unknown")) {
             throw new CategoryNotFoundException();
@@ -145,11 +144,10 @@ public class AdminService {
         if (warehouseService.findItemByID(productId) == null) {
             throw new ProductNotFoundException();
         }
-        ;
-        warehouseService.deleteById(productId);
+          warehouseService.deleteById(productId);
     }
 
-    public List<WarehouseDto> dispalyAllProductsInWarehouse() {
+    public List<WarehouseDto> displayAllProductsInWarehouse() {
         List<Warehouse> listOfAllItems = warehouseService.findAllProductsInWarehouse();
         return warehouseMapper.mapToWarehouseDtoList(listOfAllItems);
     }

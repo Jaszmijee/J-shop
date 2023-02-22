@@ -1023,7 +1023,7 @@ class AdminControllerTest {
         void testDisplayAllItemsInWareHouseAccessDeniedException() throws Exception {
             //Given
             List<WarehouseDto> warehouseDtoList = List.of(new WarehouseDto(4L, 2L, "Marilyn Manson, \"Antichrist Superstar\"", "Music", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN), 45));
-            when(adminService.dispalyAllProductsInWarehouse()).thenReturn(warehouseDtoList);
+            when(adminService.displayAllProductsInWarehouse()).thenReturn(warehouseDtoList);
 
             //When & Then
             mockMvc
@@ -1036,14 +1036,14 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                     .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
 
-            verify(adminService, never()).dispalyAllProductsInWarehouse();
+            verify(adminService, never()).displayAllProductsInWarehouse();
         }
 
         @Test
         void testDisplayAllItemsInWareHousePositive() throws Exception {
             //Given
             List<WarehouseDto> warehouseDtoList = List.of(new WarehouseDto(4L, 2L, "Marilyn Manson, \"Antichrist Superstar\"", "Music", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN), 45));
-            when(adminService.dispalyAllProductsInWarehouse()).thenReturn(warehouseDtoList);
+            when(adminService.displayAllProductsInWarehouse()).thenReturn(warehouseDtoList);
 
             //When & Then
             mockMvc
@@ -1062,7 +1062,7 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.[0].price", Matchers.is(25.12)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.[0].quantity", Matchers.is(45)));
 
-            verify(adminService, times(1)).dispalyAllProductsInWarehouse();
+            verify(adminService, times(1)).displayAllProductsInWarehouse();
         }
     }
 

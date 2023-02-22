@@ -100,7 +100,7 @@ public class AdminController {
     @GetMapping("warehouse")
     ResponseEntity<List<WarehouseDto>> displayAllProductsInWarehouse(@RequestParam String key, @RequestParam String token) throws AccessDeniedException {
         verifyAdmin(key, token);
-        return ResponseEntity.ok(adminService.dispalyAllProductsInWarehouse());
+        return ResponseEntity.ok(adminService.displayAllProductsInWarehouse());
     }
 
     @GetMapping("order")

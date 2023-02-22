@@ -16,7 +16,7 @@ public class Warehouse {
     @GeneratedValue
     private Long warehouseID;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     @JoinColumn(name = "products_product_id")
     private Product product;
 
