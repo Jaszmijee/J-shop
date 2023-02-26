@@ -8,7 +8,7 @@ import com.example.jshop.carts_and_orders.domain.order.OrderDtoToCustomer;
 import com.example.jshop.carts_and_orders.mapper.OrderMapper;
 import com.example.jshop.carts_and_orders.service.OrderService;
 import com.example.jshop.customer.domain.Address;
-import com.example.jshop.customer.domain.Customer_Logged;
+import com.example.jshop.customer.domain.LoggedCustomer;
 import com.example.jshop.error_handlers.exceptions.InvalidOrderStatusException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,12 +17,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -42,26 +40,29 @@ public class AdminServiceTestDisplayOrders {
 
     @Test
     void testDisplayOrdersInvalidOrderStatusException() throws InvalidOrderStatusException {
+        //Given
         when(orderService.findOrders(anyString())).thenThrow(InvalidOrderStatusException.class);
 
+        //When & Then
         assertThrows(InvalidOrderStatusException.class, () -> adminService.displayOrders("dummy"));
+
         verify(orderService, times(1)).findOrders(anyString());
         verify(orderMapper, times(0)).mapToOrderDtoToCustomerList(anyList());
     }
 
     @Test
     void testDisplayOrdersPositiveWithOptionalStatus() throws InvalidOrderStatusException {
-
+        //Given
         char[] pwwd = "password".toCharArray();
         List<Order> unpaid = List.of(new Order(
-                new Customer_Logged("user", pwwd, "Adam", "DDD", "ptr@ptr",
+                new LoggedCustomer("user", pwwd, "Adam", "DDD", "ptr@ptr",
                         new Address("Fairy", "5", "5", "55-555", "Maputo", "Mosambique")),
-                new Cart(1l, CartStatus.FINALIZED, List.of(), new BigDecimal("1000.00"), LocalDate.of(2023, 2, 20)),
+                new Cart(1L, CartStatus.FINALIZED, List.of(), new BigDecimal("1000.00"), LocalDate.of(2023, 2, 20)),
                 LocalDate.of(2023, 2, 22), ORDER_STATUS.UNPAID, "list of products unpaid", new BigDecimal("1000.00")));
         List<Order> paid = List.of(new Order(
-                new Customer_Logged("user1", pwwd, "Adam1", "DDD1", "ptr@ptr1",
+                new LoggedCustomer("user1", pwwd, "Adam1", "DDD1", "ptr@ptr1",
                         new Address("Fairy1", "6", "5", "66-666", "Maputo", "Mosambique")),
-                new Cart(2l, CartStatus.FINALIZED, List.of(), new BigDecimal("1500.00"), LocalDate.of(2023, 2, 20)),
+                new Cart(2L, CartStatus.FINALIZED, List.of(), new BigDecimal("1500.00"), LocalDate.of(2023, 2, 20)),
                 LocalDate.of(2023, 2, 21), ORDER_STATUS.PAID, "list of products paid", new BigDecimal("1500.00")));
         List<Order> combined = new ArrayList<>();
         combined.addAll(paid);
@@ -79,8 +80,9 @@ public class AdminServiceTestDisplayOrders {
         when(orderMapper.mapToOrderDtoToCustomerList(unpaid)).thenReturn(unpaidOrders);
         when(orderMapper.mapToOrderDtoToCustomerList(combined)).thenReturn(combinedOrders);
 
-        assertTrue(adminService.displayOrders("unpaid").size() == 1);
-        assertTrue(adminService.displayOrders(null).size() == 2);
+        //When & Then
+        assertEquals(1, adminService.displayOrders("unpaid").size());
+        assertEquals(2, adminService.displayOrders(null).size());
 
         verify(orderService, times(1)).findOrders(anyString());
         verify(orderService, times(1)).findOrders(null);

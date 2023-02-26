@@ -103,14 +103,14 @@ public class AdminService {
     }
 
     public void deleteProductById(Long productId) throws ProductNotFoundException {
-        if (warehouseService.findItemByID(productId) != null) {
+        if (warehouseService.findWarehouseByProductId(productId) != null) {
             deleteProductFromWarehouse(productId);
         }
         Product productToRemove = productService.findProductById(productId);
         Category category = productToRemove.getCategory();
         category.getListOfProducts().remove(productToRemove);
         categoryService.save(category);
-        productService.deleteById(productId);
+        productService.deleteProductById(productId);
     }
 
     public List<ProductDtoAllInfo> showAllProducts() {
@@ -119,7 +119,7 @@ public class AdminService {
     }
 
     private void validateQuantity(Integer quantity) throws InvalidQuantityException {
-        if (quantity < 0 || quantity > Integer.MAX_VALUE) {
+        if (quantity < 0) {
             throw new InvalidQuantityException();
         }
     }
@@ -130,7 +130,7 @@ public class AdminService {
         if (product.getCategory().getName().equalsIgnoreCase("Unknown")) {
             throw new CategoryNotFoundException();
         }
-        Warehouse warehouse = warehouseService.findItemByID(product.getProductID());
+        Warehouse warehouse = warehouseService.findWarehouseByProductId(product.getProductID());
         if (warehouse == null) {
             warehouse = new Warehouse(product, productQuantity);
         } else {
@@ -141,10 +141,10 @@ public class AdminService {
     }
 
     public void deleteProductFromWarehouse(Long productId) throws ProductNotFoundException {
-        if (warehouseService.findItemByID(productId) == null) {
+        if (warehouseService.findWarehouseByProductId(productId) == null) {
             throw new ProductNotFoundException();
         }
-          warehouseService.deleteById(productId);
+          warehouseService.deleteProductFromWarehouseByProductId(productId);
     }
 
     public List<WarehouseDto> displayAllProductsInWarehouse() {

@@ -10,6 +10,7 @@ import com.example.jshop.warehouse_and_products.domain.warehouse.WarehouseDto;
 import com.google.gson.Gson;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.*;
+import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -1074,14 +1075,9 @@ class AdminControllerTest {
             //Given
             String listOfProductsDummy = "Dummy list";
             List<OrderDtoToCustomer> orderDtoList = List.of(
-                    OrderDtoToCustomer.builder()
-                            .orderId(8L)
-                            .createdOn(LocalDate.of(2023, 2, 20))
-                            .listOfProducts(listOfProductsDummy)
-                            .totalPrice(new BigDecimal(4025).setScale(2, RoundingMode.HALF_EVEN).toString())
-                            .status("UNPAID")
-                            .paymentDue(LocalDate.of(2023, 3, 15))
-                            .build());
+                    new OrderDtoToCustomer(8L, LocalDate.of(2023, 2, 20), listOfProductsDummy,
+                            new BigDecimal(4025).setScale(2, RoundingMode.HALF_EVEN).toString(), "UNPAID",
+                            LocalDate.of(2023, 3, 15)));
 
             when(adminService.displayOrders(anyString())).thenReturn(orderDtoList);
 
@@ -1125,14 +1121,9 @@ class AdminControllerTest {
             //Given
             String listOfProductsDummy = "Dummy list";
             List<OrderDtoToCustomer> orderDtoList = List.of(
-                    OrderDtoToCustomer.builder()
-                            .orderId(8L)
-                            .createdOn(LocalDate.of(2023, 2, 20))
-                            .listOfProducts(listOfProductsDummy)
-                            .totalPrice(new BigDecimal(4025).setScale(2, RoundingMode.HALF_EVEN).toString())
-                            .status("UNPAID")
-                            .paymentDue(LocalDate.of(2023, 3, 15))
-                            .build());
+                    new OrderDtoToCustomer(8L, LocalDate.of(2023, 2, 20), listOfProductsDummy,
+                            new BigDecimal(4025).setScale(2, RoundingMode.HALF_EVEN).toString(), "UNPAID",
+                            LocalDate.of(2023, 3, 15)));
 
             when(adminService.displayOrders(anyString())).thenReturn(orderDtoList);
 
@@ -1161,14 +1152,9 @@ class AdminControllerTest {
             //Given
             String listOfProductsDummy = "Dummy list";
             List<OrderDtoToCustomer> orderDtoList = List.of(
-                    OrderDtoToCustomer.builder()
-                            .orderId(8L)
-                            .createdOn(LocalDate.of(2023, 2, 20))
-                            .listOfProducts(listOfProductsDummy)
-                            .totalPrice(new BigDecimal(4025).setScale(2, RoundingMode.HALF_EVEN).toString())
-                            .status("UNPAID")
-                            .paymentDue(LocalDate.of(2023, 3, 15))
-                            .build());
+                    new OrderDtoToCustomer(8L, LocalDate.of(2023, 2, 20), listOfProductsDummy,
+                            new BigDecimal(4025).setScale(2, RoundingMode.HALF_EVEN).toString(), "UNPAID",
+                            LocalDate.of(2023, 3, 15)));
 
             when(adminService.displayOrders(null)).thenReturn(orderDtoList);
 

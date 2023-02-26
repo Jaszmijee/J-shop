@@ -2,6 +2,7 @@ package com.example.jshop.carts_and_orders.domain.cart;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,31 +13,38 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@Builder
 @AllArgsConstructor
 @Entity(name = "carts")
 public class Cart {
 
     @Id
     @GeneratedValue
-    Long cartID;
+    private Long cartID;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    CartStatus cartStatus;
+    private CartStatus cartStatus;
 
     @Column(name = "items_cart")
     @OneToMany(targetEntity = Item.class,
             mappedBy = "cart",
             cascade = CascadeType.ALL,
             fetch = FetchType.EAGER)
-    List<Item> listOfItems = new ArrayList<>();
+    private List<Item> listOfItems = new ArrayList<>();
 
     @Column(name = "total")
-    BigDecimal calculatedPrice;
+    private BigDecimal calculatedPrice;
 
     @Column(name = "created")
-    LocalDate created;
+    private LocalDate created;
 
+    public Cart(CartStatus cartStatus, List<Item> listOfItems, BigDecimal calculatedPrice, LocalDate created) {
+        this.cartStatus = cartStatus;
+        this.listOfItems = listOfItems;
+        this.calculatedPrice = calculatedPrice;
+        this.created = created;
+    }
 
     public void setCartStatus(CartStatus cartStatus) {
         this.cartStatus = cartStatus;

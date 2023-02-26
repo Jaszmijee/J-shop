@@ -79,7 +79,7 @@ public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(PaymentErrorException.class)
     public ResponseEntity<Object> handlePaymentErrorException(PaymentErrorException exception) {
-        return new ResponseEntity<>("failure with payment", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Failure with payment", HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(SQLException.class)

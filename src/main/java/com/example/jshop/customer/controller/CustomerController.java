@@ -1,6 +1,6 @@
 package com.example.jshop.customer.controller;
 
-import com.example.jshop.customer.domain.CustomerDto;
+import com.example.jshop.customer.domain.AuthenticationDataDto;
 import com.example.jshop.customer.domain.LoggedCustomerDto;
 import com.example.jshop.carts_and_orders.domain.order.OrderDtoToCustomer;
 import com.example.jshop.error_handlers.exceptions.AccessDeniedException;
@@ -25,25 +25,25 @@ public class CustomerController {
     CartService cartService;
 
     @PostMapping
-    ResponseEntity<CustomerDto> addCustomer(@RequestBody CustomerDto customerDto) {
-        customerService.createNewCustomer(customerDto);
+    ResponseEntity<LoggedCustomerDto> addCustomer(@RequestBody LoggedCustomerDto loggedCustomerDto) {
+        customerService.createNewCustomer(loggedCustomerDto);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping
-    ResponseEntity<Void> removeCustomer(@RequestBody LoggedCustomerDto loggedCustomerDto) throws UserNotFoundException, AccessDeniedException {
-        customerService.removeCustomer(loggedCustomerDto);
+    ResponseEntity<Void> removeCustomer(@RequestBody AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException {
+        customerService.removeCustomer(authenticationDataDto);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("my_orders")
-    ResponseEntity<List<OrderDtoToCustomer>> showMyOrders(@RequestBody LoggedCustomerDto loggedCustomerDto) throws UserNotFoundException, AccessDeniedException {
-        return ResponseEntity.ok(customerService.showMyOrders(loggedCustomerDto));
+    ResponseEntity<List<OrderDtoToCustomer>> showMyOrders(@RequestBody AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException {
+        return ResponseEntity.ok(customerService.showMyOrders(authenticationDataDto));
     }
 
     @PutMapping
-    ResponseEntity<Void> cancelOrderLogged(@RequestParam Long orderId, @RequestBody LoggedCustomerDto loggedCustomerDto) throws UserNotFoundException, AccessDeniedException, OrderNotFoundException {
-        cartService.cancelOrderLogged(orderId, loggedCustomerDto);
+    ResponseEntity<Void> cancelOrderLogged(@RequestParam Long orderId, @RequestBody AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, OrderNotFoundException {
+        cartService.cancelOrderLogged(orderId, authenticationDataDto);
         return ResponseEntity.ok().build();
     }
 }

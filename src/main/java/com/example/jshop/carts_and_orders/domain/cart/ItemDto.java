@@ -9,8 +9,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class ItemDto {
 
-    Long productId;
-    String productName;
-    int productQuantity;
-    BigDecimal calculatedPrice;
+    private Long productId;
+    private String productName;
+    private int productQuantity;
+    private BigDecimal calculatedPrice;
 }

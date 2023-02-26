@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "logged_customers")
-public class Customer_Logged {
+public class LoggedCustomer {
 
     @Id
     @GeneratedValue
@@ -49,11 +49,11 @@ public class Customer_Logged {
     Address address;
 
     @OneToMany(targetEntity = Order.class,
-            mappedBy = "customer",
+            mappedBy = "loggedCustomer",
             fetch = FetchType.LAZY)
     List<Order> listOfOrders = new ArrayList<>();
 
-    public Customer_Logged(String userName, char[] password, @NonNull String firstName, @NonNull String lastName, @NonNull String email, @NonNull Address address) {
+    public LoggedCustomer(String userName, char[] password, @NonNull String firstName, @NonNull String lastName, @NonNull String email, @NonNull Address address) {
         this.userName = userName;
         this.password = password;
         this.firstName = firstName;

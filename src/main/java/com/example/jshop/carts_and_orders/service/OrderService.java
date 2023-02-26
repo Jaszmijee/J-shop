@@ -26,7 +26,7 @@ public class OrderService {
     }
 
     public Order findByIdAndUserName(Long orderId, String username) throws OrderNotFoundException {
-        return orderRepository.findByOrderIDAndAndCustomer_UserName(orderId, username).orElseThrow(OrderNotFoundException::new);
+        return orderRepository.findByOrderIDAndLoggedCustomer_UserName(orderId, username).orElseThrow(OrderNotFoundException::new);
     }
 
 
@@ -37,7 +37,7 @@ public class OrderService {
     }
 
     public List<Order> findOrdersOfCustomer(String userName) {
-        return orderRepository.findByCustomer_UserName(userName);
+        return orderRepository.findByLoggedCustomer_UserName(userName);
     }
 
     public void deleteOrder(Order order) {

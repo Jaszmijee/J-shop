@@ -2,14 +2,14 @@ package com.example.jshop.carts_and_orders.service;
 
 import com.example.jshop.carts_and_orders.domain.cart.Item;
 import com.example.jshop.carts_and_orders.repository.ItemRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class ItemService {
 
-    @Autowired
-    ItemRepository itemRepository;
+    private final ItemRepository itemRepository;
 
     public Item save(Item item){
         return itemRepository.save(item);

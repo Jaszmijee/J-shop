@@ -1,9 +1,10 @@
 package com.example.jshop.carts_and_orders.domain.order;
 
 import com.example.jshop.carts_and_orders.domain.cart.Cart;
-import com.example.jshop.customer.domain.Customer_Logged;
+import com.example.jshop.customer.domain.LoggedCustomer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "orders")
@@ -18,33 +20,33 @@ public class Order {
 
     @Id
     @GeneratedValue
-    Long orderID;
+    private Long orderID;
 
     @ManyToOne
     @JoinColumn(name = "logged_customers_customerID")
-    Customer_Logged customer;
+    private LoggedCustomer loggedCustomer;
 
-    @Column(name = "Created")
-    LocalDate created;
+    @Column(name = "created")
+    private LocalDate created;
 
-    @Column(name = "Paid")
-    LocalDate paid;
+    @Column(name = "paid")
+    private LocalDate paid;
 
     @Enumerated(value = EnumType.STRING)
-    ORDER_STATUS order_status;
+    private ORDER_STATUS order_status;
 
-    @Column(name = "items", columnDefinition="TEXT")
-    String listOfProducts;
+    @Column(name = "items", columnDefinition = "TEXT")
+    private String listOfProducts;
 
-    @Column(name = "value")
-    BigDecimal calculatedPrice;
+    @Column(name = "calculatedValue")
+    private BigDecimal calculatedPrice;
 
     @OneToOne
     @JoinColumn(name = "carts_cart_id")
-    Cart cart;
+    private Cart cart;
 
-    public Order(Customer_Logged customer, Cart cart, LocalDate created, ORDER_STATUS order_status, String listOfProducts, BigDecimal calculatedPrice) {
-        this.customer = customer;
+    public Order(LoggedCustomer loggedCustomer, Cart cart, LocalDate created, ORDER_STATUS order_status, String listOfProducts, BigDecimal calculatedPrice) {
+        this.loggedCustomer = loggedCustomer;
         this.created = created;
         this.order_status = order_status;
         this.listOfProducts = listOfProducts;
@@ -52,15 +54,7 @@ public class Order {
         this.cart = cart;
     }
 
-    public Order(Cart cart, LocalDate created, ORDER_STATUS order_status, String listOfProducts, BigDecimal calculatedPrice) {
-        this.created = created;
-        this.order_status = order_status;
-        this.listOfProducts = listOfProducts;
-        this.calculatedPrice = calculatedPrice;
-        this.cart = cart;
-    }
-
-    public void setPaid(LocalDate paid) {
+   public void setPaid(LocalDate paid) {
         this.paid = paid;
     }
 
@@ -72,8 +66,8 @@ public class Order {
         this.cart = cart;
     }
 
-    public void setCustomer(Customer_Logged customer) {
-        this.customer = customer;
+    public void setLoggedCustomer(LoggedCustomer loggedCustomer) {
+        this.loggedCustomer = loggedCustomer;
     }
 }
 

@@ -1,12 +1,10 @@
 package com.example.jshop.customer.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 
 @Getter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -31,7 +29,7 @@ public class Address {
 
     @OneToOne
     @JoinColumn(name = "logged_customers_customerID")
-    Customer_Logged customer_logged;
+    LoggedCustomer _Logged_Customer;
 
     public Address(@NonNull String street, @NonNull String houseNo, @NonNull String flatNo, @NonNull String zipCode, @NonNull String city, @NonNull String country) {
         this.street = street;

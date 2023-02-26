@@ -7,25 +7,19 @@ import com.example.jshop.warehouse_and_products.domain.product.ProductDto;
 import com.example.jshop.warehouse_and_products.domain.product.ProductDtoAllInfo;
 import com.example.jshop.warehouse_and_products.domain.warehouse.WarehouseDto;
 import com.example.jshop.warehouse_and_products.domain.category.CategoryDto;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("v1/j-shop/admin")
 public class AdminController {
 
     private final AdminConfig adminConfig;
     private final AdminService adminService;
-
-    @Autowired
-    public AdminController(AdminConfig adminConfig, AdminService adminService) {
-        this.adminConfig = adminConfig;
-        this.adminService = adminService;
-    }
 
     private void verifyAdmin(@RequestParam String key, @RequestParam String token) throws AccessDeniedException {
         if (!(adminConfig.getAdminKey().equals(key) && adminConfig.getAdminToken().equals(token))) {
@@ -60,7 +54,7 @@ public class AdminController {
     }
 
     @PostMapping("product")
-    ResponseEntity<ProductDtoAllInfo> addProduct(@RequestParam String key, @RequestParam String token, @RequestBody ProductDto productDto) throws AccessDeniedException, InvalidCategoryNameException, CategoryExistsException, SQLException, InvalidPriceException {
+    ResponseEntity<ProductDtoAllInfo> addProduct(@RequestParam String key, @RequestParam String token, @RequestBody ProductDto productDto) throws AccessDeniedException, InvalidCategoryNameException, CategoryExistsException, InvalidPriceException {
         verifyAdmin(key, token);
         return ResponseEntity.ok(adminService.addNewProduct(productDto));
     }
@@ -104,7 +98,7 @@ public class AdminController {
     }
 
     @GetMapping("order")
-    ResponseEntity<List<OrderDtoToCustomer>> displayAllOrders(@RequestParam String key, @RequestParam String token, @RequestParam(required = false) String order_status) throws AccessDeniedException, OrderNotFoundException, InvalidOrderStatusException {
+    ResponseEntity<List<OrderDtoToCustomer>> displayAllOrders(@RequestParam String key, @RequestParam String token, @RequestParam(required = false) String order_status) throws AccessDeniedException, InvalidOrderStatusException {
         verifyAdmin(key, token);
         return ResponseEntity.ok(adminService.displayOrders(order_status));
     }

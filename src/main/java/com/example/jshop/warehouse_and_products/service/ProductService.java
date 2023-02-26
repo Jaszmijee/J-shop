@@ -4,7 +4,6 @@ import com.example.jshop.warehouse_and_products.domain.product.Product;
 import com.example.jshop.error_handlers.exceptions.ProductNotFoundException;
 import com.example.jshop.warehouse_and_products.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,8 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductService {
 
-    @Autowired
-    private final ProductRepository productRepository;
+       private final ProductRepository productRepository;
 
     public Product saveProduct(Product product) {
         return productRepository.save(product);
@@ -24,7 +22,7 @@ public class ProductService {
         return productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
     }
 
-    public void deleteById(Long productId) {
+    public void deleteProductById(Long productId) {
         productRepository.deleteByProductID(productId);
     }
 

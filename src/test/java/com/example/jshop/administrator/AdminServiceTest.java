@@ -44,6 +44,7 @@ class AdminServiceTest {
     WarehouseRepository warehouseRepository;
 
     @Nested
+    @Transactional
     @DisplayName("test addNewCategory")
     class TestAddNewCategory {
         @ParameterizedTest
@@ -54,9 +55,6 @@ class AdminServiceTest {
 
             //When & Then
             assertThrows(InvalidCategoryNameException.class, () -> adminService.addNewCategory(categoryDto));
-
-            //Cleanup
-            categoryRepository.deleteAll();
         }
 
         @Test
@@ -67,12 +65,8 @@ class AdminServiceTest {
 
             //When & Then
             assertThrows(CategoryExistsException.class, () -> adminService.addNewCategory(categoryDto));
-
-            //Cleanup
-            categoryRepository.deleteAll();
         }
 
-        @Transactional
         @Test
         void testAddNewCategoryPositive() throws InvalidCategoryNameException, CategoryExistsException {
             //Given
@@ -86,50 +80,54 @@ class AdminServiceTest {
             //Then
             assertEquals(2, categoryRepository.findAll().size());
             assertEquals(0, categoryRepository.findAll().get(0).getListOfProducts().size());
-
-            //Cleanup
-            categoryRepository.deleteAll();
         }
     }
 
     @Nested
+    @Transactional
     @DisplayName("test removeCategory")
     class TestRemoveCategory {
         @Test
         void testRemoveCategoryCategoryNotFoundException() {
             //Given
             CategoryDto categoryDto = new CategoryDto("Car");
+
+            //When & Then
             assertThrows(CategoryNotFoundException.class, () -> adminService.removeCategory(categoryDto));
         }
 
         @Test
         void testRemoveCategoryCategoryException() {
+            //Given
+            Category category = new Category("unknown");
+            categoryRepository.save(category);
             CategoryDto categoryDto = new CategoryDto("unknown");
+
+            //When & Then
             assertThrows(CategoryException.class, () -> adminService.removeCategory(categoryDto));
         }
 
-        @Transactional
         @Test
         void testRemoveCategoryPositive() throws CategoryException, CategoryNotFoundException, InvalidCategoryNameException, CategoryExistsException {
-
+            //Given
             CategoryDto categoryDto = new CategoryDto("Car");
             adminService.addNewCategory(categoryDto);
 
+            //When
             adminService.removeCategory(categoryDto);
 
+            //Then
             assertEquals(0, categoryRepository.findAll().size());
-            //Cleanup
-            categoryRepository.deleteAll();
         }
 
-
         @Nested
+        @Transactional
         @DisplayName("test showAllCategoriesWithProducts")
         class TestShowAllCategoriesWithProducts {
             @Transactional
             @Test
             void testShowAllCategoriesWithProducts() {
-
+                //Given
                 Category category = new Category("Car");
                 Category category1 = new Category("Music");
                 categoryRepository.save(category);
@@ -139,39 +137,35 @@ class AdminServiceTest {
                 category1.getListOfProducts().add(product);
                 categoryRepository.save(category1);
 
+                //When & Then
                 assertEquals(2, adminService.showAllCategoriesWithProducts().size());
                 assertInstanceOf(CategoryWithProductsDto.class, adminService.showAllCategoriesWithProducts().get(0));
                 assertEquals(0, adminService.showAllCategoriesWithProducts().get(0).getListOfProducts().size());
                 assertEquals(1, adminService.showAllCategoriesWithProducts().get(1).getListOfProducts().size());
                 assertEquals("Album1", adminService.showAllCategoriesWithProducts().get(1).getListOfProducts().get(0).getProductName());
-
-                //Cleanup
-                productRepository.deleteAll();
-                categoryRepository.deleteAll();
             }
         }
 
-
         @Nested
+        @Transactional
         @DisplayName("test showCategoryByNameWithProducts")
         class TestShowCategoryByNameWithProducts {
-
             @Test
             void testShowCategoryByNameWithProductsCategoryNotFoundException() {
+                //Given
                 Category category = new Category("Car");
                 Category category1 = new Category("Music");
                 categoryRepository.save(category);
                 categoryRepository.save(category1);
 
+                //When & Then
                 assertThrows(CategoryNotFoundException.class, () -> adminService.showCategoryByNameWithProducts("anyString"));
-                //Cleanup
-                categoryRepository.deleteAll();
             }
         }
 
-        @Transactional
         @Test
         void testShowCategoryByNameWithProductsPositive() throws CategoryNotFoundException {
+            //Given
             Category category = new Category("Car");
             Category category1 = new Category("Music");
             categoryRepository.save(category);
@@ -181,36 +175,32 @@ class AdminServiceTest {
             category1.getListOfProducts().add(product);
             categoryRepository.save(category1);
 
+            //When & Then
             assertInstanceOf(CategoryWithProductsDto.class, adminService.showCategoryByNameWithProducts("Music"));
             assertEquals(1, adminService.showCategoryByNameWithProducts("Music").getListOfProducts().size());
             assertEquals("Album1", adminService.showCategoryByNameWithProducts("Music").getListOfProducts().get(0).getProductName());
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
         }
     }
 
-
     @Nested
+    @Transactional
     @DisplayName("test addNewProduct")
     class TestAddNewProduct {
         @Test
         void testAddNewProductInvalidPriceException() {
+            //Given
             ProductDto productDto = new ProductDto("testProduct", "testDescription", "testCategory", new BigDecimal(-25.12).setScale(2, RoundingMode.HALF_EVEN));
 
+            //When & Then
             assertThrows(InvalidPriceException.class, () -> adminService.addNewProduct(productDto));
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
         }
 
-
-        @Transactional
         @Test
         void testAddNewProductInvalidCategoryException() {
-
+            //Given
             ProductDto productDto = new ProductDto("testProduct", "testDescription", "%%%", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
 
+            //When & Then
             try {
                 ProductDtoAllInfo productDtoAllInfo = adminService.addNewProduct(productDto);
                 Long productId = productRepository.findByProductName("testProduct").getProductID();
@@ -221,18 +211,16 @@ class AdminServiceTest {
             } catch (InvalidPriceException | InvalidCategoryNameException | CategoryExistsException exception) {
                 System.out.println("problem with testAddNewProductInvalidCategory");
             }
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
         }
 
-        @Transactional
         @Test
         void testAddNewProductCategoryExistsException() {
+            //Given
             Category category = new Category("Unknown");
             categoryRepository.save(category);
             ProductDto productDto = new ProductDto("testProduct", "testDescription", "%%%", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
 
+            //When & Then
             try {
                 ProductDtoAllInfo productDtoAllInfo = adminService.addNewProduct(productDto);
                 Long productId = productRepository.findByProductName("testProduct").getProductID();
@@ -243,18 +231,16 @@ class AdminServiceTest {
             } catch (InvalidPriceException | InvalidCategoryNameException | CategoryExistsException exception) {
                 System.out.println("problem with testAddNewProductInvalidCategory");
             }
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
         }
 
-        @Transactional
         @Test
         void testAddNewProductPositive() {
+            //Given
             Category category = new Category("Pets");
             categoryRepository.save(category);
             ProductDto productDto = new ProductDto("testProduct", "testDescription", "Pets", new BigDecimal(30.455).setScale(2, RoundingMode.HALF_EVEN));
 
+            //When & Then
             try {
                 ProductDtoAllInfo productDtoAllInfo = adminService.addNewProduct(productDto);
                 Long productId = productRepository.findByProductName("testProduct").getProductID();
@@ -265,55 +251,51 @@ class AdminServiceTest {
             } catch (InvalidPriceException | InvalidCategoryNameException | CategoryExistsException exception) {
                 System.out.println("problem with testAddNewProductInvalidCategory");
             }
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
         }
     }
 
     @Nested
+    @Transactional
     @DisplayName("test updateProduct")
     class TestUpdateProduct {
-        @Transactional
         @Test
         void updateProductProductNotFoundException() throws InvalidPriceException, InvalidCategoryNameException, CategoryExistsException {
+            //Given
             Category category = new Category("Pets");
             categoryRepository.save(category);
             ProductDto productDto = new ProductDto("testProduct", "testDescription", "Pets", new BigDecimal(30.455).setScale(2, RoundingMode.HALF_EVEN));
             adminService.addNewProduct(productDto);
             Long productId = productRepository.findByProductName("testProduct").getProductID();
 
+            //When & Then
             assertThrows(ProductNotFoundException.class, () -> adminService.updateProduct((productId + 1), productDto));
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
         }
 
-        @Transactional
         @Test
         void updateProductInvalidCategoryNameException() throws InvalidPriceException, InvalidCategoryNameException, CategoryExistsException {
+            //Given
             Category category = new Category("Pets");
             categoryRepository.save(category);
             ProductDto productDto = new ProductDto("testProduct", "testDescription", "Pets", new BigDecimal(30.455).setScale(2, RoundingMode.HALF_EVEN));
             adminService.addNewProduct(productDto);
             Long productId = productRepository.findByProductName("testProduct").getProductID();
             ProductDto productDtoForUpdate = new ProductDto("testProduct", "testDescription", "Music", new BigDecimal(200).setScale(2, RoundingMode.HALF_EVEN));
+
+            //When & Then
             try {
                 ProductDtoAllInfo productDtoAllInfo = adminService.updateProduct(productId, productDtoForUpdate);
                 assertEquals(productId, productDtoAllInfo.getProductId());
                 assertEquals("Unknown", productDtoAllInfo.getCategory());
                 assertEquals("200.00", productDtoAllInfo.getPrice().toString());
             } catch (ProductNotFoundException e) {
-                e.getMessage();
-            }
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
+                e.printStackTrace();
+                       }
         }
 
         @Transactional
         @Test
         void updateProductPositive() throws InvalidPriceException, InvalidCategoryNameException, CategoryExistsException {
+            //Given
             Category category = new Category("Pets");
             Category category1 = new Category("Music");
             categoryRepository.save(category);
@@ -322,26 +304,27 @@ class AdminServiceTest {
             adminService.addNewProduct(productDto);
             Long productId = productRepository.findByProductName("testProduct").getProductID();
             ProductDto productDtoForUpdate = new ProductDto("testProduct", "testDescription", "Music", new BigDecimal(200).setScale(2, RoundingMode.HALF_EVEN));
+
+            //When & Then
             try {
                 ProductDtoAllInfo productDtoAllInfo = adminService.updateProduct(productId, productDtoForUpdate);
                 assertEquals(productId, productDtoAllInfo.getProductId());
                 assertEquals("Music", productDtoAllInfo.getCategory());
                 assertEquals("200.00", productDtoAllInfo.getPrice().toString());
             } catch (ProductNotFoundException e) {
-                e.getMessage();
+                e.printStackTrace();
             }
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
         }
     }
 
     @Nested
+    @Transactional
     @DisplayName("test deleteProductById")
     class TestDeleteProductById {
         @Transactional
         @Test
         void deleteProductByIdProductNotFoundException() {
+            //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
             Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
@@ -349,16 +332,15 @@ class AdminServiceTest {
             category.getListOfProducts().add(product);
             categoryRepository.save(category);
 
+            //When & Then
             assertThrows(ProductNotFoundException.class, () -> adminService.deleteProductById((product.getProductID() + 1)));
-            assertTrue(category.getListOfProducts().size() == 1);
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
+            assertEquals(1, category.getListOfProducts().size());
         }
 
         @Transactional
         @Test
         void deleteProductByIdPositive() {
+            //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
             Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
@@ -366,27 +348,27 @@ class AdminServiceTest {
             category.getListOfProducts().add(product);
             categoryRepository.save(category);
 
+            //When
             try {
-
                 adminService.deleteProductById(product.getProductID());
             } catch (ProductNotFoundException e) {
-                e.getMessage();
+                e.printStackTrace();
             }
-            assertTrue(category.getListOfProducts().size() == 0);
-            assertTrue(productRepository.findById(product.getProductID()).isEmpty());
 
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
+            //Then
+            assertEquals(0, category.getListOfProducts().size());
+            assertTrue(productRepository.findById(product.getProductID()).isEmpty());
         }
     }
 
     @Nested
+    @Transactional
     @DisplayName("test showAllProducts")
     class TestShowAllProducts {
-        @Transactional
+
         @Test
         void showAllProducts() {
+            //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
             Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
@@ -397,103 +379,93 @@ class AdminServiceTest {
             category.getListOfProducts().add(product1);
             categoryRepository.save(category);
 
+            //When
             List<ProductDtoAllInfo> list = adminService.showAllProducts();
 
-            assertTrue(list.size() == 2);
+            //Then
+            assertEquals(2, list.size());
             assertEquals("Music", list.get(0).getCategory());
             assertEquals("10.25", list.get(1).getPrice().toString());
-
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
         }
     }
 
     @Nested
+    @Transactional
     @DisplayName("test addOrUpdateProductInWarehouse")
     class TestAddOrUpdateProductInWarehouse {
         @Test
         void addOrUpdateProductInWarehouseInvalidQuantityException() {
+            //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
             Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             Long productId = product.getProductID();
 
+            //When & Then
             assertThrows(InvalidQuantityException.class, () -> adminService.addOrUpdateProductInWarehouse(productId, -10));
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
-            warehouseRepository.deleteAll();
         }
 
         @Test
         void addOrUpdateProductInWarehouseProductNotFoundException() {
+            //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
             Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             Long productId = product.getProductID();
 
+            //When & Then
             assertThrows(ProductNotFoundException.class, () -> adminService.addOrUpdateProductInWarehouse((productId + 1), 10));
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
-            warehouseRepository.deleteAll();
-        }
+         }
 
         @Test
         void addOrUpdateProductInWarehouseCategoryNotFoundException() {
+            //Given
             Category category = new Category("Unknown");
             categoryRepository.save(category);
             Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             Long productId = product.getProductID();
 
+            //When & Then
             assertThrows(CategoryNotFoundException.class, () -> adminService.addOrUpdateProductInWarehouse(productId, 10));
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
-            warehouseRepository.deleteAll();
         }
 
-        @Transactional
         @Test
         void addOrUpdateProductInWarehouseCategoryAddNewProduct() {
+            //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
             Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             Long productId = product.getProductID();
 
+            //When & Then
             try {
-                adminService.addOrUpdateProductInWarehouse(productId, 10).getWarehouseId();
+                adminService.addOrUpdateProductInWarehouse(productId, 10);
                 assertEquals(1, warehouseRepository.findAll().size());
                 assertEquals(10, warehouseRepository.findAll().get(0).getProductQuantity());
             } catch (InvalidQuantityException | ProductNotFoundException | CategoryNotFoundException e) {
-                e.getMessage();
+                e.printStackTrace();
             }
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
-            warehouseRepository.deleteAll();
         }
 
-        @Transactional
         @Test
         void addOrUpdateProductInWarehouseCategoryUpdateProduct() {
+            //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
             Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             Long productId = product.getProductID();
-
             try {
                 adminService.addOrUpdateProductInWarehouse(productId, 10).getWarehouseId();
             } catch (InvalidQuantityException | ProductNotFoundException | CategoryNotFoundException e) {
                 e.getMessage();
             }
 
+            //When & Then
             try {
                 adminService.addOrUpdateProductInWarehouse(productId, 20).getWarehouseId();
                 assertEquals(1, warehouseRepository.findAll().size());
@@ -501,74 +473,67 @@ class AdminServiceTest {
             } catch (InvalidQuantityException | ProductNotFoundException | CategoryNotFoundException e) {
                 e.getMessage();
             }
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
-            warehouseRepository.deleteAll();
         }
     }
 
-
     @Nested
+    @Transactional
     @DisplayName("test deleteProductFromWarehouse")
     class TestDeleteProductFromWarehouse {
         @Transactional
         @Test
         void testDeleteProductFromWarehouseProductNotFoundException() {
+            //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
             Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             Long productId = product.getProductID();
-
             try {
                 adminService.addOrUpdateProductInWarehouse(productId, 10).getWarehouseId();
             } catch (InvalidQuantityException | ProductNotFoundException | CategoryNotFoundException e) {
                 e.getMessage();
             }
 
+            //When & Then
             assertThrows(ProductNotFoundException.class, () -> adminService.deleteProductFromWarehouse(productId + 1));
             assertTrue(warehouseRepository.findAll().get(0).getProductQuantity() == 10);
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
-            warehouseRepository.deleteAll();
         }
 
         @Transactional
         @Test
         void testDeleteProductFromWarehousePositive() {
+            //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
             Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             Long productId = product.getProductID();
-
             try {
                 adminService.addOrUpdateProductInWarehouse(productId, 10).getWarehouseId();
             } catch (InvalidQuantityException | ProductNotFoundException | CategoryNotFoundException e) {
                 e.getMessage();
             }
 
+            //When & Then
             try {
                 adminService.deleteProductFromWarehouse(productId);
                 assertTrue(warehouseRepository.findAll().isEmpty());
                 assertTrue(productRepository.findAll().contains(product));
             } catch (ProductNotFoundException e) {
+                e.getMessage();
             }
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
-            warehouseRepository.deleteAll();
         }
     }
 
     @Nested
+    @Transactional
     @DisplayName("test displayAllProductsInWarehouse")
     class TestDisplayAllProductsInWarehouse {
-        @Transactional
+
         @Test
         void testDisplayAllProductsInWarehousePositive() {
+            //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
             Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
@@ -591,13 +556,10 @@ class AdminServiceTest {
                 e.getMessage();
             }
 
+            //When & Then
             assertInstanceOf(WarehouseDto.class, adminService.displayAllProductsInWarehouse().get(0));
             assertEquals(3, adminService.displayAllProductsInWarehouse().size());
             assertEquals(25, adminService.displayAllProductsInWarehouse().get(2).getQuantity());
-            //Cleanup
-            productRepository.deleteAll();
-            categoryRepository.deleteAll();
-            warehouseRepository.deleteAll();
         }
     }
 }

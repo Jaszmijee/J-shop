@@ -1,5 +1,6 @@
 package com.example.jshop.customer.domain;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -7,6 +8,17 @@ import lombok.Getter;
 @AllArgsConstructor
 public class LoggedCustomerDto {
 
-    String username;
-    char[] password;
+    String userName;
+    String password;
+    String firstName;
+    String lastName;
+    String email;
+
+    String street;
+    String houseNo;
+    String flatNo;
+    String zipCode;
+    String city;
+    String country;
+
 }
