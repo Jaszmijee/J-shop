@@ -7,7 +7,6 @@ import lombok.Getter;
 import java.math.BigDecimal;
 
 @Getter
-@Builder
 @AllArgsConstructor
 public class ProductDto {
 

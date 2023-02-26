@@ -14,7 +14,7 @@ import java.time.LocalDate;
 public class CartsScheduler {
 
     @Autowired
-    CartService cartService;
+    private CartService cartService;
 
     @Scheduled(cron = "0 0 0 * * ?")
     public void removeEmptyCarts() {

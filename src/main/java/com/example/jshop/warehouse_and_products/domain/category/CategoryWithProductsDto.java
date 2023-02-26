@@ -10,8 +10,8 @@ import java.util.List;
 @AllArgsConstructor
 public class CategoryWithProductsDto {
 
-    Long categoryId;
-    String categoryName;
-    List<ProductDtoAllInfo> listOfProducts;
+    private Long categoryId;
+    private String categoryName;
+    private List<ProductDtoAllInfo> listOfProducts;
 }
 

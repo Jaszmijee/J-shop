@@ -14,8 +14,12 @@ import java.util.List;
 @Service
 public class OrderService {
 
+    private final OrderRepository orderRepository;
+
     @Autowired
-    OrderRepository orderRepository;
+    public OrderService(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
 
     public Order save(Order order) {
         return orderRepository.save(order);
@@ -50,7 +54,6 @@ public class OrderService {
 
     public List<Order> findUnpaidOrders() throws UserNotFoundException, OrderNotFoundException, AccessDeniedException {
        return orderRepository.findUnpaidOrders();
-
     }
 }
 

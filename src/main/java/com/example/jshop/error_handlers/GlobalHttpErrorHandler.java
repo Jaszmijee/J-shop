@@ -84,7 +84,7 @@ public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(SQLException.class)
     public ResponseEntity<Object> handleSQLException(SQLException exception) {
-        return new ResponseEntity<>("This entry already exists", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("SQLException", HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(InvalidPriceException.class)

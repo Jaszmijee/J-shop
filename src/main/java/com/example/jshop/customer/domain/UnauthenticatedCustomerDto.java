@@ -9,14 +9,14 @@ import lombok.ToString;
 @AllArgsConstructor
 public class UnauthenticatedCustomerDto {
 
-    String firstName;
-    String lastName;
-    String email;
+    private String firstName;
+    private String lastName;
+    private String email;
 
-    String street;
-    String houseNo;
-    String flatNo;
-    String zipCode;
-    String city;
-    String country;
+    private String street;
+    private String houseNo;
+    private String flatNo;
+    private String zipCode;
+    private String city;
+    private String country;
 }

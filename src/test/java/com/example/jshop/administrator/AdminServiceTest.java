@@ -357,7 +357,7 @@ class AdminServiceTest {
 
             //Then
             assertEquals(0, category.getListOfProducts().size());
-            assertTrue(productRepository.findById(product.getProductID()).isEmpty());
+            assertTrue(productRepository.findByProductID(product.getProductID()).isEmpty());
         }
     }
 

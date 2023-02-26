@@ -1,6 +1,5 @@
 package com.example.jshop.scheduler;
 
-import com.example.jshop.email.domain.Mail;
 import com.example.jshop.carts_and_orders.domain.order.Order;
 import com.example.jshop.email.service.EmailContentCreator;
 import com.example.jshop.error_handlers.exceptions.AccessDeniedException;

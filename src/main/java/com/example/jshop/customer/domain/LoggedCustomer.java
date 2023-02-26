@@ -19,34 +19,34 @@ public class LoggedCustomer {
 
     @Id
     @GeneratedValue
-    Long customerID;
+    private Long customerID;
 
     @Column(name = "userName", unique = true)
-    String userName;
+    private String userName;
 
     @Column(name = "password")
-    char[] password;
+    private char[] password;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "carts_CartId")
-    Cart cart;
+    private Cart cart;
 
     @Column(name = "name")
     @NonNull
-    String firstName;
+    private String firstName;
 
     @Column(name = "lastname")
     @NonNull
-    String lastName;
+    private String lastName;
 
     @Column(name = "e-mail")
     @NonNull
-    String email;
+    private String email;
 
     @NonNull
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_addresId")
-    Address address;
+    private Address address;
 
     @OneToMany(targetEntity = Order.class,
             mappedBy = "loggedCustomer",
@@ -60,10 +60,6 @@ public class LoggedCustomer {
         this.lastName = lastName;
         this.email = email;
         this.address = address;
-    }
-
-    public void setListOfOrders(List<Order> listOfOrders) {
-        this.listOfOrders = listOfOrders;
     }
 
     public void setPassword(char[] password) {

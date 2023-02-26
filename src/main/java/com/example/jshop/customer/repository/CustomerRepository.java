@@ -11,8 +11,6 @@ import java.util.Optional;
 @Transactional
 public interface CustomerRepository extends CrudRepository<LoggedCustomer, Long> {
 
-
-
     @Override
     LoggedCustomer save(LoggedCustomer loggedCustomer);
 

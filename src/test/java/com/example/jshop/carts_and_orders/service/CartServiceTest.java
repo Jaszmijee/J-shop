@@ -250,7 +250,6 @@ class CartServiceTest {
         }
     }
 
-
     @Nested
     @Transactional
     @DisplayName("test removeFromCart")
@@ -410,6 +409,7 @@ class CartServiceTest {
 
         @Test
         void cancelCartPositive() {
+            // Given
             Category category = new Category("testCategory");
             categoryRepository.save(category);
             Product product = new Product("testName", "testDescription", category, new BigDecimal("5.00"));
@@ -448,6 +448,7 @@ class CartServiceTest {
     class TestFinalizeCart {
         @Test
         void finalizeCartUserNotFoundException() {
+            // Given
             String pwwd = "password";
             LoggedCustomerDto loggedCustomerDto = new LoggedCustomerDto("user", pwwd, "Adam", "DDD", "ptr@ptr",
                     "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
@@ -464,6 +465,7 @@ class CartServiceTest {
 
         @Test
         void finalizeAccessDeniedException() {
+            // Given
             String pwwd = "password";
             LoggedCustomerDto loggedCustomerDto = new LoggedCustomerDto("user", pwwd, "Adam", "DDD", "ptr@ptr",
                     "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
@@ -478,9 +480,9 @@ class CartServiceTest {
             assertThrows(AccessDeniedException.class, () -> cartService.finalizeCart(cart.getCartID(), authenticationDataDto));
         }
 
-
         @Test
         void finalizeCartNotFoundException() {
+            // Given
             String pwwd = "password";
             LoggedCustomerDto loggedCustomerDto = new LoggedCustomerDto("user", pwwd, "Adam", "DDD", "ptr@ptr",
                     "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
@@ -500,6 +502,7 @@ class CartServiceTest {
 
         @Test
         void finalizeCartPositive() {
+            // Given
             String pwwd = "password";
             LoggedCustomerDto loggedCustomerDto = new LoggedCustomerDto("user", pwwd, "Adam", "DDD", "ptr@ptr",
                     "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
@@ -524,6 +527,7 @@ class CartServiceTest {
                     .build();
             cartRepository.save(cart);
 
+            //When & Then
             try {
                 OrderDtoToCustomer orderDtoToCustomer = cartService.finalizeCart(cart.getCartID(), authenticationDataDto);
                 assertEquals("UNPAID", orderDtoToCustomer.getStatus());
@@ -541,6 +545,7 @@ class CartServiceTest {
     class TestPayForCart {
         @Test
         void payForCartUserNotFoundException() {
+            // Given
             String pwwd = "password";
             LoggedCustomerDto loggedCustomerDto = new LoggedCustomerDto("user", pwwd, "Adam", "DDD", "ptr@ptr",
                     "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
@@ -563,6 +568,7 @@ class CartServiceTest {
 
         @Test
         void payForCartAccessDeniedException() {
+            // Given
             String pwwd = "password";
             LoggedCustomerDto loggedCustomerDto = new LoggedCustomerDto("user", pwwd, "Adam", "DDD", "ptr@ptr",
                     "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
@@ -583,9 +589,9 @@ class CartServiceTest {
             assertThrows(AccessDeniedException.class, () -> cartService.payForCart(order.getOrderID(), authenticationDataDto));
         }
 
-
         @Test
         void payForCartOrderNotFoundExceptionAccessDeniedException() {
+            // Given
             String pwwd = "password";
             LoggedCustomerDto loggedCustomerDto = new LoggedCustomerDto("user", pwwd, "Adam", "DDD", "ptr@ptr",
                     "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
@@ -608,6 +614,7 @@ class CartServiceTest {
 
         @Test
         void payForCartPositive() {
+            // Given
             String pwwd = "password";
             LoggedCustomerDto loggedCustomerDto = new LoggedCustomerDto("user", pwwd, "Adam", "DDD", "ptr@ptr",
                     "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
@@ -648,31 +655,29 @@ class CartServiceTest {
         }
     }
 
-
     @Nested
     @Transactional
-    @DisplayName("test payForCart")
-    class TestPayForCartUnlogged {
+    @DisplayName("test payForCartUnauthenticatedCustomer")
+    class TestPayForCartUnauthenticatedCustomer {
         @Test
         void payForCartUnauthenticatedCustomer() {
-
+            // Given
             Cart cart = Cart.builder()
                     .cartStatus(CartStatus.FINALIZED)
                     .listOfItems(List.of())
                     .build();
             cartRepository.save(cart);
-            UnauthenticatedCustomerDto unloggedCustomerDto = new UnauthenticatedCustomerDto("Adam", "DDD", "ptr@ptr",
+            UnauthenticatedCustomerDto unauthenticatedCustomerDto = new UnauthenticatedCustomerDto("Adam", "DDD", "ptr@ptr",
                     "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
 
             //When & Then
-            assertThrows(CartNotFoundException.class, () -> cartService.payForCartUnauthenticatedCustomer(cart.getCartID() + 1, unloggedCustomerDto));
-            assertThrows(CartNotFoundException.class, () -> cartService.payForCartUnauthenticatedCustomer(cart.getCartID(), unloggedCustomerDto));
+            assertThrows(CartNotFoundException.class, () -> cartService.payForCartUnauthenticatedCustomer(cart.getCartID() + 1, unauthenticatedCustomerDto));
+            assertThrows(CartNotFoundException.class, () -> cartService.payForCartUnauthenticatedCustomer(cart.getCartID(), unauthenticatedCustomerDto));
         }
-
 
         @Test
         void payForCartUnauthenticatedCustomerPositive() {
-
+            // Given
             Category category = new Category("testCategory");
             categoryRepository.save(category);
             Product product = new Product("testName", "testDescription", category, new BigDecimal("5.00"));
@@ -692,12 +697,12 @@ class CartServiceTest {
             itemRepository.save(item);
             cart.getListOfItems().add(item);
             cartRepository.save(cart);
-            UnauthenticatedCustomerDto unloggedCustomerDto = new UnauthenticatedCustomerDto("Adam", "DDD", "ptr@ptr",
+            UnauthenticatedCustomerDto unauthenticatedCustomerDto = new UnauthenticatedCustomerDto("Adam", "DDD", "ptr@ptr",
                     "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
 
             //When & Then
             try {
-                OrderDtoToCustomer orderDtoToCustomer = cartService.payForCartUnauthenticatedCustomer(cart.getCartID(), unloggedCustomerDto);
+                OrderDtoToCustomer orderDtoToCustomer = cartService.payForCartUnauthenticatedCustomer(cart.getCartID(), unauthenticatedCustomerDto);
                 assertEquals("25.00", orderDtoToCustomer.getTotalPrice());
             } catch (CartNotFoundException | PaymentErrorException e) {
                 e.printStackTrace();
@@ -711,7 +716,7 @@ class CartServiceTest {
     class TestCancelOrder {
         @Test
         void cancelOrderOrderNotFoundException() {
-
+            // Given
             Category category = new Category("testCategory");
             categoryRepository.save(category);
             Product product = new Product("testName", "testDescription", category, new BigDecimal("5.00"));
@@ -743,12 +748,14 @@ class CartServiceTest {
                     BigDecimal("25.00"));
             orderRepository.save(order);
 
+            //When & Then
             assertThrows(OrderNotFoundException.class, () -> cartService.cancelOrder(order.getOrderID() + 1));
             assertThrows(OrderNotFoundException.class, () -> cartService.cancelOrder(order.getOrderID()));
         }
 
         @Test
         void cancelOrderPositive() {
+            // Given
             Category category = new Category("testCategory");
             categoryRepository.save(category);
             Product product = new Product("testName", "testDescription", category, new BigDecimal("5.00"));
@@ -787,15 +794,14 @@ class CartServiceTest {
             }
         }
     }
-}
 
- /*   @Nested
+    @Nested
     @Transactional
-    @DisplayName("test cancelOrder")
+    @DisplayName("test cancelOrderLogged")
     class TestCancelOrderLogged {
         @Test
         void cancelOrderLoggedUserNotFoundException() {
-
+            // Given
             String pwwd = "password";
             LoggedCustomerDto customerDto = new LoggedCustomerDto("user", pwwd, "Adam", "DDD", "ptr@ptr",
                     "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
@@ -815,14 +821,13 @@ class CartServiceTest {
 
         @Test
         void cancelOrderLoggedAccessDeniedException() {
+            // Given
             String pwwd = "password";
             LoggedCustomerDto customerDto = new LoggedCustomerDto("user", pwwd, "Adam", "DDD", "ptr@ptr",
                     "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
             customerService.createNewCustomer(customerDto);
             Cart cart = new Cart(CartStatus.FINALIZED, List.of(), BigDecimal.TEN, LocalDate.of(2023, 2, 23));
             cartRepository.save(cart);
-            Optional<LoggedCustomer> customer_logged = customerRepository.findCustomer_LoggedByUserNameEquals("user");
-
             AuthenticationDataDto loggedCustomerDto = new AuthenticationDataDto("user", "something".toCharArray());
 
             //When & Then
@@ -830,13 +835,14 @@ class CartServiceTest {
         }
     }
 
+
     @Nested
     @Transactional
     @DisplayName("test deleteByCartStatus")
     class TestDeleteByCartStatus {
         @Test
         void deleteByCartStatusPositive() {
-//Given
+            //Given
             Cart cart = Cart.builder()
                     .cartStatus(CartStatus.EMPTY)
                     .build();
@@ -855,14 +861,14 @@ class CartServiceTest {
             assertFalse(carts.contains(cart));
         }
     }
-}
 
-/*    @Nested
+   /* @Nested
     @Transactional
     @DisplayName("test deleteByProcessingTime")
     class TestDeleteByProcessingTime {
         @Test
         void deleteByProcessingTime() {
+            //Given
             Category category = new Category("testCategory");
             categoryRepository.save(category);
             Product product = new Product("testName", "testDescription", category, new BigDecimal("5.00"));
@@ -900,4 +906,5 @@ class CartServiceTest {
             }
         }
     }*/
+}
 

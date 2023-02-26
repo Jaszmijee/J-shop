@@ -270,6 +270,7 @@ public class CartService {
             Warehouse warehouse = warehouseService.findWarehouseByProductId(items.getProduct().getProductID());
             warehouse.setProductQuantity(warehouse.getProductQuantity() + items.getQuantity());
             warehouseService.save(warehouse);
+            items.setCart(null);
         }
         orderToCancel.getCart().getListOfItems().clear();
         orderService.save(orderToCancel);
@@ -286,6 +287,7 @@ public class CartService {
 
     public void cancelOrderLogged(Long orderId, AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, OrderNotFoundException {
         customerService.verifyLogin(authenticationDataDto.getUsername(), authenticationDataDto.getPassword());
+        orderService.findByIdAndUserName(orderId, authenticationDataDto.getUsername());
         cancelOrder(orderId);
     }
 

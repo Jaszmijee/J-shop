@@ -7,6 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class AuthenticationDataDto {
 
-    String username;
-    char[] password;
+    private String username;
+    private char[] password;
 }

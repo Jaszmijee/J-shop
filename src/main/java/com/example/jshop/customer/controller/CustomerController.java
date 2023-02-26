@@ -18,11 +18,15 @@ import java.util.List;
 @RequestMapping("customer")
 public class CustomerController {
 
-    @Autowired
-    CustomerService customerService;
+    private final CustomerService customerService;
+
+    private final CartService cartService;
 
     @Autowired
-    CartService cartService;
+    public CustomerController(CustomerService customerService, CartService cartService) {
+        this.customerService = customerService;
+        this.cartService = cartService;
+    }
 
     @PostMapping
     ResponseEntity<LoggedCustomerDto> addCustomer(@RequestBody LoggedCustomerDto loggedCustomerDto) {
@@ -36,12 +40,12 @@ public class CustomerController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("my_orders")
+    @PostMapping("delete_my_orders")
     ResponseEntity<List<OrderDtoToCustomer>> showMyOrders(@RequestBody AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException {
         return ResponseEntity.ok(customerService.showMyOrders(authenticationDataDto));
     }
 
-    @PutMapping
+    @PutMapping("my_orders")
     ResponseEntity<Void> cancelOrderLogged(@RequestParam Long orderId, @RequestBody AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, OrderNotFoundException {
         cartService.cancelOrderLogged(orderId, authenticationDataDto);
         return ResponseEntity.ok().build();
