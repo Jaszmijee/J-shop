@@ -1,8 +1,8 @@
 package com.example.jshop.customer.service;
 
-import com.example.jshop.customer.domain.CustomerDto;
-import com.example.jshop.customer.domain.Customer_Logged;
+import com.example.jshop.customer.domain.LoggedCustomer;
 import com.example.jshop.customer.domain.LoggedCustomerDto;
+import com.example.jshop.customer.domain.AuthenticationDataDto;
 import com.example.jshop.carts_and_orders.domain.order.OrderDtoToCustomer;
 import com.example.jshop.error_handlers.exceptions.AccessDeniedException;
 import com.example.jshop.error_handlers.exceptions.UserNotFoundException;
@@ -38,38 +38,38 @@ public class CustomerService {
     @Autowired
     PasswordEncoder bCryptPasswordEncoder;
 
-    public Customer_Logged updateCustomer(Customer_Logged customer) {
-        return customerRepository.save(customer);
+    public LoggedCustomer updateCustomer(LoggedCustomer loggedCustomer) {
+        return customerRepository.save(loggedCustomer);
     }
 
-    public Customer_Logged createNewCustomer(CustomerDto customerDto) {
-        Customer_Logged customer = customerMapper.mapToCustomer(customerDto);
-        customer.setPassword(bCryptPasswordEncoder.encode(customerDto.getPassword()).toCharArray());
-        return customerRepository.save(customer);
+    public LoggedCustomer createNewCustomer(LoggedCustomerDto loggedCustomerDto) {
+        LoggedCustomer loggedCustomer = customerMapper.mapToCustomer(loggedCustomerDto);
+        loggedCustomer.setPassword(bCryptPasswordEncoder.encode(loggedCustomerDto.getPassword()).toCharArray());
+        return customerRepository.save(loggedCustomer);
     }
 
-    private Customer_Logged findCustomerByName(String userName) throws UserNotFoundException {
-        return customerRepository.findByUserName(userName).orElseThrow(UserNotFoundException::new);
+    private LoggedCustomer findCustomerByName(String userName) throws UserNotFoundException {
+        return customerRepository.findCustomer_LoggedByUserNameEquals(userName).orElseThrow(UserNotFoundException::new);
     }
 
-    public Customer_Logged verifyLogin(String userName, char[] pwwd) throws UserNotFoundException, AccessDeniedException {
-        Customer_Logged customer_logged = findCustomerByName(userName);
-        StringBuffer request = new StringBuffer();
+    public LoggedCustomer verifyLogin(String userName, char[] pwwd) throws UserNotFoundException, AccessDeniedException {
+        LoggedCustomer _Logged_Customer = findCustomerByName(userName);
+        StringBuilder request = new StringBuilder();
         for (char ch : pwwd) {
             request.append(ch);
         }
-        StringBuffer response = new StringBuffer();
-        for (char ch : customer_logged.getPassword()) {
+        StringBuilder response = new StringBuilder();
+        for (char ch : _Logged_Customer.getPassword()) {
             response.append(ch);
         }
         if (!bCryptPasswordEncoder.matches(request.toString(), response.toString())){
             LOGGER.error("Unauthorized access attempt for " + userName);
             throw new AccessDeniedException();
         }
-        else return customer_logged;
+        else return _Logged_Customer;
     }
 
-    public void removeCustomer(LoggedCustomerDto customerDto) throws UserNotFoundException, AccessDeniedException {
+    public void removeCustomer(AuthenticationDataDto customerDto) throws UserNotFoundException, AccessDeniedException {
         verifyLogin(customerDto.getUsername(), customerDto.getPassword());
         customerRepository.deleteById(findCustomerByName(customerDto.getUsername()).getCustomerID());
     }
@@ -78,7 +78,7 @@ public class CustomerService {
         customerRepository.deleteById(customerId);
     }
 
-    public List<OrderDtoToCustomer> showMyOrders(LoggedCustomerDto customerDto) throws UserNotFoundException, AccessDeniedException {
+    public List<OrderDtoToCustomer> showMyOrders(AuthenticationDataDto customerDto) throws UserNotFoundException, AccessDeniedException {
         verifyLogin(customerDto.getUsername(), customerDto.getPassword());
         return orderMapper.mapToOrderDtoToCustomerList(orderService.findOrdersOfCustomer(customerDto.getUsername()));
     }

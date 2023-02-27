@@ -22,16 +22,6 @@ public class ProductMapper {
         );
     }
 
-    public ProductDto mapToProductDto(Product product) {
-        return new ProductDto(
-
-                product.getProductName(),
-                product.getDescription(),
-                product.getCategory().getName(),
-                product.getPrice()
-        );
-    }
-
     public ProductDtoAllInfo mapToProductDtoAllInfo(Product product) {
         return new ProductDtoAllInfo(
 

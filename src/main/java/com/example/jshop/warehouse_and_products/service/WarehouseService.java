@@ -7,7 +7,6 @@ import com.example.jshop.error_handlers.exceptions.LimitException;
 import com.example.jshop.warehouse_and_products.repository.WarehouseRepository;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,18 +16,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WarehouseService {
 
-    @Autowired
     private final WarehouseRepository warehouseRepository;
 
     public List<Warehouse> findAllProductsInWarehouse() {
         return warehouseRepository.findAll();
     }
 
-    public Warehouse findItemByID(Long itemId)  {
+    public Warehouse findWarehouseByProductId(Long itemId) {
         return warehouseRepository.findWarehouseByProductId(itemId).orElse(null);
     }
 
-    public List<Warehouse> findProductsByCategory(String category, Integer limit) throws CategoryNotFoundException {
+    public List<Warehouse> findProductsInWarehouseByCategory(String category, Integer limit) throws CategoryNotFoundException {
         List<Warehouse> list = warehouseRepository.findWarehouseByProduct_Category_Name(category, limit);
         if (list.isEmpty()) {
             throw new CategoryNotFoundException();
@@ -40,19 +38,19 @@ public class WarehouseService {
         return warehouseRepository.save(warehouse);
     }
 
-    public void deleteById(Long productId) {
+    public void deleteProductFromWarehouseByProductId(Long productId) {
         warehouseRepository.deleteByProduct_ProductID(productId);
     }
 
-    public List<Warehouse> findProductsWithSelection(String categoryName, String productName, BigDecimal productPrice, Integer limit) throws LimitException {
-        if (limit > 100 || limit < 1){
+    public List<Warehouse> findProductsInWarehouseWithSelection(String categoryName, String productName, BigDecimal productPrice, Integer limit) throws LimitException {
+        if (limit > 100 || limit < 1) {
             throw new LimitException();
         }
-      return warehouseRepository.findWarehouseByProduct_CategoryOrProduct_ProductNameOAndProduct_Price(categoryName,productName,productPrice,limit);
+        return warehouseRepository.findWarehouseByProduct_CategoryOrProduct_ProductNameOAndProduct_Price(categoryName, productName, productPrice, limit);
     }
 
     public void sentForShipment(Order createdOrder) {
-       String shipment =  createdOrder.getListOfProducts() + createdOrder.getCustomer().getAddress();
+        String shipment = "\n" + createdOrder.getListOfProducts() + "\n" + createdOrder.getLoggedCustomer().getAddress();
         System.out.println("prepare and send shipment: " + shipment);
     }
 }

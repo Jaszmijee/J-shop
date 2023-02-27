@@ -82,7 +82,7 @@ class AdminControllerTest {
         void testAddNewCategoryInvalidArgumentException() throws Exception {
             //Given
             CategoryDto empty = new CategoryDto("");
-            Mockito.doThrow(InvalidArgumentException.class).when(adminService).addNewCategory(any(CategoryDto.class));
+            Mockito.doThrow(InvalidCategoryNameException.class).when(adminService).addNewCategory(any(CategoryDto.class));
             Gson gson = new Gson();
             String jsonContent = gson.toJson(empty);
 
@@ -256,7 +256,7 @@ class AdminControllerTest {
         void testShowAllCategoriesAndProductsAccessDeniedException() throws Exception {
             //Given
             List<CategoryWithProductsDto> listEmpty = List.of();
-            when(adminService.showAllCategories()).thenReturn(List.of());
+            when(adminService.showAllCategoriesWithProducts()).thenReturn(List.of());
             Gson gson = new Gson();
             String jsonContent = gson.toJson(listEmpty);
 
@@ -273,14 +273,14 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                     .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
 
-            verify(adminService, never()).showAllCategories();
+            verify(adminService, never()).showAllCategoriesWithProducts();
         }
 
         @Test
         void testShowAllCategoriesAndProductsPositiveEmptyList() throws Exception {
             //Given
             List<CategoryWithProductsDto> listEmpty = List.of();
-            when(adminService.showAllCategories()).thenReturn(listEmpty);
+            when(adminService.showAllCategoriesWithProducts()).thenReturn(listEmpty);
             Gson gson = new Gson();
             String jsonContent = gson.toJson(listEmpty);
 
@@ -297,7 +297,7 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(0)));
 
-            verify(adminService, times(1)).showAllCategories();
+            verify(adminService, times(1)).showAllCategoriesWithProducts();
         }
 
         @Test
@@ -305,7 +305,7 @@ class AdminControllerTest {
             //Given
             List<CategoryWithProductsDto> list = List.of(new CategoryWithProductsDto(1L, "Music",
                     List.of(new ProductDtoAllInfo(2L, "Music", "Album1", "CD", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN)))));
-            when(adminService.showAllCategories()).thenReturn(list);
+            when(adminService.showAllCategoriesWithProducts()).thenReturn(list);
             Gson gson = new Gson();
             String jsonContent = gson.toJson(list);
 
@@ -330,7 +330,7 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$[0].listOfProducts[0].description", Matchers.is("CD")))
                     .andExpect(MockMvcResultMatchers.jsonPath("$[0].listOfProducts[0].price", Matchers.is(25.12)));
 
-            verify(adminService, times(1)).showAllCategories();
+            verify(adminService, times(1)).showAllCategoriesWithProducts();
         }
     }
 
@@ -342,7 +342,7 @@ class AdminControllerTest {
             //Given
             CategoryWithProductsDto productsInCategory = new CategoryWithProductsDto(1L, "Music",
                     List.of(new ProductDtoAllInfo(2L, "Music", "Album1", "CD", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN))));
-            when(adminService.searchForProductsInCategory(any(String.class))).thenReturn(productsInCategory);
+            when(adminService.showCategoryByNameWithProducts(any(String.class))).thenReturn(productsInCategory);
 
             //When & Then
             mockMvc
@@ -356,13 +356,13 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                     .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
 
-            verify(adminService, never()).searchForProductsInCategory(anyString());
+            verify(adminService, never()).showCategoryByNameWithProducts(anyString());
         }
 
         @Test
         void testShowCategoriesCategoryNotFoundException() throws Exception {
             //Given
-            when(adminService.searchForProductsInCategory("Music")).thenThrow(CategoryNotFoundException.class);
+            when(adminService.showCategoryByNameWithProducts("Music")).thenThrow(CategoryNotFoundException.class);
 
             //When & Then
             mockMvc
@@ -376,7 +376,7 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(result -> assertEquals("Category not found", result.getResponse().getContentAsString()));
 
-            verify(adminService, times(1)).searchForProductsInCategory(anyString());
+            verify(adminService, times(1)).showCategoryByNameWithProducts(anyString());
         }
 
         @Test
@@ -384,7 +384,7 @@ class AdminControllerTest {
             //Given
             CategoryWithProductsDto emptyCategory = new CategoryWithProductsDto(1L, "Music",
                     List.of());
-            when(adminService.searchForProductsInCategory("Music")).thenReturn(emptyCategory);
+            when(adminService.showCategoryByNameWithProducts("Music")).thenReturn(emptyCategory);
 
             //When & Then
             mockMvc
@@ -401,7 +401,7 @@ class AdminControllerTest {
                     // ProductDtoAllInfo
                     .andExpect(MockMvcResultMatchers.jsonPath("$.listOfProducts", Matchers.hasSize(0)));
 
-            verify(adminService, times(1)).searchForProductsInCategory(anyString());
+            verify(adminService, times(1)).showCategoryByNameWithProducts(anyString());
         }
 
         @Test
@@ -409,7 +409,7 @@ class AdminControllerTest {
             //Given
             CategoryWithProductsDto productsInCategory = new CategoryWithProductsDto(1L, "Music",
                     List.of(new ProductDtoAllInfo(2L, "Music", "Album1", "CD", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN))));
-            when(adminService.searchForProductsInCategory("Music")).thenReturn(productsInCategory);
+            when(adminService.showCategoryByNameWithProducts("Music")).thenReturn(productsInCategory);
 
             //When & Then
             mockMvc
@@ -430,7 +430,7 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.listOfProducts[0].description", Matchers.is("CD")))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.listOfProducts[0].price", Matchers.is(25.12)));
 
-            verify(adminService, times(1)).searchForProductsInCategory(anyString());
+            verify(adminService, times(1)).showCategoryByNameWithProducts(anyString());
         }
     }
 
@@ -442,7 +442,7 @@ class AdminControllerTest {
             //Given
             ProductDto productDto = new ProductDto("Album1", "CD", "Music", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             ProductDtoAllInfo productDtoAllInfo = new ProductDtoAllInfo(2L, "Music", "Album1", "CD", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
-            when(adminService.addProduct(any(ProductDto.class))).thenReturn(productDtoAllInfo);
+            when(adminService.addNewProduct(any(ProductDto.class))).thenReturn(productDtoAllInfo);
 
             Gson gson = new Gson();
             String jsonContent = gson.toJson(productDto);
@@ -460,14 +460,14 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                     .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
 
-            verify(adminService, never()).addProduct(any(ProductDto.class));
+            verify(adminService, never()).addNewProduct(any(ProductDto.class));
         }
 
         @Test
         void testShowCategoriesInvalidArgumentException() throws Exception {
             //Given
             ProductDto productDto = new ProductDto("Album1", "CD", "Music", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
-            when(adminService.addProduct(any(ProductDto.class))).thenThrow(InvalidArgumentException.class);
+            when(adminService.addNewProduct(any(ProductDto.class))).thenThrow(InvalidCategoryNameException.class);
 
             Gson gson = new Gson();
             String jsonContent = gson.toJson(productDto);
@@ -485,14 +485,14 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(result -> assertEquals("Provide proper name", result.getResponse().getContentAsString()));
 
-            verify(adminService, times(1)).addProduct(any(ProductDto.class));
+            verify(adminService, times(1)).addNewProduct(any(ProductDto.class));
         }
 
         @Test
         void testShowCategoriesCategoryExistsException() throws Exception {
             //Given
             ProductDto productDto = new ProductDto("Album1", "CD", "unknown", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
-            when(adminService.addProduct(any(ProductDto.class))).thenThrow(CategoryExistsException.class);
+            when(adminService.addNewProduct(any(ProductDto.class))).thenThrow(CategoryExistsException.class);
 
             Gson gson = new Gson();
             String jsonContent = gson.toJson(productDto);
@@ -510,14 +510,14 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(result -> assertEquals("Category already exists", result.getResponse().getContentAsString()));
 
-            verify(adminService, times(1)).addProduct(any(ProductDto.class));
+            verify(adminService, times(1)).addNewProduct(any(ProductDto.class));
         }
 
         @Test
         void testShowCategoriesInvalidPriceException() throws Exception {
             //Given
             ProductDto productDto = new ProductDto("Album1", "CD", "unknown", new BigDecimal(-25.12).setScale(2, RoundingMode.HALF_EVEN));
-            when(adminService.addProduct(any(ProductDto.class))).thenThrow(InvalidPriceException.class);
+            when(adminService.addNewProduct(any(ProductDto.class))).thenThrow(InvalidPriceException.class);
             Gson gson = new Gson();
             String jsonContent = gson.toJson(productDto);
 
@@ -534,7 +534,7 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(result -> assertEquals("Price is incorrect", result.getResponse().getContentAsString()));
 
-            verify(adminService, times(1)).addProduct(any(ProductDto.class));
+            verify(adminService, times(1)).addNewProduct(any(ProductDto.class));
         }
 
         @Test
@@ -542,7 +542,7 @@ class AdminControllerTest {
             //Given
             ProductDto productDto = new ProductDto("Album1", "CD", "unknown", new BigDecimal(-25.12).setScale(2, RoundingMode.HALF_EVEN));
             ProductDtoAllInfo productDtoAllInfo = new ProductDtoAllInfo(2L, "Music", "Album1", "CD", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
-            when(adminService.addProduct(any(ProductDto.class))).thenReturn(productDtoAllInfo);
+            when(adminService.addNewProduct(any(ProductDto.class))).thenReturn(productDtoAllInfo);
             Gson gson = new Gson();
             String jsonContent = gson.toJson(productDto);
 
@@ -563,7 +563,7 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.description", Matchers.is("CD")))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.price", Matchers.is(25.12)));
 
-            verify(adminService, times(1)).addProduct(any(ProductDto.class));
+            verify(adminService, times(1)).addNewProduct(any(ProductDto.class));
         }
     }
 
@@ -625,7 +625,7 @@ class AdminControllerTest {
         void testUpdateProductInvalidArgumentException() throws Exception {
             //Given
             ProductDto productDto = new ProductDto("Album1", "CD", "Music", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
-            when(adminService.updateProduct(anyLong(), any(ProductDto.class))).thenThrow(InvalidArgumentException.class);
+            when(adminService.updateProduct(anyLong(), any(ProductDto.class))).thenThrow(InvalidCategoryNameException.class);
             Gson gson = new Gson();
             String jsonContent = gson.toJson(productDto);
 
@@ -1023,7 +1023,7 @@ class AdminControllerTest {
         void testDisplayAllItemsInWareHouseAccessDeniedException() throws Exception {
             //Given
             List<WarehouseDto> warehouseDtoList = List.of(new WarehouseDto(4L, 2L, "Marilyn Manson, \"Antichrist Superstar\"", "Music", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN), 45));
-            when(adminService.displayAllItemsInWarehouse()).thenReturn(warehouseDtoList);
+            when(adminService.displayAllProductsInWarehouse()).thenReturn(warehouseDtoList);
 
             //When & Then
             mockMvc
@@ -1036,14 +1036,14 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                     .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
 
-            verify(adminService, never()).displayAllItemsInWarehouse();
+            verify(adminService, never()).displayAllProductsInWarehouse();
         }
 
         @Test
         void testDisplayAllItemsInWareHousePositive() throws Exception {
             //Given
             List<WarehouseDto> warehouseDtoList = List.of(new WarehouseDto(4L, 2L, "Marilyn Manson, \"Antichrist Superstar\"", "Music", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN), 45));
-            when(adminService.displayAllItemsInWarehouse()).thenReturn(warehouseDtoList);
+            when(adminService.displayAllProductsInWarehouse()).thenReturn(warehouseDtoList);
 
             //When & Then
             mockMvc
@@ -1062,7 +1062,7 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$.[0].price", Matchers.is(25.12)))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.[0].quantity", Matchers.is(45)));
 
-            verify(adminService, times(1)).displayAllItemsInWarehouse();
+            verify(adminService, times(1)).displayAllProductsInWarehouse();
         }
     }
 
@@ -1074,14 +1074,9 @@ class AdminControllerTest {
             //Given
             String listOfProductsDummy = "Dummy list";
             List<OrderDtoToCustomer> orderDtoList = List.of(
-                    OrderDtoToCustomer.builder()
-                            .orderId(8L)
-                            .createdOn(LocalDate.of(2023, 2, 20))
-                            .listOfProducts(listOfProductsDummy)
-                            .totalPrice(new BigDecimal(4025).setScale(2, RoundingMode.HALF_EVEN).toString())
-                            .status("UNPAID")
-                            .paymentDue(LocalDate.of(2023, 3, 15))
-                            .build());
+                    new OrderDtoToCustomer(8L, LocalDate.of(2023, 2, 20), listOfProductsDummy,
+                            new BigDecimal(4025).setScale(2, RoundingMode.HALF_EVEN).toString(), "UNPAID",
+                            LocalDate.of(2023, 3, 15)));
 
             when(adminService.displayOrders(anyString())).thenReturn(orderDtoList);
 
@@ -1125,14 +1120,9 @@ class AdminControllerTest {
             //Given
             String listOfProductsDummy = "Dummy list";
             List<OrderDtoToCustomer> orderDtoList = List.of(
-                    OrderDtoToCustomer.builder()
-                            .orderId(8L)
-                            .createdOn(LocalDate.of(2023, 2, 20))
-                            .listOfProducts(listOfProductsDummy)
-                            .totalPrice(new BigDecimal(4025).setScale(2, RoundingMode.HALF_EVEN).toString())
-                            .status("UNPAID")
-                            .paymentDue(LocalDate.of(2023, 3, 15))
-                            .build());
+                    new OrderDtoToCustomer(8L, LocalDate.of(2023, 2, 20), listOfProductsDummy,
+                            new BigDecimal(4025).setScale(2, RoundingMode.HALF_EVEN).toString(), "UNPAID",
+                            LocalDate.of(2023, 3, 15)));
 
             when(adminService.displayOrders(anyString())).thenReturn(orderDtoList);
 
@@ -1161,14 +1151,9 @@ class AdminControllerTest {
             //Given
             String listOfProductsDummy = "Dummy list";
             List<OrderDtoToCustomer> orderDtoList = List.of(
-                    OrderDtoToCustomer.builder()
-                            .orderId(8L)
-                            .createdOn(LocalDate.of(2023, 2, 20))
-                            .listOfProducts(listOfProductsDummy)
-                            .totalPrice(new BigDecimal(4025).setScale(2, RoundingMode.HALF_EVEN).toString())
-                            .status("UNPAID")
-                            .paymentDue(LocalDate.of(2023, 3, 15))
-                            .build());
+                    new OrderDtoToCustomer(8L, LocalDate.of(2023, 2, 20), listOfProductsDummy,
+                            new BigDecimal(4025).setScale(2, RoundingMode.HALF_EVEN).toString(), "UNPAID",
+                            LocalDate.of(2023, 3, 15)));
 
             when(adminService.displayOrders(null)).thenReturn(orderDtoList);
 

@@ -1,15 +1,15 @@
 package com.example.jshop.carts_and_orders.service;
 
 import com.example.jshop.carts_and_orders.domain.cart.*;
+import com.example.jshop.customer.domain.LoggedCustomer;
 import com.example.jshop.customer.service.CustomerService;
 import com.example.jshop.carts_and_orders.domain.order.ORDER_STATUS;
 import com.example.jshop.customer.domain.Address;
 import com.example.jshop.carts_and_orders.domain.order.Order;
-import com.example.jshop.customer.domain.Customer_Logged;
-import com.example.jshop.customer.domain.LoggedCustomerDto;
-import com.example.jshop.customer.domain.UnlogedCustomerDto;
-import com.example.jshop.email.domain.Mail;
+import com.example.jshop.customer.domain.AuthenticationDataDto;
+import com.example.jshop.customer.domain.UnauthenticatedCustomerDto;
 import com.example.jshop.carts_and_orders.domain.order.OrderDtoToCustomer;
+import com.example.jshop.email.service.EmailContentCreator;
 import com.example.jshop.error_handlers.exceptions.*;
 import com.example.jshop.warehouse_and_products.domain.product.Product;
 import com.example.jshop.warehouse_and_products.domain.warehouse.Warehouse;
@@ -19,7 +19,7 @@ import com.example.jshop.carts_and_orders.mapper.ItemMapper;
 import com.example.jshop.carts_and_orders.mapper.OrderMapper;
 import com.example.jshop.carts_and_orders.repository.CartRepository;
 import com.example.jshop.warehouse_and_products.service.WarehouseService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,34 +28,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CartService {
 
-    @Autowired
-    CartRepository cartRepository;
-
-    @Autowired
-    WarehouseService warehouseService;
-
-    @Autowired
-    CartMapper cartMapper;
-
-    @Autowired
-    ItemService itemService;
-
-    @Autowired
-    ItemMapper itemMapper;
-
-    @Autowired
-    CustomerService customerService;
-
-    @Autowired
-    SimpleEmailService emailService;
-
-    @Autowired
-    OrderService orderService;
-
-    @Autowired
-    OrderMapper orderMapper;
+    private final CartRepository cartRepository;
+    private final WarehouseService warehouseService;
+    private final CartMapper cartMapper;
+    private final ItemService itemService;
+    private final ItemMapper itemMapper;
+    private final CustomerService customerService;
+    private final SimpleEmailService emailService;
+    private final OrderService orderService;
+    private final OrderMapper orderMapper;
+    private final EmailContentCreator emailCreator;
 
     private Cart findCartById(Long cartId) throws CartNotFoundException {
         return cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
@@ -67,15 +52,6 @@ public class CartService {
         newCart.setCreated(LocalDate.now());
         cartRepository.save(newCart);
         return newCart;
-    }
-
-    private void findIfQuantityInWarehouseIsEnough(Warehouse warehouse, int quantity) throws ItemNotAvailableException, NotEnoughItemsException {
-        if (warehouse.getProductQuantity() == 0) {
-            throw new ItemNotAvailableException();
-        }
-        if (warehouse.getProductQuantity() < quantity) {
-            throw new NotEnoughItemsException();
-        }
     }
 
     private void updateProductInWarehouse(Warehouse warehouse, Integer productQuantity) {
@@ -97,19 +73,20 @@ public class CartService {
         }
     }
 
-    private Warehouse validateProductInWarehouse(Long productId) throws ProductNotFoundException {
-        Warehouse warehouse = warehouseService.findItemByID(productId);
-        if (warehouse == null) {
+    private Warehouse validateProductInWarehouse(Long productId, int quantity) throws ProductNotFoundException, NotEnoughItemsException {
+        Warehouse warehouse = warehouseService.findWarehouseByProductId(productId);
+        if (warehouse == null || warehouse.getProductQuantity() == 0) {
             throw new ProductNotFoundException();
+        } else if (warehouse.getProductQuantity() < quantity) {
+            throw new NotEnoughItemsException();
         } else return warehouse;
     }
 
-    public CartDto addToCart(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException, ItemNotAvailableException, NotEnoughItemsException, ProductNotFoundException, InvalidQuantityException {
+    public CartDto addToCart(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException, NotEnoughItemsException, ProductNotFoundException, InvalidQuantityException {
+        validateQuantityOfPurchasedProduct(cartItemsDto.getQuantity());
         Cart cartToUpdate = findCartById(cartId);
         validateCartForProcessing(cartToUpdate);
-        validateQuantityOfPurchasedProduct(cartItemsDto.getQuantity());
-        Warehouse warehouse = validateProductInWarehouse(cartItemsDto.getProductId());
-        findIfQuantityInWarehouseIsEnough(warehouse, cartItemsDto.getQuantity());
+        Warehouse warehouse = validateProductInWarehouse(cartItemsDto.getProductId(), cartItemsDto.getQuantity());
         Product product = warehouse.getProduct();
         Item item;
         List<Item> items = cartToUpdate.getListOfItems().stream().filter(i -> i.getProduct().getProductID().equals(product.getProductID()))
@@ -123,7 +100,6 @@ public class CartService {
                     .quantity(cartItemsDto.getQuantity())
                     .cart(cartToUpdate)
                     .build();
-
             cartToUpdate.getListOfItems().add(item);
         }
         itemService.save(item);
@@ -136,7 +112,7 @@ public class CartService {
     }
 
     private void validateQuantityOfPurchasedProduct(int quantity) throws InvalidQuantityException {
-        if (quantity <= 0 || quantity >= Integer.MAX_VALUE){
+        if (quantity <= 0) {
             throw new InvalidQuantityException();
         }
     }
@@ -145,28 +121,30 @@ public class CartService {
         return cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
     }
 
-    public CartDto removeFromCart(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException, ProductNotFoundException {
+    public CartDto removeFromCart(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException, ProductNotFoundException, InvalidQuantityException {
+        validateQuantityOfPurchasedProduct(cartItemsDto.getQuantity());
         Cart cartToUpdate = findCartById(cartId);
         validateCartForProcessing(cartToUpdate);
+        if (cartToUpdate.getCartStatus() == CartStatus.EMPTY) {
+            throw new CartNotFoundException();
+        }
         Item item;
         List<Item> items = cartToUpdate.getListOfItems().stream().filter(i -> i.getProduct().getProductID().equals(cartItemsDto.getProductId()))
                 .toList();
         if (items.size() == 0) {
             throw new ProductNotFoundException();
         }
-        Warehouse warehouse = warehouseService.findItemByID(cartItemsDto.getProductId());
-        if (items.size() > 0) {
-            item = items.get(0);
-            if (item.getQuantity() <= cartItemsDto.getQuantity()) {
-                updateProductInWarehouse(warehouse, -(cartItemsDto.getQuantity()));
-                cartToUpdate.getListOfItems().remove(item);
-                itemService.delete(item);
-            } else {
-                updateProductInWarehouse(warehouse, -(cartItemsDto.getQuantity()));
-                item.setQuantity(item.getQuantity() - cartItemsDto.getQuantity());
-                itemService.save(item);
-                cartToUpdate.getListOfItems().set(cartToUpdate.getListOfItems().indexOf(item), item);
-            }
+        Warehouse warehouse = warehouseService.findWarehouseByProductId(cartItemsDto.getProductId());
+        item = items.get(0);
+        if (item.getQuantity() <= cartItemsDto.getQuantity()) {
+            updateProductInWarehouse(warehouse, -(item.getQuantity()));
+            cartToUpdate.getListOfItems().remove(item);
+            itemService.delete(item);
+        } else {
+            updateProductInWarehouse(warehouse, -(cartItemsDto.getQuantity()));
+            item.setQuantity(item.getQuantity() - cartItemsDto.getQuantity());
+            itemService.save(item);
+            cartToUpdate.getListOfItems().set(cartToUpdate.getListOfItems().indexOf(item), item);
         }
         if (cartToUpdate.getListOfItems().isEmpty()) {
             cartToUpdate.setCartStatus(CartStatus.EMPTY);
@@ -181,7 +159,7 @@ public class CartService {
         validateCartForProcessing(cart);
         if (!(cart.getListOfItems().isEmpty())) {
             for (Item items : cart.getListOfItems()) {
-                Warehouse warehouse = warehouseService.findItemByID(items.getProduct().getProductID());
+                Warehouse warehouse = warehouseService.findWarehouseByProductId(items.getProduct().getProductID());
                 warehouse.setProductQuantity(warehouse.getProductQuantity() + items.getQuantity());
                 warehouseService.save(warehouse);
                 itemService.delete(items);
@@ -190,51 +168,26 @@ public class CartService {
         cartRepository.deleteById(cartId);
     }
 
-    private Order createNewOrder(Long cartId, LoggedCustomerDto loggedCustomerDto) throws CartNotFoundException, UserNotFoundException, AccessDeniedException {
+    private Order createNewOrder(Long cartId, AuthenticationDataDto authenticationDataDto) throws CartNotFoundException, UserNotFoundException, AccessDeniedException {
         Cart cart = findCartById(cartId);
-        Customer_Logged customer = customerService.verifyLogin(loggedCustomerDto.getUsername(), loggedCustomerDto.getPassword());
-
+        LoggedCustomer loggedCustomer = customerService.verifyLogin(authenticationDataDto.getUsername(), authenticationDataDto.getPassword());
         String listOfItems = cart.getListOfItems().stream()
-                .map(item -> itemMapper.mapToItemDto(item))
+                .map(itemMapper::mapToItemDto)
                 .map(result -> "\nproduct: " + result.getProductName() + ", quantity: " + result.getProductQuantity() + ", total price: " + result.getCalculatedPrice())
                 .collect(Collectors.joining("\n"));
-        Order createdOrder = new Order(customer, cart, LocalDate.now(), ORDER_STATUS.UNPAID, listOfItems, cart.getCalculatedPrice());
-        customer.getListOfOrders().add(createdOrder);
-        customerService.updateCustomer(customer);
+        cart.setCalculatedPrice(calculateCurrentCartValue(cart));
+        BigDecimal calculatedPrice = calculateCurrentCartValue(cart);
+        Order createdOrder = new Order(loggedCustomer, cart, LocalDate.now(), ORDER_STATUS.UNPAID, listOfItems, calculatedPrice);
+        loggedCustomer.getListOfOrders().add(createdOrder);
+        customerService.updateCustomer(loggedCustomer);
         orderService.save(createdOrder);
         return createdOrder;
     }
 
-    private Mail createContent(Order order) {
-
-        String subject = "Your order: " + order.getOrderID();
-        String message = "Your order: " + order.getOrderID() + ", created on: " + order.getCreated() +
-                " " + order.getListOfProducts() + " " +
-                "\n total sum: " + order.getCalculatedPrice();
-        if (order.getOrder_status() == ORDER_STATUS.UNPAID) {
-            message += "\n Your payment is due on: " + order.getCreated().plusDays(14);
-        } else if (order.getCart().getListOfItems().isEmpty()) {
-            message = "Your order: " + order.getOrderID() + " is cancelled";
-        } else {
-            message += "\n Your order is paid and ready for shipment,";
-        }
-
-        message += """
-                Thank you for your purchase
-                Your J-Shop""".indent(1);
-
-        return new Mail(
-                order.getCustomer().getEmail(),
-                subject,
-                message,
-                "admin@j-shop.com"
-        );
-    }
-
-    public OrderDtoToCustomer finalizeCart(Long cartId, LoggedCustomerDto loggedCustomerDto) throws CartNotFoundException, UserNotFoundException, AccessDeniedException {
-        customerService.verifyLogin(loggedCustomerDto.getUsername(), loggedCustomerDto.getPassword());
-        Order order = createNewOrder(cartId, loggedCustomerDto);
-        emailService.send(createContent(order));
+    public OrderDtoToCustomer finalizeCart(Long cartId, AuthenticationDataDto authenticationDataDto) throws CartNotFoundException, UserNotFoundException, AccessDeniedException {
+        customerService.verifyLogin(authenticationDataDto.getUsername(), authenticationDataDto.getPassword());
+        Order order = createNewOrder(cartId, authenticationDataDto);
+        emailService.send(emailCreator.createContent(order));
         Cart cart = findCartById(cartId);
         validateCartForProcessing(cart);
         cart.setCartStatus(CartStatus.FINALIZED);
@@ -244,7 +197,7 @@ public class CartService {
 
     private Order validateOrderToPay(Long orderId, String username) throws OrderNotFoundException {
         Order order = orderService.findByIdAndUserName(orderId, username);
-        if (order.getOrder_status() != ORDER_STATUS.UNPAID) {
+        if (order.getOrder_status() == ORDER_STATUS.PAID) {
             throw new OrderNotFoundException();
         } else return order;
     }
@@ -254,52 +207,54 @@ public class CartService {
         return true;
     }
 
-    public OrderDtoToCustomer payForCart(Long orderId, LoggedCustomerDto loggedCustomerDto) throws UserNotFoundException, AccessDeniedException, OrderNotFoundException, PaymentErrorException {
-        customerService.verifyLogin(loggedCustomerDto.getUsername(), loggedCustomerDto.getPassword());
-        Order order = validateOrderToPay(orderId, loggedCustomerDto.getUsername());
+    public OrderDtoToCustomer payForCart(Long orderId, AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, OrderNotFoundException, PaymentErrorException {
+        customerService.verifyLogin(authenticationDataDto.getUsername(), authenticationDataDto.getPassword());
+        Order order = validateOrderToPay(orderId, authenticationDataDto.getUsername());
         boolean isPaid = orderIsPaid(order);
         if (!(isPaid)) {
             throw new PaymentErrorException();
         } else {
+            emailService.send(emailCreator.createContent(order));
             Cart cart = order.getCart();
             order.setCart(null);
             order.setOrder_status(ORDER_STATUS.PAID);
             order.setPaid(LocalDate.now());
             orderService.save(order);
-            emailService.send(createContent(order));
             cartRepository.deleteById(cart.getCartID());
             warehouseService.sentForShipment(order);
         }
         return orderMapper.mapToOrderDtoToCustomer(order);
     }
 
-
-    public OrderDtoToCustomer payForCartUnlogged(Long cartId, UnlogedCustomerDto unlogedCustomerDto) throws CartNotFoundException, PaymentErrorException {
+    public OrderDtoToCustomer payForCartUnauthenticatedCustomer(Long cartId, UnauthenticatedCustomerDto unauthenticatedCustomerDto) throws CartNotFoundException, PaymentErrorException, InvalidCustomerDataException {
+        checkCustomerDataValidity(unauthenticatedCustomerDto);
         Cart cart = findCartById(cartId);
+        validateCartForProcessing(cart);
+        cart.setCalculatedPrice(calculateCurrentCartValue(cart));
+        cartRepository.save(cart);
         String listOfItems = cart.getListOfItems().stream()
-                .map(item -> itemMapper.mapToItemDto(item))
+                .map(itemMapper::mapToItemDto)
                 .map(result -> "product: " + result.getProductName() + ", quantity: " + result.getProductQuantity() + ", total price: " + result.getCalculatedPrice())
                 .collect(Collectors.joining("\n"));
-        Order createdOrder = new Order(new Customer_Logged(null, null, unlogedCustomerDto.getFirstName(), unlogedCustomerDto.getLastName(),
-                unlogedCustomerDto.getEmail(), new Address(unlogedCustomerDto.getStreet(), unlogedCustomerDto.getHouseNo(), unlogedCustomerDto.getFlatNo(), unlogedCustomerDto.getZipCode(), unlogedCustomerDto.getCity(), unlogedCustomerDto.getCountry())),
+        Order createdOrder = new Order(new LoggedCustomer(null, null, unauthenticatedCustomerDto.getFirstName(), unauthenticatedCustomerDto.getLastName(),
+                unauthenticatedCustomerDto.getEmail(), new Address(unauthenticatedCustomerDto.getStreet(), unauthenticatedCustomerDto.getHouseNo(), unauthenticatedCustomerDto.getFlatNo(), unauthenticatedCustomerDto.getZipCode(), unauthenticatedCustomerDto.getCity(), unauthenticatedCustomerDto.getCountry())),
                 cart, LocalDate.now(), ORDER_STATUS.UNPAID, listOfItems, cart.getCalculatedPrice());
-
-        customerService.updateCustomer(createdOrder.getCustomer());
+        customerService.updateCustomer(createdOrder.getLoggedCustomer());
         orderService.save(createdOrder);
         boolean isPaid = orderIsPaid(createdOrder);
         if (!(isPaid)) {
             throw new PaymentErrorException();
         } else {
+            warehouseService.sentForShipment(createdOrder);
             Cart cartToPay = createdOrder.getCart();
+            emailService.send(emailCreator.createContent(createdOrder));
             createdOrder.setCart(null);
             createdOrder.setOrder_status(ORDER_STATUS.PAID);
             createdOrder.setPaid(LocalDate.now());
             orderService.save(createdOrder);
-            emailService.send(createContent(createdOrder));
-            //TODO sent for shipment
-            warehouseService.sentForShipment(createdOrder);
-            long customerId = createdOrder.getCustomer().getCustomerID();
-            createdOrder.setCustomer(null);
+
+            long customerId = createdOrder.getLoggedCustomer().getCustomerID();
+            createdOrder.setLoggedCustomer(null);
             orderService.save(createdOrder);
             customerService.deleteUnauthenticatedCustomer(customerId);
             cartRepository.deleteById(cartToPay.getCartID());
@@ -307,33 +262,46 @@ public class CartService {
         return orderMapper.mapToOrderDtoToCustomer(createdOrder);
     }
 
+    private void checkCustomerDataValidity(UnauthenticatedCustomerDto unauthenticatedCustomerDto) throws InvalidCustomerDataException {
+        if ((unauthenticatedCustomerDto.getFirstName().isEmpty())
+                || (unauthenticatedCustomerDto.getLastName().isEmpty())
+                || (unauthenticatedCustomerDto.getStreet().isEmpty())
+                || (unauthenticatedCustomerDto.getHouseNo().isEmpty())
+                || (unauthenticatedCustomerDto.getFlatNo().isEmpty())
+                || (unauthenticatedCustomerDto.getCity().isEmpty())
+                || (unauthenticatedCustomerDto.getZipCode().isEmpty())
+                || (unauthenticatedCustomerDto.getEmail().isEmpty())) {
+            throw new InvalidCustomerDataException();
+        }
+    }
+
     public void cancelOrder(Long orderId) throws OrderNotFoundException {
         Order orderToCancel = orderService.findOrderById(orderId);
         if (orderToCancel.getOrder_status() == ORDER_STATUS.PAID) {
             throw new OrderNotFoundException();
-        } else {
-            if (!(orderToCancel.getCart().getListOfItems().isEmpty())) {
-                for (Item items : orderToCancel.getCart().getListOfItems()) {
-                    Warehouse warehouse = warehouseService.findItemByID(items.getProduct().getProductID());
-                    warehouse.setProductQuantity(warehouse.getProductQuantity() + items.getQuantity());
-                    warehouseService.save(warehouse);
-                    itemService.delete(items);
-                }
-                emailService.send(createContent(orderToCancel));
-                Customer_Logged customer_logged = orderToCancel.getCustomer();
-                customer_logged.getListOfOrders().remove((orderToCancel));
-                customerService.updateCustomer(customer_logged);
-                orderToCancel.setCustomer(null);
-                Long cartId = orderToCancel.getCart().getCartID();
-                orderToCancel.setCart(null);
-                cartRepository.deleteById(cartId);
-                orderService.deleteOrder(orderToCancel);
-            }
         }
+        for (Item items : orderToCancel.getCart().getListOfItems()) {
+            Warehouse warehouse = warehouseService.findWarehouseByProductId(items.getProduct().getProductID());
+            warehouse.setProductQuantity(warehouse.getProductQuantity() + items.getQuantity());
+            warehouseService.save(warehouse);
+            items.setCart(null);
+        }
+        orderToCancel.getCart().getListOfItems().clear();
+        orderService.save(orderToCancel);
+        emailService.send(emailCreator.createContent(orderToCancel));
+        LoggedCustomer _Logged_Customer = orderToCancel.getLoggedCustomer();
+        _Logged_Customer.getListOfOrders().remove((orderToCancel));
+        customerService.updateCustomer(_Logged_Customer);
+        orderToCancel.setLoggedCustomer(null);
+        Long cartId = orderToCancel.getCart().getCartID();
+        orderToCancel.setCart(null);
+        cartRepository.deleteById(cartId);
+        orderService.deleteOrder(orderToCancel);
     }
 
-    public void cancelOrderLogged(Long orderId, LoggedCustomerDto loggedCustomerDto) throws UserNotFoundException, AccessDeniedException, OrderNotFoundException {
-        customerService.verifyLogin(loggedCustomerDto.getUsername(), loggedCustomerDto.getPassword());
+    public void cancelOrderLogged(Long orderId, AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, OrderNotFoundException {
+        customerService.verifyLogin(authenticationDataDto.getUsername(), authenticationDataDto.getPassword());
+        orderService.findByIdAndUserName(orderId, authenticationDataDto.getUsername());
         cancelOrder(orderId);
     }
 
