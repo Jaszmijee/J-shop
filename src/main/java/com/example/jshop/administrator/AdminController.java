@@ -98,7 +98,7 @@ public class AdminController {
     }
 
     @GetMapping("order")
-    ResponseEntity<List<OrderDtoToCustomer>> displayAllOrders(@RequestParam String key, @RequestParam String token, @RequestParam(required = false) String order_status) throws AccessDeniedException, InvalidOrderStatusException {
+    ResponseEntity<List<OrderDtoToCustomer>> displayAllOrders(@RequestParam String key, @RequestParam String token, @RequestParam(required = false) String order_status) throws AccessDeniedException, InvalidOrderStatusException, OrderNotFoundException {
         verifyAdmin(key, token);
         return ResponseEntity.ok(adminService.displayOrders(order_status));
     }

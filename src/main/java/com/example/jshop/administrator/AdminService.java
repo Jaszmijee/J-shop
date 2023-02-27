@@ -152,8 +152,11 @@ public class AdminService {
         return warehouseMapper.mapToWarehouseDtoList(listOfAllItems);
     }
 
-    public List<OrderDtoToCustomer> displayOrders(String order_status) throws InvalidOrderStatusException {
+    public List<OrderDtoToCustomer> displayOrders(String order_status) throws InvalidOrderStatusException, OrderNotFoundException {
         List<Order> listOfOrders = orderService.findOrders(order_status);
+        if (listOfOrders.isEmpty()) {
+            throw new OrderNotFoundException();
+        }
         return orderMapper.mapToOrderDtoToCustomerList(listOfOrders);
     }
 }

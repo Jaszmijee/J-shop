@@ -35,9 +35,9 @@ public class OrderService {
 
 
     public List<Order> findOrders(String order_status) throws InvalidOrderStatusException {
-        if (order_status != null && ((!(order_status.equalsIgnoreCase("paid"))) || (!(order_status.equalsIgnoreCase("unpaid")))))
+        if (order_status != null && !(order_status.equalsIgnoreCase("paid") || order_status.equalsIgnoreCase("unpaid")))
             throw new InvalidOrderStatusException();
-        return orderRepository.findOrders(order_status);
+        return orderRepository.findOrders(order_status.toUpperCase());
     }
 
     public List<Order> findOrdersOfCustomer(String userName) {
@@ -52,8 +52,8 @@ public class OrderService {
         return orderRepository.findOrdersCloseTOPayment();
     }
 
-    public List<Order> findUnpaidOrders() throws UserNotFoundException, OrderNotFoundException, AccessDeniedException {
-       return orderRepository.findUnpaidOrders();
+    public List<Order> findUnpaidOrders()  {
+        return orderRepository.findUnpaidOrders();
     }
 }
 

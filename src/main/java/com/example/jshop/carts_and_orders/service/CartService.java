@@ -177,7 +177,8 @@ public class CartService {
                 .map(result -> "\nproduct: " + result.getProductName() + ", quantity: " + result.getProductQuantity() + ", total price: " + result.getCalculatedPrice())
                 .collect(Collectors.joining("\n"));
         cart.setCalculatedPrice(calculateCurrentCartValue(cart));
-        Order createdOrder = new Order(loggedCustomer, cart, LocalDate.now(), ORDER_STATUS.UNPAID, listOfItems, cart.getCalculatedPrice());
+        BigDecimal calculatedPrice = calculateCurrentCartValue(cart);
+        Order createdOrder = new Order(loggedCustomer, cart, LocalDate.now(), ORDER_STATUS.UNPAID, listOfItems, calculatedPrice);
         loggedCustomer.getListOfOrders().add(createdOrder);
         customerService.updateCustomer(loggedCustomer);
         orderService.save(createdOrder);
@@ -226,7 +227,8 @@ public class CartService {
         return orderMapper.mapToOrderDtoToCustomer(order);
     }
 
-    public OrderDtoToCustomer payForCartUnauthenticatedCustomer(Long cartId, UnauthenticatedCustomerDto unauthenticatedCustomerDto) throws CartNotFoundException, PaymentErrorException {
+    public OrderDtoToCustomer payForCartUnauthenticatedCustomer(Long cartId, UnauthenticatedCustomerDto unauthenticatedCustomerDto) throws CartNotFoundException, PaymentErrorException, InvalidCustomerDataException {
+        checkCustomerDataValidity(unauthenticatedCustomerDto);
         Cart cart = findCartById(cartId);
         validateCartForProcessing(cart);
         cart.setCalculatedPrice(calculateCurrentCartValue(cart));
@@ -259,6 +261,19 @@ public class CartService {
             cartRepository.deleteById(cartToPay.getCartID());
         }
         return orderMapper.mapToOrderDtoToCustomer(createdOrder);
+    }
+
+    private void checkCustomerDataValidity(UnauthenticatedCustomerDto unauthenticatedCustomerDto) throws InvalidCustomerDataException {
+        if ((unauthenticatedCustomerDto.getFirstName().isEmpty())
+                || (unauthenticatedCustomerDto.getLastName().isEmpty())
+                || (unauthenticatedCustomerDto.getStreet().isEmpty())
+                || (unauthenticatedCustomerDto.getHouseNo().isEmpty())
+                || (unauthenticatedCustomerDto.getFlatNo().isEmpty())
+                || (unauthenticatedCustomerDto.getCity().isEmpty())
+                || (unauthenticatedCustomerDto.getZipCode().isEmpty())
+                || (unauthenticatedCustomerDto.getEmail().isEmpty())) {
+            throw new InvalidCustomerDataException();
+        }
     }
 
     public void cancelOrder(Long orderId) throws OrderNotFoundException {

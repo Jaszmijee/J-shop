@@ -4,6 +4,7 @@ import com.example.jshop.carts_and_orders.domain.cart.*;
 import com.example.jshop.carts_and_orders.domain.order.OrderDtoToCustomer;
 import com.example.jshop.carts_and_orders.mapper.CartMapper;
 import com.example.jshop.carts_and_orders.service.CartService;
+import com.example.jshop.error_handlers.exceptions.InvalidCustomerDataException;
 import com.example.jshop.customer.domain.*;
 import com.example.jshop.error_handlers.exceptions.*;
 import com.google.gson.Gson;
@@ -509,10 +510,32 @@ class CartControllerTest {
     }
 
     @Nested
-    @DisplayName("payForCartUnLogged /v1/j-shop/cart/pay/unloged")
+    @DisplayName("payForCartUnauthenticated /v1/j-shop/cart/pay/unauthenticated")
     class TestPayForCartUnLogged {
         @Test
-        void payForCartUnLoggedCartNotFoundException() throws Exception {
+        void payForCartUnauthenticatedInvalidCustomerDataException() throws Exception {
+            //Given
+            UnauthenticatedCustomerDto unauthenticatedCustomerDto = new UnauthenticatedCustomerDto("Adam", "DDD", "ptr@ptr", "Fairy", "5", "5", "55-555", "Maputo", "Mosambique");
+            when(cartService.payForCartUnauthenticatedCustomer(anyLong(), any(UnauthenticatedCustomerDto.class))).thenThrow(InvalidCustomerDataException.class);
+            Gson gson = new Gson();
+            String jsonContent = gson.toJson(unauthenticatedCustomerDto);
+
+            //When & Then
+            mockMvc
+                    .perform(MockMvcRequestBuilders
+                            .put("/v1/j-shop/cart/pay/unauthenticated")
+                            .param("cartId", "1")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("UTF-8")
+                            .content(jsonContent))
+
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andExpect(result -> assertEquals("Fields cannot be null or empty", result.getResponse().getContentAsString()));
+
+            verify(cartService, times(1)).payForCartUnauthenticatedCustomer(anyLong(), any(UnauthenticatedCustomerDto.class));
+        }
+        @Test
+        void payForCartUnauthenticatedCartNotFoundException() throws Exception {
             //Given
             UnauthenticatedCustomerDto unauthenticatedCustomerDto = new UnauthenticatedCustomerDto("Adam", "DDD", "ptr@ptr", "Fairy", "5", "5", "55-555", "Maputo", "Mosambique");
             when(cartService.payForCartUnauthenticatedCustomer(anyLong(), any(UnauthenticatedCustomerDto.class))).thenThrow(CartNotFoundException.class);
@@ -522,7 +545,7 @@ class CartControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .put("/v1/j-shop/cart/pay/unloged")
+                            .put("/v1/j-shop/cart/pay/unauthenticated")
                             .param("cartId", "1")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
@@ -535,7 +558,7 @@ class CartControllerTest {
         }
 
         @Test
-        void payForCartUnLoggedPaymentErrorException() throws Exception {
+        void paypayForCartUnauthenticatedPaymentErrorException() throws Exception {
             //Given
             UnauthenticatedCustomerDto unauthenticatedCustomerDto = new UnauthenticatedCustomerDto("Adam", "DDD", "ptr@ptr", "Fairy", "5", "5", "55-555", "Maputo", "Mosambique");
             when(cartService.payForCartUnauthenticatedCustomer(anyLong(), any(UnauthenticatedCustomerDto.class))).thenThrow(PaymentErrorException.class);
@@ -545,7 +568,7 @@ class CartControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .put("/v1/j-shop/cart/pay/unloged")
+                            .put("/v1/j-shop/cart/pay/unauthenticated")
                             .param("cartId", "1")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
@@ -558,7 +581,7 @@ class CartControllerTest {
         }
 
         @Test
-        void payForCartUnLoggedPositive() throws Exception {
+        void payForCartUnauthenticatedPositive() throws Exception {
             //Given
             UnauthenticatedCustomerDto unauthenticatedCustomerDto = new UnauthenticatedCustomerDto("Adam", "DDD", "ptr@ptr", "Fairy", "5", "5", "55-555", "Maputo", "Mosambique");
             OrderDtoToCustomer orderDtoToCustomer = new OrderDtoToCustomer(1L, LocalDate.of(2023, 2, 22), "dummy list", "2000.44", "PAID", null);
@@ -569,7 +592,7 @@ class CartControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .put("/v1/j-shop/cart/pay/unloged")
+                            .put("/v1/j-shop/cart/pay/unauthenticated")
                             .param("cartId", "1")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")

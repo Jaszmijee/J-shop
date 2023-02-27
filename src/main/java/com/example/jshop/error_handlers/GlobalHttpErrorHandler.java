@@ -1,5 +1,6 @@
 package com.example.jshop.error_handlers;
 
+import com.example.jshop.error_handlers.exceptions.InvalidCustomerDataException;
 import com.example.jshop.error_handlers.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -100,6 +101,11 @@ public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(InvalidOrderStatusException.class)
     public ResponseEntity<Object> handleLimitException(InvalidOrderStatusException exception) {
         return new ResponseEntity<>("Provide proper status. Status can be \"paid\" or \"unpaid\"", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidCustomerDataException.class)
+    public ResponseEntity<Object> handleInvalidCustomerDataException(InvalidCustomerDataException exception) {
+        return new ResponseEntity<>("Fields cannot be null or empty", HttpStatus.BAD_REQUEST);
     }
 }
 

@@ -10,6 +10,7 @@ import com.example.jshop.carts_and_orders.service.OrderService;
 import com.example.jshop.customer.domain.Address;
 import com.example.jshop.customer.domain.LoggedCustomer;
 import com.example.jshop.error_handlers.exceptions.InvalidOrderStatusException;
+import com.example.jshop.error_handlers.exceptions.OrderNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -51,7 +52,7 @@ public class AdminServiceTestDisplayOrders {
     }
 
     @Test
-    void testDisplayOrdersPositiveWithOptionalStatus() throws InvalidOrderStatusException {
+    void testDisplayOrdersPositiveWithOptionalStatus() throws InvalidOrderStatusException, OrderNotFoundException {
         //Given
         char[] pwwd = "password".toCharArray();
         List<Order> unpaid = List.of(new Order(

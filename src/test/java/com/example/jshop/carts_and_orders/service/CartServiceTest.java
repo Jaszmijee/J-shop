@@ -660,7 +660,7 @@ class CartServiceTest {
     @DisplayName("test payForCartUnauthenticatedCustomer")
     class TestPayForCartUnauthenticatedCustomer {
         @Test
-        void payForCartUnauthenticatedCustomer() {
+        void payForCartUnauthenticatedCustomerCartNotFoundException() {
             // Given
             Cart cart = Cart.builder()
                     .cartStatus(CartStatus.FINALIZED)
@@ -673,6 +673,21 @@ class CartServiceTest {
             //When & Then
             assertThrows(CartNotFoundException.class, () -> cartService.payForCartUnauthenticatedCustomer(cart.getCartID() + 1, unauthenticatedCustomerDto));
             assertThrows(CartNotFoundException.class, () -> cartService.payForCartUnauthenticatedCustomer(cart.getCartID(), unauthenticatedCustomerDto));
+        }
+
+        @Test
+        void payForCartUnauthenticatedCustomerInvalidCustomerDataException() {
+            // Given
+            Cart cart = Cart.builder()
+                    .cartStatus(CartStatus.FINALIZED)
+                    .listOfItems(List.of())
+                    .build();
+            cartRepository.save(cart);
+            UnauthenticatedCustomerDto unauthenticatedCustomerDto = new UnauthenticatedCustomerDto("", "DDD", "ptr@ptr",
+                    "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
+
+            //When & Then
+            assertThrows(InvalidCustomerDataException.class, () -> cartService.payForCartUnauthenticatedCustomer(cart.getCartID(), unauthenticatedCustomerDto));
         }
 
         @Test
@@ -704,7 +719,7 @@ class CartServiceTest {
             try {
                 OrderDtoToCustomer orderDtoToCustomer = cartService.payForCartUnauthenticatedCustomer(cart.getCartID(), unauthenticatedCustomerDto);
                 assertEquals("25.00", orderDtoToCustomer.getTotalPrice());
-            } catch (CartNotFoundException | PaymentErrorException e) {
+            } catch (CartNotFoundException | PaymentErrorException | InvalidCustomerDataException e) {
                 e.printStackTrace();
             }
         }

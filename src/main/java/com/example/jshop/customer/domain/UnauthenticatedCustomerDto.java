@@ -2,10 +2,12 @@ package com.example.jshop.customer.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.ToString;
 
 @Getter
 @ToString
+@NonNull
 @AllArgsConstructor
 public class UnauthenticatedCustomerDto {
 

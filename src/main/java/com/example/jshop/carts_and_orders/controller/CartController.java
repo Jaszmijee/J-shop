@@ -1,6 +1,7 @@
 package com.example.jshop.carts_and_orders.controller;
 
 import com.example.jshop.carts_and_orders.domain.cart.Cart;
+import com.example.jshop.error_handlers.exceptions.InvalidCustomerDataException;
 import com.example.jshop.customer.domain.AuthenticationDataDto;
 import com.example.jshop.customer.domain.UnauthenticatedCustomerDto;
 import com.example.jshop.carts_and_orders.domain.order.OrderDtoToCustomer;
@@ -64,8 +65,8 @@ public class CartController {
         return ResponseEntity.ok(cartService.payForCart(orderId, authenticationDataDto));
     }
 
-    @PutMapping("pay/unloged")
-    ResponseEntity<OrderDtoToCustomer> payForCartUnLogged(@RequestParam Long cartId, @RequestBody UnauthenticatedCustomerDto unauthenticatedCustomerDto) throws PaymentErrorException, CartNotFoundException  {
+    @PutMapping("pay/unauthenticated")
+    ResponseEntity<OrderDtoToCustomer> payForCartUnauthenticated(@RequestParam Long cartId, @RequestBody UnauthenticatedCustomerDto unauthenticatedCustomerDto) throws PaymentErrorException, CartNotFoundException, InvalidCustomerDataException {
         return ResponseEntity.ok(cartService.payForCartUnauthenticatedCustomer(cartId, unauthenticatedCustomerDto));
     }
 }
