@@ -1,12 +1,10 @@
 package com.example.jshop.customer.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 
 @Getter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -14,24 +12,24 @@ public class Address {
 
     @Id
     @GeneratedValue
-    Long addressId;
+    private Long addressId;
 
     @NonNull
-    String street;
+    private String street;
     @NonNull
-    String houseNo;
+    private String houseNo;
     @NonNull
-    String flatNo;
+    private String flatNo;
     @NonNull
-    String zipCode;
+    private String zipCode;
     @NonNull
-    String city;
+    private String city;
     @NonNull
-    String country;
+    private String country;
 
     @OneToOne
     @JoinColumn(name = "logged_customers_customerID")
-    Customer_Logged customer_logged;
+    private LoggedCustomer _Logged_Customer;
 
     public Address(@NonNull String street, @NonNull String houseNo, @NonNull String flatNo, @NonNull String zipCode, @NonNull String city, @NonNull String country) {
         this.street = street;

@@ -18,16 +18,16 @@ public class Category {
     @Id
     @GeneratedValue
     @Column(unique = true)
-    Long categoryID;
+    private Long categoryID;
 
     @Column(name = "category", unique = true)
-    String name;
+    private String name;
 
 
     @OneToMany(targetEntity = Product.class,
             mappedBy = "category",
             fetch = FetchType.LAZY)
-    List<Product> listOfProducts = new ArrayList<>();
+    private List<Product> listOfProducts = new ArrayList<>();
 
     public Category(String name) {
         this.name = name;

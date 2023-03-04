@@ -1,11 +1,9 @@
 package com.example.jshop.customer.controller;
 
-import com.example.jshop.customer.domain.CustomerDto;
+import com.example.jshop.customer.domain.AuthenticationDataDto;
 import com.example.jshop.customer.domain.LoggedCustomerDto;
 import com.example.jshop.carts_and_orders.domain.order.OrderDtoToCustomer;
-import com.example.jshop.error_handlers.exceptions.AccessDeniedException;
-import com.example.jshop.error_handlers.exceptions.OrderNotFoundException;
-import com.example.jshop.error_handlers.exceptions.UserNotFoundException;
+import com.example.jshop.error_handlers.exceptions.*;
 import com.example.jshop.carts_and_orders.service.CartService;
 import com.example.jshop.customer.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,35 +13,39 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("customer")
+@RequestMapping("v1/j-shop/customer")
 public class CustomerController {
 
-    @Autowired
-    CustomerService customerService;
+    private final CustomerService customerService;
+
+    private final CartService cartService;
 
     @Autowired
-    CartService cartService;
+    public CustomerController(CustomerService customerService, CartService cartService) {
+        this.customerService = customerService;
+        this.cartService = cartService;
+    }
 
     @PostMapping
-    ResponseEntity<CustomerDto> addCustomer(@RequestBody CustomerDto customerDto) {
-        customerService.createNewCustomer(customerDto);
+    ResponseEntity<Void> createNewCustomer(@RequestBody LoggedCustomerDto loggedCustomerDto) throws InvalidCustomerDataException {
+        customerService.createNewCustomer(loggedCustomerDto);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping
-    ResponseEntity<Void> removeCustomer(@RequestBody LoggedCustomerDto loggedCustomerDto) throws UserNotFoundException, AccessDeniedException {
-        customerService.removeCustomer(loggedCustomerDto);
+    ResponseEntity<Void> removeCustomer(@RequestBody AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, InvalidCustomerDataException {
+        customerService.removeCustomer(authenticationDataDto);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("my_orders")
-    ResponseEntity<List<OrderDtoToCustomer>> showMyOrders(@RequestBody LoggedCustomerDto loggedCustomerDto) throws UserNotFoundException, AccessDeniedException {
-        return ResponseEntity.ok(customerService.showMyOrders(loggedCustomerDto));
+    @PostMapping("show_my_orders")
+    ResponseEntity<List<OrderDtoToCustomer>> showMyOrders(@RequestBody AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, InvalidCustomerDataException {
+        return ResponseEntity.ok(customerService.showMyOrders(authenticationDataDto));
     }
 
-    @PutMapping
-    ResponseEntity<Void> cancelOrderLogged(@RequestParam Long orderId, @RequestBody LoggedCustomerDto loggedCustomerDto) throws UserNotFoundException, AccessDeniedException, OrderNotFoundException {
-        cartService.cancelOrderLogged(orderId, loggedCustomerDto);
+    @DeleteMapping("delete_my_order")
+    ResponseEntity<Void> cancelOrderLogged(@RequestParam Long orderId, @RequestBody AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, OrderNotFoundException, InvalidCustomerDataException, ProductNotFoundException {
+        cartService.cancelOrderLogged(orderId, authenticationDataDto);
         return ResponseEntity.ok().build();
     }
 }

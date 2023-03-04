@@ -1,5 +1,6 @@
 package com.example.jshop.error_handlers;
 
+import com.example.jshop.error_handlers.exceptions.InvalidCustomerDataException;
 import com.example.jshop.error_handlers.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +23,8 @@ public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>("Category already exists", HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(InvalidArgumentException.class)
-    public ResponseEntity<Object> handleInvalidArgumentException(InvalidArgumentException exception) {
+    @ExceptionHandler(InvalidCategoryNameException.class)
+    public ResponseEntity<Object> handleInvalidArgumentException(InvalidCategoryNameException exception) {
         return new ResponseEntity<>("Provide proper name", HttpStatus.BAD_REQUEST);
     }
 
@@ -79,12 +80,12 @@ public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(PaymentErrorException.class)
     public ResponseEntity<Object> handlePaymentErrorException(PaymentErrorException exception) {
-        return new ResponseEntity<>("failure with payment", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Failure with payment", HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(SQLException.class)
     public ResponseEntity<Object> handleSQLException(SQLException exception) {
-        return new ResponseEntity<>("This entry already exists", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("SQLException", HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(InvalidPriceException.class)
@@ -100,6 +101,11 @@ public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(InvalidOrderStatusException.class)
     public ResponseEntity<Object> handleLimitException(InvalidOrderStatusException exception) {
         return new ResponseEntity<>("Provide proper status. Status can be \"paid\" or \"unpaid\"", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidCustomerDataException.class)
+    public ResponseEntity<Object> handleInvalidCustomerDataException(InvalidCustomerDataException exception) {
+        return new ResponseEntity<>("Fields cannot be null or empty", HttpStatus.BAD_REQUEST);
     }
 }
 

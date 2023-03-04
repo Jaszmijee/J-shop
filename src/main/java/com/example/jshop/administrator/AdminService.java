@@ -19,41 +19,28 @@ import com.example.jshop.warehouse_and_products.service.CategoryService;
 import com.example.jshop.carts_and_orders.service.OrderService;
 import com.example.jshop.warehouse_and_products.service.ProductService;
 import com.example.jshop.warehouse_and_products.service.WarehouseService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class AdminService {
 
-    @Autowired
-    CategoryService categoryService;
+    private final CategoryService categoryService;
+    private final CategoryMapper categoryMapper;
+    private final ProductService productService;
+    private final ProductMapper productMapper;
+    private final WarehouseService warehouseService;
+    private final WarehouseMapper warehouseMapper;
+    private final OrderService orderService;
+    private final OrderMapper orderMapper;
 
-    @Autowired
-    CategoryMapper categoryMapper;
-
-    @Autowired
-    ProductService productService;
-
-    @Autowired
-    ProductMapper productMapper;
-
-    @Autowired
-    private WarehouseService warehouseService;
-
-    @Autowired
-    private WarehouseMapper warehouseMapper;
-
-    @Autowired
-    OrderService orderService;
-
-    @Autowired
-    OrderMapper orderMapper;
-
-    public void addNewCategory(CategoryDto categoryDto) throws InvalidArgumentException, CategoryExistsException {
+    public void addNewCategory(CategoryDto categoryDto) throws InvalidCategoryNameException, CategoryExistsException {
         Category category = categoryMapper.mapToCategory(categoryDto);
         categoryService.addCategory(category);
     }
@@ -62,21 +49,26 @@ public class AdminService {
         categoryService.deleteCategory(categoryDto.getName());
     }
 
-    public List<CategoryWithProductsDto> showAllCategories() {
+    public List<CategoryWithProductsDto> showAllCategoriesWithProducts() {
         List<Category> listCategories = categoryService.showAllCategories();
         return categoryMapper.mapToCategoryDtoListAllInfo(listCategories);
     }
 
-    public CategoryWithProductsDto searchForProductsInCategory(String categoryName) throws CategoryNotFoundException {
-        Category category = categoryService.searchForProductsInCategory(categoryName);
+    public CategoryWithProductsDto showCategoryByNameWithProducts(String categoryName) throws CategoryNotFoundException {
+        Category category = categoryService.findByName(categoryName);
+        if (category == null){
+            throw new CategoryNotFoundException();
+        }
         return categoryMapper.mapToCategoryDtoAllInfo(category);
     }
 
-    public ProductDtoAllInfo addProduct(ProductDto productDto) throws InvalidArgumentException, CategoryExistsException, InvalidPriceException {
-        if (productDto.getPrice().compareTo(BigDecimal.ZERO) < 0) {
+    private void validatePrice(BigDecimal price) throws InvalidPriceException {
+        if (price.compareTo(BigDecimal.ZERO) < 0) {
             throw new InvalidPriceException();
         }
-        Product product = productMapper.mapToProduct(productDto);
+    }
+
+    private Category setUpCategoryNameForNewProduct(Product product) throws InvalidCategoryNameException, CategoryExistsException {
         Category category = categoryService.findByName(product.getCategory().getName());
         if (category != null) {
             category.getListOfProducts().add(product);
@@ -86,56 +78,67 @@ public class AdminService {
             if (category == null) {
                 category = categoryService.addCategory(new Category("Unknown"));
             }
-            product.setCategory(category);
-            category.getListOfProducts().add(product);
         }
+        return category;
+    }
+
+    public ProductDtoAllInfo addNewProduct(ProductDto productDto) throws InvalidPriceException, InvalidCategoryNameException, CategoryExistsException {
+        validatePrice(productDto.getPrice());
+        Product product = productMapper.mapToProduct(productDto);
+        Category category = setUpCategoryNameForNewProduct(product);
+        product.setCategory(category);
+        category.getListOfProducts().add(product);
         categoryService.save(category);
         Product savedProduct = productService.saveProduct(product);
         return productMapper.mapToProductDtoAllInfo(savedProduct);
     }
 
-    public ProductDtoAllInfo updateProduct(Long productId, ProductDto productDto) throws ProductNotFoundException, InvalidArgumentException, CategoryExistsException, InvalidPriceException {
-        if (productDto.getPrice().compareTo(BigDecimal.ZERO) < 0){
-            throw new InvalidPriceException();
-        }
+    public ProductDtoAllInfo updateProduct(Long productId, ProductDto productDto) throws ProductNotFoundException, InvalidCategoryNameException, CategoryExistsException, InvalidPriceException {
+        validatePrice(productDto.getPrice());
         Product productToUpdate = productService.findProductById(productId);
-        Category categoryToUpdate = categoryService.findByName(productDto.getCategoryName());
-        if (categoryToUpdate == null) {
-            categoryToUpdate = categoryService.findByName("unknown");
-            if (categoryToUpdate == null) {
-                categoryToUpdate = categoryService.addCategory(new Category("Unknown"));
-            }
-        }
+        Product product = productMapper.mapToProduct(productDto);
+        Category categoryToUpdate = setUpCategoryNameForNewProduct(product);
         productToUpdate.setCategory(categoryToUpdate);
+        productToUpdate.setPrice(productDto.getPrice());
         categoryToUpdate.getListOfProducts().add(productToUpdate);
         categoryService.save(categoryToUpdate);
-        productToUpdate.setPrice(productDto.getPrice());
         productService.saveProduct(productToUpdate);
         return productMapper.mapToProductDtoAllInfo(productToUpdate);
     }
 
     public void deleteProductById(Long productId) throws ProductNotFoundException {
+        if (warehouseService.findWarehouseByProductId(productId) != null) {
+            deleteProductFromWarehouse(productId);
+        }
         Product productToRemove = productService.findProductById(productId);
         Category category = productToRemove.getCategory();
         category.getListOfProducts().remove(productToRemove);
         categoryService.save(category);
-        productService.deleteById(productId);
+        productService.deleteProductById(productId);
     }
 
     public List<ProductDtoAllInfo> showAllProducts() {
+        List<ProductDtoAllInfo> productDtoAllInfo = new ArrayList<>();
         List<Product> productList = productService.findAllProducts();
+        if(productList.isEmpty()) {
+            return productDtoAllInfo;
+        }
         return productMapper.mapToProductDtoList(productList);
     }
 
-    public WarehouseDto addOrUpdateProductInWarehouse(Long productId, Integer productQuantity) throws InvalidQuantityException, ProductNotFoundException, CategoryNotFoundException {
-        if (productQuantity < 0 || productQuantity > Integer.MAX_VALUE) {
+    private void validateQuantity(Integer quantity) throws InvalidQuantityException {
+        if (quantity < 0) {
             throw new InvalidQuantityException();
         }
+    }
+
+    public WarehouseDto addOrUpdateProductInWarehouse(Long productId, Integer productQuantity) throws InvalidQuantityException, ProductNotFoundException, CategoryNotFoundException {
+       validateQuantity(productQuantity);
         Product product = productService.findProductById(productId);
         if (product.getCategory().getName().equalsIgnoreCase("Unknown")) {
             throw new CategoryNotFoundException();
         }
-        Warehouse warehouse = warehouseService.findItemByID(product.getProductID());
+        Warehouse warehouse = warehouseService.findWarehouseByProductId(product.getProductID());
         if (warehouse == null) {
             warehouse = new Warehouse(product, productQuantity);
         } else {
@@ -146,19 +149,22 @@ public class AdminService {
     }
 
     public void deleteProductFromWarehouse(Long productId) throws ProductNotFoundException {
-        if (warehouseService.findItemByID(productId) == null){
+        if (warehouseService.findWarehouseByProductId(productId) == null) {
             throw new ProductNotFoundException();
-        };
-        warehouseService.deleteById(productId);
+        }
+          warehouseService.deleteProductFromWarehouseByProductId(productId);
     }
 
-    public List<WarehouseDto> displayAllItemsInWarehouse() {
+    public List<WarehouseDto> displayAllProductsInWarehouse() {
         List<Warehouse> listOfAllItems = warehouseService.findAllProductsInWarehouse();
         return warehouseMapper.mapToWarehouseDtoList(listOfAllItems);
     }
 
-    public List<OrderDtoToCustomer> displayOrders(String order_status) throws OrderNotFoundException, InvalidOrderStatusException {
-       List<Order> listOfOrders = orderService.findOrders(order_status);
+    public List<OrderDtoToCustomer> displayOrders(String order_status) throws InvalidOrderStatusException, OrderNotFoundException {
+        List<Order> listOfOrders = orderService.findOrders(order_status);
+        if (listOfOrders.isEmpty()) {
+            throw new OrderNotFoundException();
+        }
         return orderMapper.mapToOrderDtoToCustomerList(listOfOrders);
     }
 }

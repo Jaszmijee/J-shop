@@ -17,29 +17,26 @@ public interface OrderRepository extends CrudRepository<Order, Long> {
     @Override
     Order save(Order order);
 
-
-    Optional<Order> findByOrderIDAndAndCustomer_UserName(Long orderId, String userName);
-
+    Optional<Order> findByOrderIDAndLoggedCustomer_UserName(Long orderId, String userName);
 
     @Query(value = "SELECT * from orders " +
             "where (:STATUS IS NULL OR order_status LIKE :STATUS) " +
-            "ORDER BY order_status ASC", nativeQuery = true)
+            "ORDER BY order_status", nativeQuery = true)
     List<Order> findOrders(@Param("STATUS") String order_status);
 
-
-    List<Order> findByCustomer_UserName(String userName);
+    List<Order> findByLoggedCustomer_UserName(String userName);
 
     @Query(value = "SELECT * from orders " +
             "where order_status = 'UNPAID' " +
-            "AND Paid IS NULL " +
-            "AND DATEDIFF(CURDATE(), Created) = 13",
+            "AND paid IS NULL " +
+            "AND DATEDIFF(CURDATE(), created) = 13",
             nativeQuery = true)
     List<Order> findOrdersCloseTOPayment();
 
     @Query(value = "SELECT * from orders " +
             "where order_status = 'UNPAID' " +
-            "AND Paid IS NULL " +
-            "AND DATEDIFF(CURDATE(), Created) > 14",
+            "AND paid IS NULL " +
+            "AND DATEDIFF(CURDATE(), created) > 14",
             nativeQuery = true)
     List<Order> findUnpaidOrders();
 }

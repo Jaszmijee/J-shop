@@ -18,9 +18,12 @@ public interface CartRepository extends CrudRepository<Cart, Long> {
 
     void deleteByCartStatus(CartStatus cartStatus);
 
-@Query(value = "SELECT * from carts " +
-        "where status = 'PROCESSING' " +
-        "AND DATEDIFF(CURDATE(), created) = 3",
-    nativeQuery = true)
+    @Query(value = "SELECT * from carts " +
+            "where status = 'PROCESSING' " +
+            "AND DATEDIFF(CURDATE(), created) >= 3",
+            nativeQuery = true)
     List<Cart> selectByProcessingTime();
+
+   @Override
+   List<Cart> findAll();
 }
