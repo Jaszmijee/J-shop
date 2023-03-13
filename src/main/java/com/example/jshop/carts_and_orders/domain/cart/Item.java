@@ -1,8 +1,9 @@
 package com.example.jshop.carts_and_orders.domain.cart;
 
 import com.example.jshop.warehouse_and_products.domain.product.Product;
-import jakarta.persistence.*;
 import lombok.*;
+
+import javax.persistence.*;
 
 @Getter
 @Builder

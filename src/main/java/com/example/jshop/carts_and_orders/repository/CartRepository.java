@@ -2,11 +2,11 @@ package com.example.jshop.carts_and_orders.repository;
 
 import com.example.jshop.carts_and_orders.domain.cart.Cart;
 import com.example.jshop.carts_and_orders.domain.cart.CartStatus;
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository

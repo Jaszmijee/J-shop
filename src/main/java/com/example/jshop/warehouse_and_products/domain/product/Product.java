@@ -1,11 +1,9 @@
 package com.example.jshop.warehouse_and_products.domain.product;
 
 import com.example.jshop.warehouse_and_products.domain.category.Category;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
 
 @Getter

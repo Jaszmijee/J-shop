@@ -2,12 +2,8 @@ package com.example.jshop.carts_and_orders.domain.order;
 
 import com.example.jshop.carts_and_orders.domain.cart.Cart;
 import com.example.jshop.customer.domain.LoggedCustomer;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 

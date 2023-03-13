@@ -2,12 +2,9 @@ package com.example.jshop.customer.domain;
 
 import com.example.jshop.carts_and_orders.domain.order.Order;
 import com.example.jshop.carts_and_orders.domain.cart.Cart;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +36,7 @@ public class LoggedCustomer {
     @NonNull
     private String lastName;
 
-    @Column(name = "e-mail")
+    @Column(name = "email")
     @NonNull
     private String email;
 
