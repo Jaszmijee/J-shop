@@ -174,7 +174,7 @@ public class CartService {
         String listOfItems = cart.getListOfItems().stream()
                 .map(itemMapper::mapToItemDto)
                 .map(result -> "product: " + result.getProductName() + ", quantity: " + result.getProductQuantity() + ", total price: " + result.getCalculatedPrice())
-                .collect(Collectors.joining(","));
+                .collect(Collectors.joining("\n"));
         cart.setCalculatedPrice(calculateCurrentCartValue(cart));
         BigDecimal calculatedPrice = calculateCurrentCartValue(cart);
         Order createdOrder = Order.builder()

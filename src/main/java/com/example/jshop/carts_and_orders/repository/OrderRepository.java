@@ -29,7 +29,7 @@ public interface OrderRepository extends CrudRepository<Order, Long> {
     @Query(value = "SELECT * from orders " +
             "where order_status = 'UNPAID' " +
             "AND paid IS NULL " +
-            "AND DATEDIFF(CURDATE(), created) = 13",
+            "AND DATEDIFF(CURDATE(), created) < 13",
             nativeQuery = true)
     List<Order> findOrdersCloseTOPayment();
 
