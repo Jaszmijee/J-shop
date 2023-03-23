@@ -1,7 +1,8 @@
 package com.example.jshop.customer.domain;
 
-import jakarta.persistence.*;
 import lombok.*;
+
+import javax.persistence.*;
 
 @Getter
 @ToString
