@@ -1,5 +1,6 @@
 package com.example.jshop.errorhandlers;
 
+import camundajar.impl.scala.runtime.ScalaRunTime;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Component;
@@ -25,13 +26,11 @@ public class RequestAndResponseLoggingFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(cachedHttpServletRequest, cachedHttpServletResponse);
             String path = cachedHttpServletRequest.getRequestURI();
-            if (!path.contains("/admin")) {
-                log.info("REQUEST PATH: {}", getRequestedPath(cachedHttpServletRequest));
-            }
-            else {
-                log.info("REQUEST PATH: {}", getRequestedPath(cachedHttpServletRequest).substring(0,getRequestedPath(request).indexOf('?')));
-            }
-                log.info("REQUEST DATA: {}", new String(cachedHttpServletRequest.getContentAsByteArray(), StandardCharsets.UTF_8));
+            String requestURI = (path.contains("/admin")) ?
+                    getRequestedPath(cachedHttpServletRequest).substring(0, getRequestedPath(request).indexOf('?')) :
+                    getRequestedPath(cachedHttpServletRequest);
+            log.info("REQUEST PATH: {}", requestURI);
+            log.info("REQUEST DATA: {}", new String(cachedHttpServletRequest.getContentAsByteArray(), StandardCharsets.UTF_8));
         } catch (IOException | ServletException e) {
             e.printStackTrace();
         } finally {
