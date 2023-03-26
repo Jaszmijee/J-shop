@@ -28,6 +28,9 @@ public class RequestAndResponseLoggingFilter extends OncePerRequestFilter {
             if (!path.contains("/admin")) {
                 log.info("REQUEST PATH: {}", getRequestedPath(cachedHttpServletRequest));
             }
+            else {
+                log.info("REQUEST PATH: {}", getRequestedPath(cachedHttpServletRequest).substring(0,getRequestedPath(request).indexOf('?')));
+            }
                 log.info("REQUEST DATA: {}", new String(cachedHttpServletRequest.getContentAsByteArray(), StandardCharsets.UTF_8));
         } catch (IOException | ServletException e) {
             e.printStackTrace();
