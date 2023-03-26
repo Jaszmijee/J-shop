@@ -198,7 +198,7 @@ class CustomerControllerTest {
     }
 
     @Nested
-    @DisplayName("test showMyOrders /v1/j-shop/customer/show_my_orders")
+    @DisplayName("test showMyOrders /v1/j-shop/customer/show-my-orders")
     class TestShowMyOrders {
         @Test
         void showMyOrdersUserNotFoundException() throws Exception {
@@ -212,7 +212,7 @@ class CustomerControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/customer/show_my_orders")
+                            .post("/v1/j-shop/customer/show-my-orders")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -235,7 +235,7 @@ class CustomerControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/customer/show_my_orders")
+                            .post("/v1/j-shop/customer/show-my-orders")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -258,7 +258,7 @@ class CustomerControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/customer/show_my_orders")
+                            .post("/v1/j-shop/customer/show-my-orders")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -283,7 +283,7 @@ class CustomerControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/customer/show_my_orders")
+                            .post("/v1/j-shop/customer/show-my-orders")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -299,7 +299,7 @@ class CustomerControllerTest {
     }
 
     @Nested
-    @DisplayName("test delete_my_order /v1/j-shop/customer/delete_my_order")
+    @DisplayName("test delete_my_order /v1/j-shop/customer/delete-my-order")
     class TestDelete_my_order {
         @Test
         void cancelOrderLoggedUserNotFoundException() throws Exception {
@@ -313,7 +313,7 @@ class CustomerControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .delete("/v1/j-shop/customer/delete_my_order")
+                            .delete("/v1/j-shop/customer/delete-my-order")
                             .param("orderId", "4")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
@@ -336,7 +336,7 @@ class CustomerControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .delete("/v1/j-shop/customer/delete_my_order")
+                            .delete("/v1/j-shop/customer/delete-my-order")
                             .param("orderId", "4")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
@@ -359,7 +359,7 @@ class CustomerControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .delete("/v1/j-shop/customer/delete_my_order")
+                            .delete("/v1/j-shop/customer/delete-my-order")
                             .param("orderId", "4")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
@@ -382,7 +382,7 @@ class CustomerControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .delete("/v1/j-shop/customer/delete_my_order")
+                            .delete("/v1/j-shop/customer/delete-my-order")
                             .param("orderId", "4")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
