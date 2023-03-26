@@ -1,9 +1,9 @@
 package com.example.jshop.scheduler;
 
-import com.example.jshop.carts_and_orders.domain.cart.Cart;
-import com.example.jshop.carts_and_orders.domain.cart.CartStatus;
-import com.example.jshop.carts_and_orders.repository.CartRepository;
-import com.example.jshop.carts_and_orders.service.CartService;
+import com.example.jshop.cartsandorders.domain.cart.Cart;
+import com.example.jshop.cartsandorders.domain.cart.CartStatus;
+import com.example.jshop.cartsandorders.repository.CartRepository;
+import com.example.jshop.cartsandorders.service.CartService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

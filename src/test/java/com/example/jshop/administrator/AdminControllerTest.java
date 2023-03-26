@@ -1,12 +1,12 @@
 package com.example.jshop.administrator;
 
-import com.example.jshop.carts_and_orders.domain.order.OrderDtoToCustomer;
-import com.example.jshop.error_handlers.exceptions.*;
-import com.example.jshop.warehouse_and_products.domain.category.CategoryDto;
-import com.example.jshop.warehouse_and_products.domain.category.CategoryWithProductsDto;
-import com.example.jshop.warehouse_and_products.domain.product.ProductDto;
-import com.example.jshop.warehouse_and_products.domain.product.ProductDtoAllInfo;
-import com.example.jshop.warehouse_and_products.domain.warehouse.WarehouseDto;
+import com.example.jshop.cartsandorders.domain.order.OrderDtoToCustomer;
+import com.example.jshop.errorhandlers.exceptions.*;
+import com.example.jshop.warehouseandproducts.domain.category.CategoryDto;
+import com.example.jshop.warehouseandproducts.domain.category.CategoryWithProductsDto;
+import com.example.jshop.warehouseandproducts.domain.product.ProductDto;
+import com.example.jshop.warehouseandproducts.domain.product.ProductDtoAllInfo;
+import com.example.jshop.warehouseandproducts.domain.warehouse.WarehouseDto;
 import com.google.gson.Gson;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.*;

@@ -1,12 +1,12 @@
 package com.example.jshop.scheduler;
 
-import com.example.jshop.carts_and_orders.domain.order.Order;
+import com.example.jshop.cartsandorders.domain.order.Order;
 import com.example.jshop.email.service.EmailContentCreator;
-import com.example.jshop.error_handlers.exceptions.OrderNotFoundException;
-import com.example.jshop.carts_and_orders.service.CartService;
-import com.example.jshop.carts_and_orders.service.OrderService;
+import com.example.jshop.errorhandlers.exceptions.OrderNotFoundException;
+import com.example.jshop.cartsandorders.service.CartService;
+import com.example.jshop.cartsandorders.service.OrderService;
 import com.example.jshop.email.service.SimpleEmailService;
-import com.example.jshop.error_handlers.exceptions.ProductNotFoundException;
+import com.example.jshop.errorhandlers.exceptions.ProductNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

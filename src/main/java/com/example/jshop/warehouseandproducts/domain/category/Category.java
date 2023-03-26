@@ -1,0 +1,34 @@
+package com.example.jshop.warehouseandproducts.domain.category;
+
+import com.example.jshop.warehouseandproducts.domain.product.Product;
+import lombok.*;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity(name = "categories")
+public class Category {
+
+    @Id
+    @GeneratedValue
+    @Column(unique = true)
+    private Long categoryID;
+
+    @Column(name = "category", unique = true)
+    private String name;
+
+
+    @OneToMany(targetEntity = Product.class,
+            mappedBy = "category",
+            fetch = FetchType.LAZY)
+    private List<Product> listOfProducts = new ArrayList<>();
+
+    public Category(String name) {
+        this.name = name;
+    }
+}
+
