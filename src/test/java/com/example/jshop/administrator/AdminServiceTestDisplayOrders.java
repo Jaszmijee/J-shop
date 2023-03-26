@@ -1,16 +1,16 @@
 package com.example.jshop.administrator;
 
-import com.example.jshop.carts_and_orders.domain.cart.Cart;
-import com.example.jshop.carts_and_orders.domain.cart.CartStatus;
-import com.example.jshop.carts_and_orders.domain.order.ORDER_STATUS;
-import com.example.jshop.carts_and_orders.domain.order.Order;
-import com.example.jshop.carts_and_orders.domain.order.OrderDtoToCustomer;
-import com.example.jshop.carts_and_orders.mapper.OrderMapper;
-import com.example.jshop.carts_and_orders.service.OrderService;
+import com.example.jshop.cartsandorders.domain.cart.Cart;
+import com.example.jshop.cartsandorders.domain.cart.CartStatus;
+import com.example.jshop.cartsandorders.domain.order.ORDER_STATUS;
+import com.example.jshop.cartsandorders.domain.order.Order;
+import com.example.jshop.cartsandorders.domain.order.OrderDtoToCustomer;
+import com.example.jshop.cartsandorders.mapper.OrderMapper;
+import com.example.jshop.cartsandorders.service.OrderService;
 import com.example.jshop.customer.domain.Address;
 import com.example.jshop.customer.domain.LoggedCustomer;
-import com.example.jshop.error_handlers.exceptions.InvalidOrderStatusException;
-import com.example.jshop.error_handlers.exceptions.OrderNotFoundException;
+import com.example.jshop.errorhandlers.exceptions.InvalidOrderStatusException;
+import com.example.jshop.errorhandlers.exceptions.OrderNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

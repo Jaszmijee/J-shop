@@ -2,9 +2,9 @@ package com.example.jshop.customer.controller;
 
 import com.example.jshop.customer.domain.AuthenticationDataDto;
 import com.example.jshop.customer.domain.LoggedCustomerDto;
-import com.example.jshop.carts_and_orders.domain.order.OrderDtoToCustomer;
-import com.example.jshop.error_handlers.exceptions.*;
-import com.example.jshop.carts_and_orders.service.CartService;
+import com.example.jshop.cartsandorders.domain.order.OrderDtoToCustomer;
+import com.example.jshop.errorhandlers.exceptions.*;
+import com.example.jshop.cartsandorders.service.CartService;
 import com.example.jshop.customer.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -38,12 +38,12 @@ public class CustomerController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("show_my_orders")
+    @PostMapping("show-my-orders")
     ResponseEntity<List<OrderDtoToCustomer>> showMyOrders(@RequestBody AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, InvalidCustomerDataException {
         return ResponseEntity.ok(customerService.showMyOrders(authenticationDataDto));
     }
 
-    @DeleteMapping("delete_my_order")
+    @DeleteMapping("delete-my-order")
     ResponseEntity<Void> cancelOrderLogged(@RequestParam Long orderId, @RequestBody AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, OrderNotFoundException, InvalidCustomerDataException, ProductNotFoundException {
         cartService.cancelOrderLogged(orderId, authenticationDataDto);
         return ResponseEntity.ok().build();

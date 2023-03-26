@@ -1,7 +1,7 @@
 package com.example.jshop.customer.domain;
 
-import com.example.jshop.carts_and_orders.domain.order.Order;
-import com.example.jshop.carts_and_orders.domain.cart.Cart;
+import com.example.jshop.cartsandorders.domain.order.Order;
+import com.example.jshop.cartsandorders.domain.cart.Cart;
 import lombok.*;
 
 import javax.persistence.*;

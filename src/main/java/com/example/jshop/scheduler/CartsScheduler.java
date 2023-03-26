@@ -1,7 +1,7 @@
 package com.example.jshop.scheduler;
 
-import com.example.jshop.carts_and_orders.domain.cart.CartStatus;
-import com.example.jshop.carts_and_orders.service.CartService;
+import com.example.jshop.cartsandorders.domain.cart.CartStatus;
+import com.example.jshop.cartsandorders.service.CartService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;

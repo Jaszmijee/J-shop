@@ -1,7 +1,7 @@
 package com.example.jshop.email.service;
 
-import com.example.jshop.carts_and_orders.domain.order.ORDER_STATUS;
-import com.example.jshop.carts_and_orders.domain.order.Order;
+import com.example.jshop.cartsandorders.domain.order.ORDER_STATUS;
+import com.example.jshop.cartsandorders.domain.order.Order;
 import com.example.jshop.email.domain.Mail;
 import org.springframework.stereotype.Service;
 

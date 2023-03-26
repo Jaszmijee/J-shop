@@ -1,19 +1,21 @@
 package com.example.jshop.administrator;
 
-import com.example.jshop.error_handlers.exceptions.*;
-import com.example.jshop.warehouse_and_products.domain.category.CategoryWithProductsDto;
-import com.example.jshop.carts_and_orders.domain.order.OrderDtoToCustomer;
-import com.example.jshop.warehouse_and_products.domain.product.ProductDto;
-import com.example.jshop.warehouse_and_products.domain.product.ProductDtoAllInfo;
-import com.example.jshop.warehouse_and_products.domain.warehouse.WarehouseDto;
-import com.example.jshop.warehouse_and_products.domain.category.CategoryDto;
+import com.example.jshop.errorhandlers.exceptions.*;
+import com.example.jshop.warehouseandproducts.domain.category.CategoryWithProductsDto;
+import com.example.jshop.cartsandorders.domain.order.OrderDtoToCustomer;
+import com.example.jshop.warehouseandproducts.domain.product.ProductDto;
+import com.example.jshop.warehouseandproducts.domain.product.ProductDtoAllInfo;
+import com.example.jshop.warehouseandproducts.domain.warehouse.WarehouseDto;
+import com.example.jshop.warehouseandproducts.domain.category.CategoryDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("v1/j-shop/admin")
 public class AdminController {
@@ -32,6 +34,7 @@ public class AdminController {
         verifyAdmin(key, token);
         adminService.addNewCategory(categoryDto);
         return ResponseEntity.ok().build();
+
     }
 
     @DeleteMapping("category")
@@ -66,7 +69,7 @@ public class AdminController {
     }
 
     @DeleteMapping("product")
-    ResponseEntity<Void> removeProduct(@RequestParam String key, @RequestParam String token, @RequestParam Long productId) throws AccessDeniedException,ProductNotFoundException {
+    ResponseEntity<Void> removeProduct(@RequestParam String key, @RequestParam String token, @RequestParam Long productId) throws AccessDeniedException, ProductNotFoundException {
         verifyAdmin(key, token);
         adminService.deleteProductById(productId);
         return ResponseEntity.ok().build();

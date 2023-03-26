@@ -1,16 +1,16 @@
 package com.example.jshop.customer.controller;
 
-import com.example.jshop.carts_and_orders.domain.order.OrderDtoToCustomer;
-import com.example.jshop.carts_and_orders.service.CartService;
+import com.example.jshop.cartsandorders.domain.order.OrderDtoToCustomer;
+import com.example.jshop.cartsandorders.service.CartService;
 import com.example.jshop.customer.domain.Address;
 import com.example.jshop.customer.domain.AuthenticationDataDto;
 import com.example.jshop.customer.domain.LoggedCustomer;
 import com.example.jshop.customer.domain.LoggedCustomerDto;
 import com.example.jshop.customer.service.CustomerService;
-import com.example.jshop.error_handlers.exceptions.AccessDeniedException;
-import com.example.jshop.error_handlers.exceptions.InvalidCustomerDataException;
-import com.example.jshop.error_handlers.exceptions.OrderNotFoundException;
-import com.example.jshop.error_handlers.exceptions.UserNotFoundException;
+import com.example.jshop.errorhandlers.exceptions.AccessDeniedException;
+import com.example.jshop.errorhandlers.exceptions.InvalidCustomerDataException;
+import com.example.jshop.errorhandlers.exceptions.OrderNotFoundException;
+import com.example.jshop.errorhandlers.exceptions.UserNotFoundException;
 import com.google.gson.Gson;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
