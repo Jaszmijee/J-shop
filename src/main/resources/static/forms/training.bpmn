@@ -5,34 +5,42 @@
       <bpmn:outgoing>Flow_1mjfeq7</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:endEvent id="Event_0shesk2">
-      <bpmn:incoming>Flow_1m0eohn</bpmn:incoming>
+      <bpmn:incoming>Flow_19jxyo7</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_1mjfeq7" sourceRef="StartEvent_1" targetRef="shopping" />
-    <bpmn:sequenceFlow id="Flow_1m0eohn" sourceRef="shopping" targetRef="Event_0shesk2" />
-    <bpmn:serviceTask id="shopping" name="create cart" camunda:class="com.example.jshop.camunda.serviceTasks.CreateCartDelegate">
+    <bpmn:sequenceFlow id="Flow_1mjfeq7" sourceRef="StartEvent_1" targetRef="Activity_11ofxrl">
+      <bpmn:extensionElements />
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_19jxyo7" sourceRef="Activity_11ofxrl" targetRef="Event_0shesk2" />
+    <bpmn:userTask id="Activity_11ofxrl" name="add to cart">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="cartId">#{cartId}</camunda:inputParameter>
+          <camunda:inputParameter name="productId">#{productId}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_1mjfeq7</bpmn:incoming>
-      <bpmn:outgoing>Flow_1m0eohn</bpmn:outgoing>
-    </bpmn:serviceTask>
+      <bpmn:outgoing>Flow_19jxyo7</bpmn:outgoing>
+    </bpmn:userTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Shopping">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="152" y="79" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0v69tcd_di" bpmnElement="shopping">
-        <dc:Bounds x="230" y="57" width="100" height="80" />
-        <bpmndi:BPMNLabel />
+        <dc:Bounds x="152" y="62" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0shesk2_di" bpmnElement="Event_0shesk2">
-        <dc:Bounds x="592" y="79" width="36" height="36" />
+        <dc:Bounds x="1382" y="62" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1t82dqg_di" bpmnElement="Activity_11ofxrl">
+        <dc:Bounds x="250" y="40" width="100" height="80" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1mjfeq7_di" bpmnElement="Flow_1mjfeq7">
-        <di:waypoint x="188" y="97" />
-        <di:waypoint x="230" y="97" />
+        <di:waypoint x="188" y="80" />
+        <di:waypoint x="250" y="80" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1m0eohn_di" bpmnElement="Flow_1m0eohn">
-        <di:waypoint x="330" y="97" />
-        <di:waypoint x="592" y="97" />
+      <bpmndi:BPMNEdge id="Flow_19jxyo7_di" bpmnElement="Flow_19jxyo7">
+        <di:waypoint x="350" y="80" />
+        <di:waypoint x="1382" y="80" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -1,5 +1,7 @@
 package com.example.jshop.cartsandorders.service;
 
+import com.example.jshop.camunda.StartProcessShopping;
+import com.example.jshop.camunda.domain.CartCamundaDto;
 import com.example.jshop.cartsandorders.domain.cart.*;
 import com.example.jshop.customer.domain.LoggedCustomer;
 import com.example.jshop.customer.service.CustomerService;
@@ -42,14 +44,18 @@ public class CartService {
     private final OrderMapper orderMapper;
     private final EmailContentCreator emailCreator;
 
+    private final StartProcessShopping processShopping;
+
     private Cart findCartById(Long cartId) throws CartNotFoundException {
         return cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
     }
 
     public Cart createCart() {
         Cart newCart = new Cart();
+        CartCamundaDto dto = processShopping.createProcessInstance(newCart.getCartID());
         newCart.setCartStatus(CartStatus.EMPTY);
         newCart.setCreated(LocalDate.now());
+        newCart.setCamundaProcessId(dto.getProcessInstanceId());
         cartRepository.save(newCart);
         return newCart;
     }

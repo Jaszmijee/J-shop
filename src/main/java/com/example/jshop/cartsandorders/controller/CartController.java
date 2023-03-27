@@ -10,27 +10,24 @@ import com.example.jshop.cartsandorders.domain.cart.CartItemsDto;
 import com.example.jshop.errorhandlers.exceptions.*;
 import com.example.jshop.cartsandorders.mapper.CartMapper;
 import com.example.jshop.cartsandorders.service.CartService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("v1/j-shop/cart")
 public class CartController {
 
     private final CartService cartService;
-
     private final CartMapper cartMapper;
 
-    @Autowired
-    public CartController(CartService cartService, CartMapper cartMapper) {
-        this.cartService = cartService;
-        this.cartMapper = cartMapper;
-    }
+
 
     @PostMapping
     ResponseEntity<CartDto> createCart() {
-        return ResponseEntity.ok(cartMapper.mapCartToCartDto(cartService.createCart()));
+        Cart cart = cartService.createCart();
+        return ResponseEntity.ok(cartMapper.mapCartToCartDto(cart));
     }
 
     @PutMapping("add")

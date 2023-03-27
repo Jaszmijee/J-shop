@@ -36,6 +36,9 @@ public class Cart {
     @Column(name = "created")
     private LocalDate created;
 
+    @Column(name = "camunda_process_Id")
+    private String camundaProcessId;
+
     public Cart(CartStatus cartStatus, List<Item> listOfItems, BigDecimal calculatedPrice, LocalDate created) {
         this.cartStatus = cartStatus;
         this.listOfItems = listOfItems;
@@ -53,5 +56,9 @@ public class Cart {
 
     public void setCreated(LocalDate created) {
         this.created = created;
+    }
+
+    public void setCamundaProcessId(String camundaProcessId) {
+        this.camundaProcessId = camundaProcessId;
     }
 }
