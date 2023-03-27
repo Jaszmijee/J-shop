@@ -1,6 +1,5 @@
 package com.example.jshop.errorhandlers;
 
-import camundajar.impl.scala.runtime.ScalaRunTime;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Component;
@@ -25,11 +24,11 @@ public class RequestAndResponseLoggingFilter extends OncePerRequestFilter {
         val cachedHttpServletResponse = new ContentCachingResponseWrapper(response);
         try {
             filterChain.doFilter(cachedHttpServletRequest, cachedHttpServletResponse);
-            String path = cachedHttpServletRequest.getRequestURI();
-            String requestURI = (path.contains("/admin")) ?
-                    getRequestedPath(cachedHttpServletRequest).substring(0, getRequestedPath(request).indexOf('?')) :
-                    getRequestedPath(cachedHttpServletRequest);
-            log.info("REQUEST PATH: {}", requestURI);
+            String path = getRequestedPath(cachedHttpServletRequest);
+            if (path.contains("/admin")) {
+                path = validatePathInfo(path);
+            }
+            log.info("REQUEST PATH: {}", path);
             log.info("REQUEST DATA: {}", new String(cachedHttpServletRequest.getContentAsByteArray(), StandardCharsets.UTF_8));
         } catch (IOException | ServletException e) {
             e.printStackTrace();
@@ -48,4 +47,14 @@ public class RequestAndResponseLoggingFilter extends OncePerRequestFilter {
             return (request.getMethod() + " " + request.getRequestURI() + "?" + queryString);
         }
     }
+
+    private static String validatePathInfo(String path) {
+        String subStringKey = path.substring(path.indexOf("?key=") + 5, path.indexOf("&token"));
+        String subStringToken = path.substring(path.indexOf("&token=") + 7);
+        if (subStringToken.contains("&")) {
+            subStringToken = subStringToken.substring(0, subStringToken.indexOf("&"));
+        }
+        return path.replace(subStringKey, "xxx").replace(subStringToken, "xxx");
+    }
+
 }
