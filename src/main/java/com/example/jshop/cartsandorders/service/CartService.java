@@ -1,7 +1,5 @@
 package com.example.jshop.cartsandorders.service;
 
-import com.example.jshop.camunda.StartProcessShopping;
-import com.example.jshop.camunda.domain.CartCamundaDto;
 import com.example.jshop.cartsandorders.domain.cart.*;
 import com.example.jshop.customer.domain.LoggedCustomer;
 import com.example.jshop.customer.service.CustomerService;
@@ -38,7 +36,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CartService {
     private final TaskService taskService;
-
     private final RuntimeService runtimeService;
     private final CartRepository cartRepository;
     private final WarehouseService warehouseService;
@@ -68,7 +65,6 @@ public class CartService {
         cart.setCamundaProcessId(processInstanceId);
         cartRepository.save(cart);
     }
-
 
     private void updateProductInWarehouse(Warehouse warehouse, Integer productQuantity) {
         warehouse.setProductQuantity(warehouse.getProductQuantity() - productQuantity);
@@ -107,13 +103,18 @@ public class CartService {
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("activity", "addToCart");
+        variables.put("productId", cartItemsDto.getProductId());
+        variables.put("quantity", cartItemsDto.getQuantity());
 
         String executionId = task.getExecutionId();
-   //  runtimeService.setVariablesLocal(executionId, variables);
+        runtimeService.setVariablesLocal(executionId, variables);
 
         taskService.setVariables(task.getId(), variables);
         taskService.complete(task.getId());
+        return new CartDto();
+    }
 
+    public CartDto addToCartCamunda(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException, NotEnoughItemsException, ProductNotFoundException, InvalidQuantityException {
         Cart cartToUpdate = findCartById(cartId);
         validateCartForProcessing(cartToUpdate);
         Warehouse warehouse = validateProductInWarehouse(cartItemsDto.getProductId(), cartItemsDto.getQuantity());
@@ -141,6 +142,7 @@ public class CartService {
         return cartMapper.mapCartToCartDto(cartToUpdate);
     }
 
+
     private void validateQuantityOfPurchasedProduct(int quantity) throws InvalidQuantityException {
         if (quantity <= 0) {
             throw new InvalidQuantityException();
@@ -153,6 +155,26 @@ public class CartService {
 
     public CartDto removeFromCart(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException, ProductNotFoundException, InvalidQuantityException {
         validateQuantityOfPurchasedProduct(cartItemsDto.getQuantity());
+
+        Task task = taskService.createTaskQuery()
+                .processInstanceBusinessKey(String.valueOf(cartId))
+                .singleResult();
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("activity", "removeFromCart");
+        variables.put("productId", cartItemsDto.getProductId());
+        variables.put("quantity", cartItemsDto.getQuantity());
+
+        String executionId = task.getExecutionId();
+        runtimeService.setVariablesLocal(executionId, variables);
+
+        taskService.setVariables(task.getId(), variables);
+        taskService.complete(task.getId());
+        return new CartDto();
+    }
+
+    public CartDto removeFromCartCamunda(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException, ProductNotFoundException {
+
         Cart cartToUpdate = findCartById(cartId);
         validateCartForProcessing(cartToUpdate);
         if (cartToUpdate.getCartStatus() == CartStatus.EMPTY) {

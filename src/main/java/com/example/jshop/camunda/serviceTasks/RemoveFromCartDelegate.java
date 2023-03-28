@@ -11,19 +11,18 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AddToCartDelegate implements JavaDelegate {
-
+public class RemoveFromCartDelegate implements JavaDelegate {
     private final CartService cartService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
-        log.info("AddToCartDelegate started" + execution.getVariable("activity"));
+        log.info("RemoveFromCartDelegate started" + execution.getVariable("activity"));
 
         Long cartId = Long.valueOf(execution.getProcessBusinessKey());
         Long productId = (Long) execution.getVariable("productId");
         int quantity = (Integer) execution.getVariable("quantity");
 
         CartItemsDto cartItemsDto = new CartItemsDto(productId, quantity);
-        cartService.addToCartCamunda(cartId, cartItemsDto);
+        cartService.removeFromCartCamunda(cartId, cartItemsDto);
     }
 }
