@@ -1,5 +1,6 @@
 package com.example.jshop.cartsandorders.controller;
 
+import com.example.jshop.camunda.StartProcessShopping;
 import com.example.jshop.cartsandorders.domain.cart.Cart;
 import com.example.jshop.errorhandlers.exceptions.InvalidCustomerDataException;
 import com.example.jshop.customer.domain.AuthenticationDataDto;
@@ -21,12 +22,13 @@ public class CartController {
 
     private final CartService cartService;
     private final CartMapper cartMapper;
-
+    private final StartProcessShopping processShopping;
 
 
     @PostMapping
-    ResponseEntity<CartDto> createCart() {
+    ResponseEntity<CartDto> createCart() throws CartNotFoundException {
         Cart cart = cartService.createCart();
+        processShopping.createProcessInstance(cart.getCartID());
         return ResponseEntity.ok(cartMapper.mapCartToCartDto(cart));
     }
 

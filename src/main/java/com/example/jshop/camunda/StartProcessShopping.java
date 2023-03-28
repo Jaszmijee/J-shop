@@ -1,27 +1,47 @@
 package com.example.jshop.camunda;
 
-import com.example.jshop.camunda.domain.CartCamundaDto;
+import com.example.jshop.cartsandorders.service.CartService;
+import com.example.jshop.errorhandlers.exceptions.CartNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class StartProcessShopping {
 
+    private final CartService cartService;
     private final ProcessEngine processEngine;
+    private final RuntimeService runtimeService;
 
-    public CartCamundaDto createProcessInstance(Long cartId) {
+    public void createProcessInstance(Long cartId) throws CartNotFoundException {
 
         String businessKey = String.valueOf(cartId);
-        ProcessInstance processInstance = processEngine.getRuntimeService().startProcessInstanceByKey("Shopping", businessKey);
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("cartId", cartId);
+
+        ProcessInstance processInstance = processEngine.getRuntimeService().
+                createProcessInstanceByKey("Shopping").businessKey(businessKey).setVariablesLocal(variables)
+                .execute();
+
         String processInstanceId = processInstance.getProcessInstanceId();
-        return new CartCamundaDto(cartId,processInstanceId);
+
+        cartService.setUpProcessInstance(cartId, processInstanceId);
     }
 
-/*      Map<String, Object> variables = newHashMap();
-        variables.put("cartId", );
-        variables.put("productId", );*/
 
+
+   /* public void addToCart(DelegateExecution delegateExecution) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("cartId", runtimeService.getVariables("cartId"));
+        variables.put("productId", delegateExecution.getVariable("productId"));
+        variables.put("quantity", delegateExecution.getVariable("quantity"));*/
+
+
+    //
 }
