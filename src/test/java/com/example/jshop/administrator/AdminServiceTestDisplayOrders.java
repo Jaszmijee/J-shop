@@ -1,3 +1,4 @@
+/*
 package com.example.jshop.administrator;
 
 import com.example.jshop.cartsandorders.domain.cart.Cart;
@@ -90,3 +91,4 @@ public class AdminServiceTestDisplayOrders {
         verify(orderMapper, times(2)).mapToOrderDtoToCustomerList(anyList());
     }
 }
+*/

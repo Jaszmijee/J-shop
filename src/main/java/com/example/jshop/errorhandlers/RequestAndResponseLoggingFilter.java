@@ -25,7 +25,7 @@ public class RequestAndResponseLoggingFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(cachedHttpServletRequest, cachedHttpServletResponse);
             String path = getRequestedPath(cachedHttpServletRequest);
-            if (path.contains("/admin")) {
+            if (path.contains("/j-shop/admin")) {
                 path = validatePathInfo(path);
             }
             log.info("REQUEST PATH: {}", path);
@@ -34,7 +34,7 @@ public class RequestAndResponseLoggingFilter extends OncePerRequestFilter {
             e.printStackTrace();
         } finally {
             log.info("RESPONSE STATUS: {}", cachedHttpServletResponse.getStatus());
-            log.info("RESPONSE DATA: {}", new String(cachedHttpServletResponse.getContentAsByteArray(), StandardCharsets.UTF_8));
+        //    log.info("RESPONSE DATA: {}", new String(cachedHttpServletResponse.getContentAsByteArray(), StandardCharsets.UTF_8));
             cachedHttpServletResponse.copyBodyToResponse();
         }
     }

@@ -44,16 +44,29 @@ public class Order {
     @JoinColumn(name = "carts_cart_id")
     private Cart cart;
 
-    public Order(LoggedCustomer loggedCustomer, Cart cart, LocalDate created, ORDER_STATUS order_status, String listOfProducts, BigDecimal calculatedPrice) {
+    @Column(name = "camunda_process_Id")
+    private String camundaProcessId;
+
+/*    public Order(LoggedCustomer loggedCustomer, Cart cart, LocalDate created, ORDER_STATUS order_status, String listOfProducts, BigDecimal calculatedPrice) {
         this.loggedCustomer = loggedCustomer;
         this.created = created;
         this.order_status = order_status;
         this.listOfProducts = listOfProducts;
         this.calculatedPrice = calculatedPrice;
         this.cart = cart;
+    }*/
+
+    public Order(LoggedCustomer loggedCustomer, LocalDate created, ORDER_STATUS order_status, String listOfProducts, BigDecimal calculatedPrice, Cart cart, String camundaProcessId) {
+        this.loggedCustomer = loggedCustomer;
+        this.created = created;
+        this.order_status = order_status;
+        this.listOfProducts = listOfProducts;
+        this.calculatedPrice = calculatedPrice;
+        this.cart = cart;
+        this.camundaProcessId = camundaProcessId;
     }
 
-   public void setPaid(LocalDate paid) {
+    public void setPaid(LocalDate paid) {
         this.paid = paid;
     }
 
@@ -72,5 +85,6 @@ public class Order {
     public void setPaymentDue(LocalDate paymentDue) {
         this.paymentDue = paymentDue;
     }
+
 }
 

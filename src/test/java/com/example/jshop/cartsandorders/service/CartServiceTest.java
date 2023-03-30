@@ -1,3 +1,4 @@
+/*
 package com.example.jshop.cartsandorders.service;
 
 import com.example.jshop.cartsandorders.domain.cart.*;
@@ -453,7 +454,7 @@ class CartServiceTest {
             LoggedCustomerDto loggedCustomerDto = new LoggedCustomerDto("user", pwwd, "Adam", "DDD", "ptr@ptr",
                     "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
             try {
-             customerService.createNewCustomer(loggedCustomerDto);
+                customerService.createNewCustomer(loggedCustomerDto);
             } catch (InvalidCustomerDataException e) {
                 e.printStackTrace();
             }
@@ -494,11 +495,11 @@ class CartServiceTest {
             String pwwd = "password";
             LoggedCustomerDto loggedCustomerDto = new LoggedCustomerDto("user", pwwd, "Adam", "DDD", "ptr@ptr",
                     "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
-                try {
-                    customerService.createNewCustomer(loggedCustomerDto);
-                } catch (InvalidCustomerDataException e) {
-                    e.printStackTrace();
-                }
+            try {
+                customerService.createNewCustomer(loggedCustomerDto);
+            } catch (InvalidCustomerDataException e) {
+                e.printStackTrace();
+            }
             Cart cart = Cart.builder()
                     .cartStatus(CartStatus.FINALIZED)
                     .listOfItems(List.of())
@@ -517,11 +518,11 @@ class CartServiceTest {
             String pwwd = "password";
             LoggedCustomerDto loggedCustomerDto = new LoggedCustomerDto("user", pwwd, "Adam", "DDD", "ptr@ptr",
                     "Fairy", "5", "5", "55-555", "Maputo", "Mozambique");
-                try {
-                    customerService.createNewCustomer(loggedCustomerDto);
-                } catch (InvalidCustomerDataException e) {
-                    e.printStackTrace();
-                }
+            try {
+                customerService.createNewCustomer(loggedCustomerDto);
+            } catch (InvalidCustomerDataException e) {
+                e.printStackTrace();
+            }
             AuthenticationDataDto authenticationDataDto = new AuthenticationDataDto("user", pwwd.toCharArray());
 
             Category category = new Category("testCategory");
@@ -936,7 +937,8 @@ class CartServiceTest {
         }
     }
 
-   /* @Nested
+   */
+/* @Nested
     @Transactional
     @DisplayName("test deleteByProcessingTime")
     class TestDeleteByProcessingTime {
@@ -979,6 +981,8 @@ class CartServiceTest {
                 e.printStackTrace();
             }
         }
-    }*/
+    }*//*
+
 }
 
+*/

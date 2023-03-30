@@ -1,7 +1,7 @@
 package com.example.jshop.camunda.serviceTasks;
 
-import com.example.jshop.cartsandorders.domain.cart.CartItemsDto;
 import com.example.jshop.cartsandorders.service.CartService;
+import com.example.jshop.customer.domain.AuthenticationDataDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -11,19 +11,18 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AddToCartDelegate implements JavaDelegate {
+public class FinalizeCartAuthenticatedDelegate implements JavaDelegate {
 
     private final CartService cartService;
 
-    @Override
     public void execute(DelegateExecution execution) throws Exception {
-        log.info("AddToCartDelegate started");
+        log.info("FinalizeCartAuthenticatedDelegate started");
 
         Long cartId = Long.valueOf(execution.getProcessBusinessKey());
-        Long productId = (Long) execution.getVariable("productId");
-        int quantity = (Integer) execution.getVariable("quantity");
+        String user = (String) execution.getVariable("userName");
+        char[] pwwd = (char[]) execution.getVariable("password");
 
-        CartItemsDto cartItemsDto = new CartItemsDto(productId, quantity);
-        cartService.addToCartCamunda(cartId, cartItemsDto);
+        AuthenticationDataDto data = new AuthenticationDataDto(user, pwwd);
+        cartService.finalizeCartAuthenticatedCamunda(cartId, data);
     }
 }
