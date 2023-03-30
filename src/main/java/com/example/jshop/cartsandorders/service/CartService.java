@@ -17,6 +17,7 @@ import com.example.jshop.cartsandorders.mapper.ItemMapper;
 import com.example.jshop.cartsandorders.repository.CartRepository;
 import com.example.jshop.warehouseandproducts.service.WarehouseService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.task.Task;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CartService {
@@ -467,15 +469,28 @@ public class CartService {
         cartRepository.deleteByCartStatus(cartStatus);
     }
 
-    public void deleteByProcessingTime() throws CartNotFoundException {
-        List<Cart> listOfCarts = cartRepository.selectByProcessingTime();
-        for (Cart cart : listOfCarts) {
-            cancelCart(cart.getCartID());
+    public void RemoveNotFinalizedCartsCamunda() {
+        log.info("deleting empty carts " + LocalDate.now());
+        try {
+            deleteByCartStatus(CartStatus.EMPTY);
+            log.info("empty carts deleted " + LocalDate.now());
+        } catch (Exception e) {
+            log.error("empty cars were not removed ", e);
+        }
+
+        log.info("deleting carts with status\"PROCESSING\" " + LocalDate.now());
+        try {
+            List<Cart> listOfCarts = cartRepository.selectByProcessingTime();
+            for (Cart cart : listOfCarts) {
+                cancelCart(cart.getCartID());
+                log.info("carts with status\"PROCESSING\" longer than 3 days deleted " + LocalDate.now());
+            }
+        } catch (Exception e) {
+            log.error("\"PROCESSING\" carts were not removed", e);
         }
     }
-
-
 }
+
 
 
 
