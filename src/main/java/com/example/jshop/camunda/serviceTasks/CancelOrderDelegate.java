@@ -1,5 +1,7 @@
 package com.example.jshop.camunda.serviceTasks;
 
+import com.example.jshop.cartsandorders.domain.order.Order;
+import com.example.jshop.cartsandorders.repository.OrderRepository;
 import com.example.jshop.cartsandorders.service.CartService;
 import com.example.jshop.customer.domain.AuthenticationDataDto;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class CancelOrderDelegate implements JavaDelegate {
 
     private final CartService cartService;
+    private final OrderRepository orderRepository;
 
     public void execute(DelegateExecution execution) throws Exception {
         log.info("CancelOrderDelegate started");
@@ -23,6 +26,13 @@ public class CancelOrderDelegate implements JavaDelegate {
         char[] pwwd = (char[]) execution.getVariable("password");
 
         AuthenticationDataDto data = new AuthenticationDataDto(user, pwwd);
-        cartService.cancelOrderLoggedCamunda(orderId, data);
+
+        if (orderId == null) {
+            String processId = execution.getProcessInstanceId();
+            Order order = orderRepository.findByCamundaProcessId(processId);
+            orderId = order.getOrderID();
+            data = new AuthenticationDataDto(order.getLoggedCustomer().getUserName(), order.getLoggedCustomer().getPassword());
+        }
+            cartService.cancelOrderLoggedCamunda(orderId, data);
+        }
     }
-}

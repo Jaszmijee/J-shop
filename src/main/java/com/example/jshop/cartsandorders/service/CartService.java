@@ -104,8 +104,7 @@ public class CartService {
         variables.put("quantity", cartItemsDto.getQuantity());
 
         String executionId = task.getExecutionId();
-        runtimeService.setVariablesLocal(executionId, variables);
-        taskService.setVariablesLocal(task.getId(), variables);
+        runtimeService.setVariables(executionId, variables);
 
         taskService.complete(task.getId());
     }
@@ -161,9 +160,7 @@ public class CartService {
         variables.put("quantity", cartItemsDto.getQuantity());
 
         String executionId = task.getExecutionId();
-        runtimeService.setVariablesLocal(executionId, variables);
-        taskService.setVariablesLocal(task.getId(), variables);
-
+        runtimeService.setVariables(executionId, variables);
 
         taskService.complete(task.getId());
     }
@@ -230,8 +227,7 @@ public class CartService {
         variables.put("authenticated", isAuthenticated);
 
         String executionId = task.getExecutionId();
-        runtimeService.setVariablesLocal(executionId, variables);
-        taskService.setVariablesLocal(task.getId(), variables);
+        runtimeService.setVariables(executionId, variables);
 
         taskService.complete(task.getId());
     }
@@ -274,9 +270,8 @@ public class CartService {
         variables.put("password", authenticationDataDto.getPassword());
 
         String executionId = task.getExecutionId();
-        runtimeService.setVariablesLocal(executionId, variables);
+        runtimeService.setVariables(executionId, variables);
 
-        taskService.setVariablesLocal(task.getId(), variables);
         taskService.complete(task.getId());
     }
 
@@ -316,10 +311,9 @@ public class CartService {
         variables.put("password", authenticationDataDto.getPassword());
 
         String executionId = task.getExecutionId();
-        runtimeService.setVariablesLocal(executionId, variables);
+        runtimeService.setVariables(executionId, variables);
 
-        taskService.setVariablesLocal(task.getId(), variables);
-        taskService.complete(task.getId());
+           taskService.complete(task.getId());
     }
 
     public void payForOrderCamunda(Long orderId, AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, OrderNotFoundException, PaymentErrorException, InvalidCustomerDataException {
@@ -361,8 +355,8 @@ public class CartService {
                 .singleResult();
 
         String executionId = task.getExecutionId();
-        runtimeService.setVariablesLocal(executionId, variables);
-        taskService.setVariablesLocal(task.getId(), variables);
+        runtimeService.setVariables(executionId, variables);
+
         taskService.complete(task.getId());
     }
 
@@ -455,9 +449,7 @@ public class CartService {
         String executionId = task.getExecutionId();
         runtimeService.setVariables(executionId, variables);
 
-        taskService.setVariablesLocal(task.getId(), variables);
-
-        taskService.complete(task.getId());
+         taskService.complete(task.getId());
     }
 
     public void cancelOrderLoggedCamunda(Long orderId, AuthenticationDataDto authenticationDataDto) throws OrderNotFoundException {
@@ -465,14 +457,14 @@ public class CartService {
         cancelOrder(orderId);
     }
 
-    public void deleteByCartStatus(CartStatus cartStatus) {
-        cartRepository.deleteByCartStatus(cartStatus);
+    public void deleteByCartStatus(CartStatus cartStatus, String processId) {
+        cartRepository.deleteByCartStatusAndAndCamundaProcessId(cartStatus, processId);
     }
 
-    public void RemoveNotFinalizedCartsCamunda() {
+    public void RemoveNotFinalizedCartsCamunda(String processId) {
         log.info("deleting empty carts " + LocalDate.now());
         try {
-            deleteByCartStatus(CartStatus.EMPTY);
+            deleteByCartStatus(CartStatus.EMPTY, processId);
             log.info("empty carts deleted " + LocalDate.now());
         } catch (Exception e) {
             log.error("empty cars were not removed ", e);
@@ -480,13 +472,32 @@ public class CartService {
 
         log.info("deleting carts with status\"PROCESSING\" " + LocalDate.now());
         try {
-            List<Cart> listOfCarts = cartRepository.selectByProcessingTime();
-            for (Cart cart : listOfCarts) {
-                cancelCart(cart.getCartID());
-                log.info("carts with status\"PROCESSING\" longer than 3 days deleted " + LocalDate.now());
+            List<Cart> listOfCarts = cartRepository.selectByProcessingTime(processId);
+            if (listOfCarts.size() > 0) {
+                for (Cart cart : listOfCarts) {
+                    cancelCart(cart.getCartID());
+                    log.info("carts with status\"PROCESSING\" deleted " + LocalDate.now());
+                }
+            }
+            else {
+                log.info("no carts with status\"PROCESSING\" present " + LocalDate.now());
             }
         } catch (Exception e) {
             log.error("\"PROCESSING\" carts were not removed", e);
+        }
+    }
+
+    public void removeUnpaidOrders(String processId) throws OrderNotFoundException {
+        List<Order> unpaidOrders = orderService.findUnpaidOrders(processId);
+        for (Order orderToCancel : unpaidOrders) {
+            cancelOrder(orderToCancel.getOrderID());
+        }
+    }
+
+    public void remindAboutPaymentCamunda(String processId) {
+        List<Order> unpaidOrders = orderService.findCloseUnpaidOrders(processId);
+        for (Order order : unpaidOrders) {
+            emailService.send(emailCreator.createContentReminder(order));
         }
     }
 }

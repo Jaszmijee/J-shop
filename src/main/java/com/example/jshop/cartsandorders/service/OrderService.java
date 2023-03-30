@@ -48,13 +48,13 @@ public class OrderService {
         orderRepository.deleteById(order.getOrderID());
     }
 
-    public List<Order> findCloseUnpaidOrders() {
-        return orderRepository.findOrdersCloseTOPayment();
+    public List<Order> findCloseUnpaidOrders(String processId) {
+        return orderRepository.findOrdersCloseToPayment(processId);
     }
 
-    public List<Order> findUnpaidOrders()  {
-        return orderRepository.findUnpaidOrders();
+    public List<Order> findUnpaidOrders(String processId)  {
+        return orderRepository.findUnpaidOrders(processId);
     }
-}
+    }
 
 

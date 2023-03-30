@@ -29,15 +29,21 @@ public class RequestAndResponseLoggingFilter extends OncePerRequestFilter {
                 path = validatePathInfo(path);
             }
             log.info("REQUEST PATH: {}", path);
-            log.info("REQUEST DATA: {}", new String(cachedHttpServletRequest.getContentAsByteArray(), StandardCharsets.UTF_8));
+            if ((path.contains("login") || path.contains("customer"))) {
+                log.info("sensitive data");
+            }
+            else {
+                log.info("REQUEST DATA: {}", new String(cachedHttpServletRequest.getContentAsByteArray(), StandardCharsets.UTF_8));
+            }
         } catch (IOException | ServletException e) {
             e.printStackTrace();
         } finally {
             log.info("RESPONSE STATUS: {}", cachedHttpServletResponse.getStatus());
-        //    log.info("RESPONSE DATA: {}", new String(cachedHttpServletResponse.getContentAsByteArray(), StandardCharsets.UTF_8));
-            cachedHttpServletResponse.copyBodyToResponse();
+            log.info("RESPONSE DATA: {}", new String(cachedHttpServletResponse.getContentAsByteArray(), StandardCharsets.UTF_8));
         }
+        cachedHttpServletResponse.copyBodyToResponse();
     }
+
 
     private static String getRequestedPath(HttpServletRequest request) {
         val queryString = request.getQueryString();
@@ -56,5 +62,4 @@ public class RequestAndResponseLoggingFilter extends OncePerRequestFilter {
         }
         return path.replace(subStringKey, "xxx").replace(subStringToken, "xxx");
     }
-
 }

@@ -10,16 +10,16 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RemoveNotFinalizedCartsDelegate implements JavaDelegate {
+public class RemindAboutPaymentDelegate implements JavaDelegate {
 
     private final CartService cartService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
-        log.info("RemoveNotFinalizedCartsDelegate" + execution.getVariable("activity"));
+        log.info("RemindAboutPaymentDelegate ");
 
         String processId = execution.getProcessInstanceId();
 
-        cartService.RemoveNotFinalizedCartsCamunda(processId);
+        cartService.remindAboutPaymentCamunda(processId);
     }
 }

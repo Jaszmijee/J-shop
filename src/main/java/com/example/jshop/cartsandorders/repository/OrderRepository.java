@@ -29,15 +29,19 @@ public interface OrderRepository extends CrudRepository<Order, Long> {
     @Query(value = "SELECT * from orders " +
             "where order_status = 'UNPAID' " +
             "AND paid IS NULL " +
-            "AND DATEDIFF(CURDATE(), created) < 13",
+            "AND camunda_process_Id =:PROCESS_ID",
+           // "AND DATEDIFF(CURDATE(), created) < 13",
             nativeQuery = true)
-    List<Order> findOrdersCloseTOPayment();
+    List<Order> findOrdersCloseToPayment(@Param("PROCESS_ID") String processId);
 
     @Query(value = "SELECT * from orders " +
             "where order_status = 'UNPAID' " +
-            "AND paid IS NULL " +
-            "AND DATEDIFF(CURDATE(), created) > 14",
+            "AND paid IS NULL "+
+            "AND camunda_process_Id =:PROCESS_ID",
+      //    "AND DATEDIFF(CURDATE(), created) > 14",
             nativeQuery = true)
-    List<Order> findUnpaidOrders();
+    List<Order> findUnpaidOrders(@Param("PROCESS_ID") String processId);
+
+    Order findByCamundaProcessId(String processId);
 }
 
