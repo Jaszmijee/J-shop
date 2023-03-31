@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 public class CancelOrderDelegate implements JavaDelegate {
 
     private final CartService cartService;
-    private final OrderRepository orderRepository;
 
     public void execute(DelegateExecution execution) throws Exception {
         log.info("CancelOrderDelegate started");
@@ -27,12 +26,6 @@ public class CancelOrderDelegate implements JavaDelegate {
 
         AuthenticationDataDto data = new AuthenticationDataDto(user, pwwd);
 
-        if (orderId == null) {
-            String processId = execution.getProcessInstanceId();
-            Order order = orderRepository.findByCamundaProcessId(processId);
-            orderId = order.getOrderID();
-            data = new AuthenticationDataDto(order.getLoggedCustomer().getUserName(), order.getLoggedCustomer().getPassword());
-        }
-            cartService.cancelOrderLoggedCamunda(orderId, data);
-        }
+        cartService.cancelOrderLoggedCamunda(orderId, data);
     }
+}
