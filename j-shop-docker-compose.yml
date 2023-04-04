@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'j-shop-test-compose'
+      MYSQL_USER: 'jaszmije'
+      MYSQL_PASSWORD: 'jaszmije'
+      MYSQL_ROOT_PASSWORD: 'jaszmije'
+    ports:
+      - '3308:3306'
+    volumes:
+      - jshop-db:/var/lib/mysql
+volumes:
+  jshop-db:
