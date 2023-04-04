@@ -16,7 +16,6 @@ public class StartProcessShopping {
 
     private final CartService cartService;
     private final ProcessEngine processEngine;
-    private final RuntimeService runtimeService;
 
     public void createProcessInstance(Long cartId) throws CartNotFoundException {
 
@@ -33,15 +32,4 @@ public class StartProcessShopping {
 
         cartService.setUpProcessInstance(cartId, processInstanceId);
     }
-
-
-
-   /* public void addToCart(DelegateExecution delegateExecution) {
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("cartId", runtimeService.getVariables("cartId"));
-        variables.put("productId", delegateExecution.getVariable("productId"));
-        variables.put("quantity", delegateExecution.getVariable("quantity"));*/
-
-
-    //
 }

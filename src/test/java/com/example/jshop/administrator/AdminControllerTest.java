@@ -66,8 +66,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/category")
-                            .param("key", "1")
-                            .param("token", "3")
+                            .queryParam("key", "1")
+                            .queryParam("token", "3")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -77,6 +77,7 @@ class AdminControllerTest {
 
             verify(adminService, never()).addNewCategory(any(CategoryDto.class));
         }
+
 
         @Test
         void testAddNewCategoryInvalidArgumentException() throws Exception {
@@ -90,8 +91,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/category")
-                            .param("key", "1")
-                            .param("token", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -114,8 +115,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/category")
-                            .param("key", "1")
-                            .param("token", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -138,8 +139,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/category")
-                            .param("key", "1")
-                            .param("token", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -165,8 +166,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .delete("/v1/j-shop/admin/category")
-                            .param("key", "1")
-                            .param("token", "3")
+                            .queryParam("key", "1")
+                            .queryParam("token", "3")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -190,8 +191,8 @@ class AdminControllerTest {
         mockMvc
                 .perform(MockMvcRequestBuilders
                         .delete("/v1/j-shop/admin/category")
-                        .param("key", "1")
-                        .param("token", "2")
+                        .queryParam("key", "1")
+                        .queryParam("token", "2")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8")
                         .content(jsonContent))
@@ -214,8 +215,8 @@ class AdminControllerTest {
         mockMvc
                 .perform(MockMvcRequestBuilders
                         .delete("/v1/j-shop/admin/category")
-                        .param("key", "1")
-                        .param("token", "2")
+                        .queryParam("key", "1")
+                        .queryParam("token", "2")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8")
                         .content(jsonContent))
@@ -238,8 +239,8 @@ class AdminControllerTest {
         mockMvc
                 .perform(MockMvcRequestBuilders
                         .delete("/v1/j-shop/admin/category")
-                        .param("key", "1")
-                        .param("token", "2")
+                        .queryParam("key", "1")
+                        .queryParam("token", "2")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8")
                         .content(jsonContent))
@@ -264,8 +265,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/category")
-                            .param("key", "1")
-                            .param("token", "3")
+                            .queryParam("key", "1")
+                            .queryParam("token", "3")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -288,8 +289,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/category")
-                            .param("key", "1")
-                            .param("token", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -313,8 +314,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/category")
-                            .param("key", "1")
-                            .param("token", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -348,9 +349,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/category/name")
-                            .param("key", "1")
-                            .param("token", "3")
-                            .param("categoryName", "Music")
+                            .queryParam("key", "1")
+                            .queryParam("token", "3")
+                            .queryParam("categoryName", "Music")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isUnauthorized())
@@ -368,9 +369,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/category/name")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("categoryName", "Music")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("categoryName", "Music")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -390,9 +391,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/category/name")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("categoryName", "Music")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("categoryName", "Music")
                             .contentType(MediaType.APPLICATION_JSON))
                     // CategoryWithProductsDto
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -415,9 +416,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/category/name")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("categoryName", "Music")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("categoryName", "Music")
                             .contentType(MediaType.APPLICATION_JSON))
                     // CategoryWithProductsDto
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -451,8 +452,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "3")
+                            .queryParam("key", "1")
+                            .queryParam("token", "3")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -476,8 +477,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -501,8 +502,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -525,8 +526,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -550,8 +551,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -583,9 +584,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .put("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "3")
-                            .param("productId", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "3")
+                            .queryParam("productId", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -608,9 +609,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .put("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("productId", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("productId", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -633,9 +634,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .put("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("productId", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("productId", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -658,9 +659,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .put("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("productId", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("productId", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -683,9 +684,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .put("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("productId", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("productId", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -709,9 +710,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .put("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("productId", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("productId", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -739,9 +740,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .delete("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "3")
-                            .param("productId", "3")
+                            .queryParam("key", "1")
+                            .queryParam("token", "3")
+                            .queryParam("productId", "3")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                     .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
@@ -758,9 +759,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .delete("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("productId", "3")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("productId", "3")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(result -> assertEquals("Product with given Id not found", result.getResponse().getContentAsString()));
@@ -777,9 +778,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .delete("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("productId", "3")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("productId", "3")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -800,8 +801,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "3")
+                            .queryParam("key", "1")
+                            .queryParam("token", "3")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                     .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
@@ -819,8 +820,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/product")
-                            .param("key", "1")
-                            .param("token", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -849,10 +850,10 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/warehouse")
-                            .param("key", "1")
-                            .param("token", "3")
-                            .param("productId", "3")
-                            .param("productQuantity", "45")
+                            .queryParam("key", "1")
+                            .queryParam("token", "3")
+                            .queryParam("productId", "3")
+                            .queryParam("productQuantity", "45")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isUnauthorized())
@@ -870,10 +871,10 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/warehouse")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("productId", "3")
-                            .param("productQuantity", "45")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("productId", "3")
+                            .queryParam("productQuantity", "45")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -891,10 +892,10 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/warehouse")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("productId", "3")
-                            .param("productQuantity", "45")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("productId", "3")
+                            .queryParam("productQuantity", "45")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -912,10 +913,10 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/warehouse")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("productId", "3")
-                            .param("productQuantity", "45")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("productId", "3")
+                            .queryParam("productQuantity", "45")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -934,10 +935,10 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/warehouse")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("productId", "3")
-                            .param("productQuantity", "45")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("productId", "3")
+                            .queryParam("productQuantity", "45")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -965,9 +966,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .delete("/v1/j-shop/admin/warehouse")
-                            .param("key", "1")
-                            .param("token", "3")
-                            .param("productId", "3")
+                            .queryParam("key", "1")
+                            .queryParam("token", "3")
+                            .queryParam("productId", "3")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isUnauthorized())
@@ -985,9 +986,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .delete("/v1/j-shop/admin/warehouse")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("productId", "3")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("productId", "3")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -1005,9 +1006,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .delete("/v1/j-shop/admin/warehouse")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("productId", "3")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("productId", "3")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isOk());
@@ -1029,8 +1030,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/warehouse")
-                            .param("key", "1")
-                            .param("token", "3")
+                            .queryParam("key", "1")
+                            .queryParam("token", "3")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isUnauthorized())
@@ -1049,8 +1050,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/warehouse")
-                            .param("key", "1")
-                            .param("token", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1084,9 +1085,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/order")
-                            .param("key", "1")
-                            .param("token", "3")
-                            .param("order_status", "UNPAID")
+                            .queryParam("key", "1")
+                            .queryParam("token", "3")
+                            .queryParam("order_status", "UNPAID")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isUnauthorized())
@@ -1104,9 +1105,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/order")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("order_status", "UNPAID")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("order_status", "UNPAID")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -1130,9 +1131,9 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/order")
-                            .param("key", "1")
-                            .param("token", "2")
-                            .param("order_status", "UNPAID")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
+                            .queryParam("order_status", "UNPAID")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1161,8 +1162,8 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/order")
-                            .param("key", "1")
-                            .param("token", "2")
+                            .queryParam("key", "1")
+                            .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isOk())
