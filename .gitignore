@@ -38,3 +38,5 @@ out/
 
 **/out/
 **/build/
+
+docker_db/
