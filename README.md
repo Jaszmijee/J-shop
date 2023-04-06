@@ -1,2 +1,2 @@
 # to initialize container database run:
-docker-compose -d j-shop-docker-compose.yml up
+docker-compose -f j-shop-docker-compose.yml up -d 
