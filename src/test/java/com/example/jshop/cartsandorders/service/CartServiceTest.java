@@ -1,4 +1,4 @@
-/*
+
 package com.example.jshop.cartsandorders.service;
 
 import com.example.jshop.cartsandorders.domain.cart.*;
@@ -78,7 +78,8 @@ class CartServiceTest {
             assertTrue(cart.getListOfItems().isEmpty());
         }
     }
-
+}
+/*
     @Nested
     @Transactional
     @DisplayName("test addToCart")
