@@ -296,6 +296,10 @@ public class CartService {
         Cart cart = findCartById(cartId);
         cart.setCartStatus(CartStatus.FINALIZED);
         cartRepository.save(cart);
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("orderId", order.getOrderID());
+        runtimeService.setVariables(order.getCamundaProcessId(), variables);
     }
 
     private Order validateOrderToPay(Long orderId, String username) throws OrderNotFoundException {
@@ -323,10 +327,7 @@ public class CartService {
                 .singleResult();
 
         Map<String, Object> variables = new HashMap<>();
-        variables.put("orderId", orderId);
         variables.put("activity", "payForOrder");
-        variables.put("userName", authenticationDataDto.getUsername());
-        variables.put("password", authenticationDataDto.getPassword());
 
         String executionId = task.getExecutionId();
         runtimeService.setVariables(executionId, variables);
@@ -334,7 +335,7 @@ public class CartService {
         taskService.complete(task.getId());
     }
 
-    public void payForOrderCamunda(Long orderId) throws OrderNotFoundException, PaymentErrorException, InvalidCustomerDataException {
+    public void payForOrderCamunda(Long orderId) throws OrderNotFoundException, PaymentErrorException {
         Order order = orderService.findOrderById(orderId);
         boolean isPaid = orderIsPaid(order);
         if (!(isPaid)) {
@@ -461,7 +462,6 @@ public class CartService {
                 .singleResult();
 
         Map<String, Object> variables = new HashMap<>();
-        variables.put("orderId", orderId);
         variables.put("activity", "cancelOrder");
 
         String executionId = task.getExecutionId();
@@ -496,13 +496,6 @@ public class CartService {
             }
         } catch (Exception e) {
             log.error("\"PROCESSING\" carts were not removed", e);
-        }
-    }
-
-    public void removeUnpaidOrders(String processId) throws OrderNotFoundException {
-        List<Order> unpaidOrders = orderService.findUnpaidOrders(processId);
-        for (Order orderToCancel : unpaidOrders) {
-            cancelOrder(orderToCancel.getOrderID());
         }
     }
 
