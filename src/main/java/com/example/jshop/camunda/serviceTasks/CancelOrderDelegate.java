@@ -1,9 +1,6 @@
 package com.example.jshop.camunda.serviceTasks;
 
-import com.example.jshop.cartsandorders.domain.order.Order;
-import com.example.jshop.cartsandorders.repository.OrderRepository;
 import com.example.jshop.cartsandorders.service.CartService;
-import com.example.jshop.customer.domain.AuthenticationDataDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -21,11 +18,7 @@ public class CancelOrderDelegate implements JavaDelegate {
         log.info("CancelOrderDelegate started");
 
         Long orderId = (Long) execution.getVariable("orderId");
-        String user = (String) execution.getVariable("userName");
-        char[] pwwd = (char[]) execution.getVariable("password");
 
-        AuthenticationDataDto data = new AuthenticationDataDto(user, pwwd);
-
-        cartService.cancelOrderLoggedCamunda(orderId, data);
+        cartService.cancelOrder(orderId);
     }
 }

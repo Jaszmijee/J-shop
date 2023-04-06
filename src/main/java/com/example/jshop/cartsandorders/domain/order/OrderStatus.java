@@ -1,6 +1,6 @@
 package com.example.jshop.cartsandorders.domain.order;
 
-public enum ORDER_STATUS {
+public enum OrderStatus {
 
     PAID,
     UNPAID,

@@ -4,7 +4,7 @@ package com.example.jshop.customer.service;
 import com.example.jshop.cartsandorders.domain.cart.Cart;
 import com.example.jshop.cartsandorders.domain.cart.CartStatus;
 import com.example.jshop.cartsandorders.domain.cart.Item;
-import com.example.jshop.cartsandorders.domain.order.ORDER_STATUS;
+import com.example.jshop.cartsandorders.domain.order.OrderStatus;
 import com.example.jshop.cartsandorders.domain.order.Order;
 import com.example.jshop.cartsandorders.domain.order.OrderDtoToCustomer;
 import com.example.jshop.cartsandorders.repository.CartRepository;
@@ -312,7 +312,7 @@ class CustomerServiceTest {
             }
 
             Cart cart = new Cart();
-            Order order = new Order(loggedCustomer, cart, LocalDate.of(2023, 3, 1), ORDER_STATUS.UNPAID, "dummy list", new BigDecimal("282.14"));
+            Order order = new Order(loggedCustomer, cart, LocalDate.of(2023, 3, 1), OrderStatus.UNPAID, "dummy list", new BigDecimal("282.14"));
             orderService.save(order);
 
             AuthenticationDataDto customerDto = new AuthenticationDataDto("", "password".toCharArray());
@@ -392,7 +392,7 @@ class CustomerServiceTest {
             cart.getListOfItems().add(item);
             cartRepository.save(cart);
 
-            Order order = new Order(loggedCustomer, cart, LocalDate.of(2023, 3, 1), ORDER_STATUS.UNPAID, "dummy list", new BigDecimal("282.14"));
+            Order order = new Order(loggedCustomer, cart, LocalDate.of(2023, 3, 1), OrderStatus.UNPAID, "dummy list", new BigDecimal("282.14"));
             orderService.save(order);
 
             AuthenticationDataDto customerDto = new AuthenticationDataDto("user", "password".toCharArray());

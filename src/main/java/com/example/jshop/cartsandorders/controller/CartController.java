@@ -23,7 +23,6 @@ public class CartController {
     private final CartMapper cartMapper;
     private final StartProcessShopping processShopping;
 
-
     @PostMapping
     ResponseEntity<CartDto> createCart() throws CartNotFoundException {
         Cart cart = cartService.createCart();
@@ -32,7 +31,7 @@ public class CartController {
     }
 
     @PutMapping("add")
-    ResponseEntity<Void> addToCart(@RequestParam Long cartId, @RequestBody CartItemsDto cartItemsDto) throws InvalidQuantityException {
+    ResponseEntity<Void> addToCart(@RequestParam Long cartId, @RequestBody CartItemsDto cartItemsDto) throws InvalidQuantityException, NotEnoughItemsException, ProductNotFoundException, CartNotFoundException {
         cartService.addToCart(cartId, cartItemsDto);
         return ResponseEntity.ok().build();
     }
@@ -44,7 +43,7 @@ public class CartController {
     }
 
     @PutMapping("remove")
-    ResponseEntity<Void> removeFromCart(@RequestParam Long cartId, @RequestBody CartItemsDto cartItemsDto) throws InvalidQuantityException {
+    ResponseEntity<Void> removeFromCart(@RequestParam Long cartId, @RequestBody CartItemsDto cartItemsDto) throws InvalidQuantityException, CartNotFoundException, ProductNotFoundException {
         cartService.removeFromCart(cartId, cartItemsDto);
     return ResponseEntity.ok().build();
     }
@@ -56,25 +55,25 @@ public class CartController {
     }
 
     @PostMapping("finalize")
-    ResponseEntity<Void> decideToFinalizeCart(@RequestParam Long cartId, @RequestParam String authenticated) throws InvalidArgumentException {
+    ResponseEntity<Void> decideToFinalizeCart(@RequestParam Long cartId, @RequestParam String authenticated) throws CartNotFoundException, InvalidDataException {
         cartService.decideToFinalize(cartId, authenticated);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("finalize/login")
-    ResponseEntity<Void> finalizeCart(@RequestParam Long cartId, @RequestBody AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, InvalidCustomerDataException {
+    ResponseEntity<Void> finalizeCart(@RequestParam Long cartId, @RequestBody AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, InvalidCustomerDataException, CartNotFoundException {
         cartService.finalizeCart(cartId, authenticationDataDto);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("pay/login")
-    ResponseEntity<Void> payForOrderLogged(@RequestParam Long orderId, @RequestBody AuthenticationDataDto authenticationDataDto) throws OrderNotFoundException {
+    ResponseEntity<Void> payForOrderLogged(@RequestParam Long orderId, @RequestBody AuthenticationDataDto authenticationDataDto) throws OrderNotFoundException, UserNotFoundException, AccessDeniedException, PaymentErrorException, InvalidCustomerDataException {
         cartService.payForOrder(orderId, authenticationDataDto);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("pay/unauthenticated")
-    ResponseEntity<Void> payForCartUnauthenticated(@RequestParam Long cartId, @RequestBody UnauthenticatedCustomerDto unauthenticatedCustomerDto) throws InvalidCustomerDataException {
+    ResponseEntity<Void> payForCartUnauthenticated(@RequestParam Long cartId, @RequestBody UnauthenticatedCustomerDto unauthenticatedCustomerDto) throws InvalidCustomerDataException, CartNotFoundException {
         cartService.payForCartUnauthenticatedCustomer(cartId, unauthenticatedCustomerDto);
     return ResponseEntity.ok().build();
     }

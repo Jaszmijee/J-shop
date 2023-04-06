@@ -16,10 +16,10 @@ public class RemoveNotFinalizedCartsDelegate implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
-        log.info("RemoveNotFinalizedCartsDelegate" + execution.getVariable("activity"));
+        log.info("RemoveNotFinalizedCartsDelegate");
 
         String processId = execution.getProcessInstanceId();
 
-        cartService.RemoveNotFinalizedCartsCamunda(processId);
+        cartService.removeNotFinalizedCartsCamunda(processId);
     }
 }

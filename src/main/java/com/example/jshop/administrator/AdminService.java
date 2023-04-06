@@ -56,7 +56,7 @@ public class AdminService {
 
     public CategoryWithProductsDto showCategoryByNameWithProducts(String categoryName) throws CategoryNotFoundException {
         Category category = categoryService.findByName(categoryName);
-        if (category == null){
+        if (category == null) {
             throw new CategoryNotFoundException();
         }
         return categoryMapper.mapToCategoryDtoAllInfo(category);
@@ -120,7 +120,7 @@ public class AdminService {
     public List<ProductDtoAllInfo> showAllProducts() {
         List<ProductDtoAllInfo> productDtoAllInfo = new ArrayList<>();
         List<Product> productList = productService.findAllProducts();
-        if(productList.isEmpty()) {
+        if (productList.isEmpty()) {
             return productDtoAllInfo;
         }
         return productMapper.mapToProductDtoList(productList);
@@ -133,7 +133,7 @@ public class AdminService {
     }
 
     public WarehouseDto addOrUpdateProductInWarehouse(Long productId, Integer productQuantity) throws InvalidQuantityException, ProductNotFoundException, CategoryNotFoundException {
-       validateQuantity(productQuantity);
+        validateQuantity(productQuantity);
         Product product = productService.findProductById(productId);
         if (product.getCategory().getName().equalsIgnoreCase("Unknown")) {
             throw new CategoryNotFoundException();
@@ -152,7 +152,7 @@ public class AdminService {
         if (warehouseService.findWarehouseByProductId(productId) == null) {
             throw new ProductNotFoundException();
         }
-          warehouseService.deleteProductFromWarehouseByProductId(productId);
+        warehouseService.deleteProductFromWarehouseByProductId(productId);
     }
 
     public List<WarehouseDto> displayAllProductsInWarehouse() {

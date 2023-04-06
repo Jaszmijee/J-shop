@@ -15,7 +15,7 @@ public class OrderMapper {
                 order.getCreated(),
                 order.getListOfProducts(),
                 order.getCalculatedPrice().toString(),
-                order.getOrder_status().toString(),
+                order.getOrderStatus().toString(),
                 order.getPaymentDue()
         );
     }

@@ -2,7 +2,7 @@ package com.example.jshop.administrator;
 
 import com.example.jshop.cartsandorders.domain.cart.Cart;
 import com.example.jshop.cartsandorders.domain.cart.CartStatus;
-import com.example.jshop.cartsandorders.domain.order.ORDER_STATUS;
+import com.example.jshop.cartsandorders.domain.order.OrderStatus;
 import com.example.jshop.cartsandorders.domain.order.Order;
 import com.example.jshop.cartsandorders.domain.order.OrderDtoToCustomer;
 import com.example.jshop.cartsandorders.mapper.OrderMapper;
@@ -31,13 +31,13 @@ import static org.mockito.Mockito.times;
 public class AdminServiceTestDisplayOrders {
 
     @InjectMocks
-    AdminService adminService;
+    private AdminService adminService;
 
     @Mock
-    OrderService orderService;
+    private OrderService orderService;
 
     @Mock
-    OrderMapper orderMapper;
+    private OrderMapper orderMapper;
 
     @Test
     void testDisplayOrdersInvalidOrderStatusException() throws InvalidOrderStatusException {
@@ -58,13 +58,13 @@ public class AdminServiceTestDisplayOrders {
         LoggedCustomer loggedCustomer =  new LoggedCustomer("user", pwwd, "Adam", "DDD", "ptr@ptr",
                 new Address("Fairy", "5", "5", "55-555", "Maputo", "Mosambique"));
         Cart cart =  new Cart(1L, CartStatus.FINALIZED, List.of(), new BigDecimal("1000.00"), LocalDate.of(2023, 2, 20), "dummy Camunda process");
-        Order order = new Order(loggedCustomer, LocalDate.of(2023, 2, 22), ORDER_STATUS.UNPAID, "list of products unpaid", new BigDecimal("1000.00"), cart, "dummy Camunda process");
+        Order order = new Order(loggedCustomer, LocalDate.of(2023, 2, 22), OrderStatus.UNPAID, "list of products unpaid", new BigDecimal("1000.00"), cart, "dummy Camunda process");
         List<Order> unpaid = List.of(order);
 
         LoggedCustomer loggedCustomer1 =  new LoggedCustomer("user1", pwwd, "Adam1", "DDD1", "ptr@ptr1",
                 new Address("Fairy1", "6", "5", "66-666", "Maputo", "Mosambique"));
         Cart cart1 =  new Cart(2L, CartStatus.FINALIZED, List.of(), new BigDecimal("1500.00"), LocalDate.of(2023, 2, 20), "dummy Camunda process");
-        Order order1 = new Order(loggedCustomer1, LocalDate.of(2023, 2, 21), ORDER_STATUS.PAID,  "list of products paid", new BigDecimal("1500.00"), cart1, "dummy Camunda process1");
+        Order order1 = new Order(loggedCustomer1, LocalDate.of(2023, 2, 21), OrderStatus.PAID,  "list of products paid", new BigDecimal("1500.00"), cart1, "dummy Camunda process1");
         List<Order> paid = List.of(order1);
         List<Order> combined = new ArrayList<>();
         combined.addAll(paid);

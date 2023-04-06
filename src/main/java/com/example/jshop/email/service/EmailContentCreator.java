@@ -1,6 +1,6 @@
 package com.example.jshop.email.service;
 
-import com.example.jshop.cartsandorders.domain.order.ORDER_STATUS;
+import com.example.jshop.cartsandorders.domain.order.OrderStatus;
 import com.example.jshop.cartsandorders.domain.order.Order;
 import com.example.jshop.email.domain.Mail;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ public class EmailContentCreator {
         String message = "Your order No: " + order.getOrderID() + ", created on: " + order.getCreated() +
                 " " + order.getListOfProducts() + " " +
                 "\ntotal sum: " + order.getCalculatedPrice();
-        if (order.getOrder_status() == ORDER_STATUS.UNPAID) {
+        if (order.getOrderStatus() == OrderStatus.UNPAID) {
             message += "\nYour payment is due on: " + order.getCreated().plusDays(14);
             if (order.getCart().getListOfItems().isEmpty()) {
                 message = "Your order No: " + order.getOrderID() + " got cancelled";

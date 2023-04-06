@@ -29,7 +29,7 @@ public class FinalizeAndPayUnauthenticatedDelegate implements JavaDelegate {
         String city = (String) execution.getVariable("city");
         String country = (String) execution.getVariable("country");
 
-        UnauthenticatedCustomerDto data = new UnauthenticatedCustomerDto(firstName,lastName,email,street,houseNo,flatNo,zipCode,city,country);
+        var data = new UnauthenticatedCustomerDto(firstName,lastName,email,street,houseNo,flatNo,zipCode,city,country);
         cartService.payForCartUnauthenticatedCustomerCamunda(cartId, data);
     }
 }
