@@ -31,17 +31,15 @@ import static org.junit.jupiter.api.Assertions.*;
 class AdminServiceTest {
     @Autowired
     private AdminService adminService;
+    @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
     @Autowired
-    CategoryRepository categoryRepository;
+    private ProductService productService;
     @Autowired
-    ProductRepository productRepository;
-
-    @Autowired
-    ProductService productService;
-
-    @Autowired
-    WarehouseRepository warehouseRepository;
+    private WarehouseRepository warehouseRepository;
 
     @Nested
     @Transactional
@@ -289,7 +287,7 @@ class AdminServiceTest {
                 assertEquals("200.00", productDtoAllInfo.getPrice().toString());
             } catch (ProductNotFoundException e) {
                 e.printStackTrace();
-                       }
+            }
         }
 
         @Transactional
@@ -417,7 +415,7 @@ class AdminServiceTest {
 
             //When & Then
             assertThrows(ProductNotFoundException.class, () -> adminService.addOrUpdateProductInWarehouse((productId + 1), 10));
-         }
+        }
 
         @Test
         void addOrUpdateProductInWarehouseCategoryNotFoundException() {

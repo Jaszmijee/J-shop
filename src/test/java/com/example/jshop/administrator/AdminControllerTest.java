@@ -52,7 +52,7 @@ class AdminControllerTest {
     }
 
     @Nested
-    @DisplayName("test addNewCategory /v1/j-shop/admin/category")
+    @DisplayName("test addNewCategory /v1/j-shop/admin/add-category")
     class TestAddNewCategory {
         @Test
         void testAddNewCategoryAccessDeniedException() throws Exception {
@@ -65,7 +65,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/category")
+                            .post("/v1/j-shop/admin/add-category")
                             .queryParam("key", "1")
                             .queryParam("token", "3")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -90,7 +90,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/category")
+                            .post("/v1/j-shop/admin/add-category")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -114,7 +114,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/category")
+                            .post("/v1/j-shop/admin/add-category")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -138,7 +138,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/category")
+                            .post("/v1/j-shop/admin/add-category")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -152,7 +152,7 @@ class AdminControllerTest {
     }
 
     @Nested
-    @DisplayName("test removeCategory /v1/j-shop/admin/category")
+    @DisplayName("test removeCategory /v1/j-shop/admin/remove-category")
     class TestRemoveCategory {
         @Test
         void testRemoveCategoryAccessDeniedException() throws Exception {
@@ -165,7 +165,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .delete("/v1/j-shop/admin/category")
+                            .delete("/v1/j-shop/admin/remove-category")
                             .queryParam("key", "1")
                             .queryParam("token", "3")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -190,7 +190,7 @@ class AdminControllerTest {
         //When & Then
         mockMvc
                 .perform(MockMvcRequestBuilders
-                        .delete("/v1/j-shop/admin/category")
+                        .delete("/v1/j-shop/admin/remove-category")
                         .queryParam("key", "1")
                         .queryParam("token", "2")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -214,7 +214,7 @@ class AdminControllerTest {
         //When & Then
         mockMvc
                 .perform(MockMvcRequestBuilders
-                        .delete("/v1/j-shop/admin/category")
+                        .delete("/v1/j-shop/admin/remove-category")
                         .queryParam("key", "1")
                         .queryParam("token", "2")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -238,7 +238,7 @@ class AdminControllerTest {
         //When & Then
         mockMvc
                 .perform(MockMvcRequestBuilders
-                        .delete("/v1/j-shop/admin/category")
+                        .delete("/v1/j-shop/admin/remove-category")
                         .queryParam("key", "1")
                         .queryParam("token", "2")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -251,7 +251,7 @@ class AdminControllerTest {
     }
 
     @Nested
-    @DisplayName("test removeCategory /v1/j-shop/admin/category")
+    @DisplayName("test showAllCategoriesAndProducts /v1/j-shop/admin/show-category")
     class TestShowAllCategoriesAndProducts {
         @Test
         void testShowAllCategoriesAndProductsAccessDeniedException() throws Exception {
@@ -264,7 +264,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/category")
+                            .get("/v1/j-shop/admin/show-category")
                             .queryParam("key", "1")
                             .queryParam("token", "3")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -288,7 +288,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/category")
+                            .get("/v1/j-shop/admin/show-category")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -313,7 +313,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/category")
+                            .get("/v1/j-shop/admin/show-category")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -336,7 +336,7 @@ class AdminControllerTest {
     }
 
     @Nested
-    @DisplayName("test showCategories /v1/j-shop/admin/category/name")
+    @DisplayName("test showCategories /v1/j-shop/admin/show-category/name")
     class TestShowCategories {
         @Test
         void testShowCategoriesAccessDeniedException() throws Exception {
@@ -348,7 +348,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/category/name")
+                            .get("/v1/j-shop/admin/show-category/name")
                             .queryParam("key", "1")
                             .queryParam("token", "3")
                             .queryParam("categoryName", "Music")
@@ -368,7 +368,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/category/name")
+                            .get("/v1/j-shop/admin/show-category/name")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("categoryName", "Music")
@@ -390,7 +390,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/category/name")
+                            .get("/v1/j-shop/admin/show-category/name")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("categoryName", "Music")
@@ -415,7 +415,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/category/name")
+                            .get("/v1/j-shop/admin/show-category/name")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("categoryName", "Music")
@@ -436,10 +436,10 @@ class AdminControllerTest {
     }
 
     @Nested
-    @DisplayName("test addProduct /v1/j-shop/admin/product")
+    @DisplayName("test addProduct /v1/j-shop/admin/add-product")
     class TestAddProduct {
         @Test
-        void testShowCategoriesAccessDeniedException() throws Exception {
+        void testAddProductAccessDeniedException() throws Exception {
             //Given
             ProductDto productDto = new ProductDto("Album1", "CD", "Music", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             ProductDtoAllInfo productDtoAllInfo = new ProductDtoAllInfo(2L, "Music", "Album1", "CD", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
@@ -451,7 +451,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/product")
+                            .post("/v1/j-shop/admin/add-product")
                             .queryParam("key", "1")
                             .queryParam("token", "3")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -465,7 +465,7 @@ class AdminControllerTest {
         }
 
         @Test
-        void testShowCategoriesInvalidArgumentException() throws Exception {
+        void testAddProductInvalidArgumentException() throws Exception {
             //Given
             ProductDto productDto = new ProductDto("Album1", "CD", "Music", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             when(adminService.addNewProduct(any(ProductDto.class))).thenThrow(InvalidCategoryNameException.class);
@@ -476,7 +476,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/product")
+                            .post("/v1/j-shop/admin/add-product")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -490,7 +490,7 @@ class AdminControllerTest {
         }
 
         @Test
-        void testShowCategoriesCategoryExistsException() throws Exception {
+        void testAddProductCategoryExistsException() throws Exception {
             //Given
             ProductDto productDto = new ProductDto("Album1", "CD", "unknown", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             when(adminService.addNewProduct(any(ProductDto.class))).thenThrow(CategoryExistsException.class);
@@ -501,7 +501,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/product")
+                            .post("/v1/j-shop/admin/add-product")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -515,7 +515,7 @@ class AdminControllerTest {
         }
 
         @Test
-        void testShowCategoriesInvalidPriceException() throws Exception {
+        void testAddProductInvalidPriceException() throws Exception {
             //Given
             ProductDto productDto = new ProductDto("Album1", "CD", "unknown", new BigDecimal(-25.12).setScale(2, RoundingMode.HALF_EVEN));
             when(adminService.addNewProduct(any(ProductDto.class))).thenThrow(InvalidPriceException.class);
@@ -525,7 +525,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/product")
+                            .post("/v1/j-shop/admin/add-product")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -539,7 +539,7 @@ class AdminControllerTest {
         }
 
         @Test
-        void testShowCategoriesPositive() throws Exception {
+        void testAddProductPositive() throws Exception {
             //Given
             ProductDto productDto = new ProductDto("Album1", "CD", "unknown", new BigDecimal(-25.12).setScale(2, RoundingMode.HALF_EVEN));
             ProductDtoAllInfo productDtoAllInfo = new ProductDtoAllInfo(2L, "Music", "Album1", "CD", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
@@ -550,7 +550,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/product")
+                            .post("/v1/j-shop/admin/add-product")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -569,7 +569,7 @@ class AdminControllerTest {
     }
 
     @Nested
-    @DisplayName("test updateProduct /v1/j-shop/admin/product")
+    @DisplayName("test updateProduct /v1/j-shop/admin/update-product")
     class TestUpdateProduct {
         @Test
         void testUpdateProductAccessDeniedException() throws Exception {
@@ -583,7 +583,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .put("/v1/j-shop/admin/product")
+                            .put("/v1/j-shop/admin/update-product")
                             .queryParam("key", "1")
                             .queryParam("token", "3")
                             .queryParam("productId", "2")
@@ -608,7 +608,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .put("/v1/j-shop/admin/product")
+                            .put("/v1/j-shop/admin/update-product")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("productId", "2")
@@ -633,7 +633,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .put("/v1/j-shop/admin/product")
+                            .put("/v1/j-shop/admin/update-product")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("productId", "2")
@@ -658,7 +658,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .put("/v1/j-shop/admin/product")
+                            .put("/v1/j-shop/admin/update-product")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("productId", "2")
@@ -683,7 +683,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .put("/v1/j-shop/admin/product")
+                            .put("/v1/j-shop/admin/update-product")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("productId", "2")
@@ -709,7 +709,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .put("/v1/j-shop/admin/product")
+                            .put("/v1/j-shop/admin/update-product")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("productId", "2")
@@ -729,7 +729,7 @@ class AdminControllerTest {
     }
 
     @Nested
-    @DisplayName("test removeProduct /v1/j-shop/admin/product")
+    @DisplayName("test removeProduct /v1/j-shop/admin/remove-product")
     class TestRemoveProduct {
         @Test
         void testRemoveProductAccessDeniedException() throws Exception {
@@ -739,7 +739,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .delete("/v1/j-shop/admin/product")
+                            .delete("/v1/j-shop/admin/remove-product")
                             .queryParam("key", "1")
                             .queryParam("token", "3")
                             .queryParam("productId", "3")
@@ -758,7 +758,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .delete("/v1/j-shop/admin/product")
+                            .delete("/v1/j-shop/admin/remove-product")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("productId", "3")
@@ -777,7 +777,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .delete("/v1/j-shop/admin/product")
+                            .delete("/v1/j-shop/admin/remove-product")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("productId", "3")
@@ -789,7 +789,7 @@ class AdminControllerTest {
     }
 
     @Nested
-    @DisplayName("test showAllProducts /v1/j-shop/admin/product")
+    @DisplayName("test showAllProducts /v1/j-shop/admin/show-product")
     class TestShowAllProducts {
 
         @Test
@@ -800,7 +800,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/product")
+                            .get("/v1/j-shop/admin/show-product")
                             .queryParam("key", "1")
                             .queryParam("token", "3")
                             .contentType(MediaType.APPLICATION_JSON))
@@ -819,7 +819,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/product")
+                            .get("/v1/j-shop/admin/show-product")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON))
@@ -838,7 +838,7 @@ class AdminControllerTest {
     }
 
     @Nested
-    @DisplayName("test addProductToWarehouse /v1/j-shop/admin/warehouse")
+    @DisplayName("test addProductToWarehouse /v1/j-shop/admin/add-to-warehouse")
     class TestAddProductToWarehouse {
         @Test
         void testAddProductToWarehousesAccessDeniedException() throws Exception {
@@ -849,7 +849,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/warehouse")
+                            .post("/v1/j-shop/admin/add-to-warehouse")
                             .queryParam("key", "1")
                             .queryParam("token", "3")
                             .queryParam("productId", "3")
@@ -870,7 +870,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/warehouse")
+                            .post("/v1/j-shop/admin/add-to-warehouse")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("productId", "3")
@@ -891,7 +891,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/warehouse")
+                            .post("/v1/j-shop/admin/add-to-warehouse")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("productId", "3")
@@ -912,7 +912,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/warehouse")
+                            .post("/v1/j-shop/admin/add-to-warehouse")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("productId", "3")
@@ -934,7 +934,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/warehouse")
+                            .post("/v1/j-shop/admin/add-to-warehouse")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("productId", "3")
@@ -954,7 +954,7 @@ class AdminControllerTest {
     }
 
     @Nested
-    @DisplayName("test removeProductFromWarehouse /v1/j-shop/admin/warehouse")
+    @DisplayName("test removeProductFromWarehouse /v1/j-shop/admin/remove-from-warehouse")
     class TestRemoveProductFromWarehouse {
 
         @Test
@@ -965,7 +965,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .delete("/v1/j-shop/admin/warehouse")
+                            .delete("/v1/j-shop/admin/remove-from-warehouse")
                             .queryParam("key", "1")
                             .queryParam("token", "3")
                             .queryParam("productId", "3")
@@ -985,7 +985,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .delete("/v1/j-shop/admin/warehouse")
+                            .delete("/v1/j-shop/admin/remove-from-warehouse")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("productId", "3")
@@ -1005,7 +1005,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .delete("/v1/j-shop/admin/warehouse")
+                            .delete("/v1/j-shop/admin/remove-from-warehouse")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .queryParam("productId", "3")
@@ -1018,7 +1018,7 @@ class AdminControllerTest {
     }
 
     @Nested
-    @DisplayName("test displayAllItemsInWareHouse /v1/j-shop/admin/warehouse")
+    @DisplayName("test displayAllItemsInWareHouse /v1/j-shop/admin/show-products-in-warehouse")
     class TestDisplayAllItemsInWareHouse {
         @Test
         void testDisplayAllItemsInWareHouseAccessDeniedException() throws Exception {
@@ -1029,7 +1029,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/warehouse")
+                            .get("/v1/j-shop/admin/show-products-in-warehouse")
                             .queryParam("key", "1")
                             .queryParam("token", "3")
                             .contentType(MediaType.APPLICATION_JSON))
@@ -1049,7 +1049,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/warehouse")
+                            .get("/v1/j-shop/admin/show-products-in-warehouse")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON))
@@ -1068,7 +1068,7 @@ class AdminControllerTest {
     }
 
     @Nested
-    @DisplayName("test displayAllOrders /v1/j-shop/admin/order")
+    @DisplayName("test displayAllOrders /v1/j-shop/admin/show-order")
     class TestDisplayAllOrders {
         @Test
         void testDisplayAllOrdersAccessDeniedException() throws Exception {
@@ -1084,10 +1084,10 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/order")
+                            .get("/v1/j-shop/admin/show-order")
                             .queryParam("key", "1")
                             .queryParam("token", "3")
-                            .queryParam("order_status", "UNPAID")
+                            .queryParam("orderStatus", "UNPAID")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isUnauthorized())
@@ -1104,10 +1104,10 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/order")
+                            .get("/v1/j-shop/admin/show-order")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
-                            .queryParam("order_status", "UNPAID")
+                            .queryParam("orderStatus", "UNPAID")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -1130,10 +1130,10 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/order")
+                            .get("/v1/j-shop/admin/show-order")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
-                            .queryParam("order_status", "UNPAID")
+                            .queryParam("orderStatus", "UNPAID")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1161,7 +1161,7 @@ class AdminControllerTest {
             //When & Then
             mockMvc
                     .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/order")
+                            .get("/v1/j-shop/admin/show-order")
                             .queryParam("key", "1")
                             .queryParam("token", "2")
                             .contentType(MediaType.APPLICATION_JSON))

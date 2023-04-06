@@ -4,7 +4,7 @@ package com.example.jshop.cartsandorders.service;
 import com.example.jshop.cartsandorders.domain.cart.Cart;
 import com.example.jshop.cartsandorders.domain.cart.CartStatus;
 import com.example.jshop.cartsandorders.domain.cart.Item;
-import com.example.jshop.cartsandorders.domain.order.ORDER_STATUS;
+import com.example.jshop.cartsandorders.domain.order.OrderStatus;
 import com.example.jshop.cartsandorders.domain.order.Order;
 import com.example.jshop.cartsandorders.repository.CartRepository;
 import com.example.jshop.cartsandorders.repository.ItemRepository;
@@ -135,7 +135,7 @@ class OrderServiceTest {
             LoggedCustomer loggedCustomer = new LoggedCustomer("user", pwwd.toCharArray(), "Adam", "DDD", "ptr@ptr",
                     new Address("Fairy", "5", "5", "55-555", "Maputo", "Mozambique"));
             customerRepository.save(loggedCustomer);
-            Order order = new Order(loggedCustomer, cart, LocalDate.of(2023, 2, 25), ORDER_STATUS.PAID, "dummyList", new
+            Order order = new Order(loggedCustomer, cart, LocalDate.of(2023, 2, 25), OrderStatus.PAID, "dummyList", new
                     BigDecimal("25.00"));
             orderRepository.save(order);
 
@@ -172,7 +172,7 @@ class OrderServiceTest {
             LoggedCustomer loggedCustomer = new LoggedCustomer("user", pwwd.toCharArray(), "Adam", "DDD", "ptr@ptr",
                     new Address("Fairy", "5", "5", "55-555", "Maputo", "Mozambique"));
             customerRepository.save(loggedCustomer);
-            Order order = new Order(loggedCustomer, cart, LocalDate.of(2023, 2, 25), ORDER_STATUS.PAID, "dummyList", new
+            Order order = new Order(loggedCustomer, cart, LocalDate.of(2023, 2, 25), OrderStatus.PAID, "dummyList", new
                     BigDecimal("25.00"));
             orderRepository.save(order);
 
@@ -180,7 +180,7 @@ class OrderServiceTest {
             try {
                 Order searchedOrder = orderService.findByIdAndUserName(order.getOrderID(), "user");
                 assertEquals("dummyList", searchedOrder.getListOfProducts());
-                assertEquals("PAID", searchedOrder.getOrder_status().toString());
+                assertEquals("PAID", searchedOrder.getOrderStatus().toString());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -195,7 +195,7 @@ class OrderServiceTest {
         void findOrdersInvalidOrderStatusException() {
             //Given
             Order order1 = Order.builder()
-                    .order_status(ORDER_STATUS.PAID)
+                    .orderStatus(OrderStatus.PAID)
                     .build();
             String status2 = "";
             String status3 = "bla";
@@ -210,11 +210,11 @@ class OrderServiceTest {
         void findOrdersPositive() {
             //Given
             Order order1 = Order.builder()
-                    .order_status(ORDER_STATUS.PAID)
+                    .orderStatus(OrderStatus.PAID)
                     .build();
             orderRepository.save(order1);
             try {
-                System.out.println(orderService.findOrderById(order1.getOrderID()).getOrder_status().toString());
+                System.out.println(orderService.findOrderById(order1.getOrderID()).getOrderStatus().toString());
             } catch (OrderNotFoundException e) {
                 throw new RuntimeException(e);
             }

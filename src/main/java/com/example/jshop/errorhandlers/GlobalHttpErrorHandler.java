@@ -24,7 +24,7 @@ public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(InvalidCategoryNameException.class)
-    public ResponseEntity<Object> handleInvalidArgumentException(InvalidCategoryNameException exception) {
+    public ResponseEntity<Object> handleInvalidCategoryNameException(InvalidCategoryNameException exception) {
         return new ResponseEntity<>("Provide proper name", HttpStatus.BAD_REQUEST);
     }
 
@@ -106,6 +106,11 @@ public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(InvalidCustomerDataException.class)
     public ResponseEntity<Object> handleInvalidCustomerDataException(InvalidCustomerDataException exception) {
         return new ResponseEntity<>("Fields cannot be null or empty", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidDataException.class)
+    public ResponseEntity<Object> handleInvalidCustomerDataException(InvalidDataException exception) {
+        return new ResponseEntity<>("Provide proper answer: \"y\", \"yes\" or \"n\", \"no\"", HttpStatus.BAD_REQUEST);
     }
 }
 

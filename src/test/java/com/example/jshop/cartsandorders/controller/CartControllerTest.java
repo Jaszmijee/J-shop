@@ -2,18 +2,12 @@
 package com.example.jshop.cartsandorders.controller;
 
 import com.example.jshop.cartsandorders.domain.cart.*;
-import com.example.jshop.cartsandorders.domain.order.OrderDtoToCustomer;
 import com.example.jshop.cartsandorders.mapper.CartMapper;
 import com.example.jshop.cartsandorders.service.CartService;
-import com.example.jshop.errorhandlers.exceptions.InvalidCustomerDataException;
-import com.example.jshop.customer.domain.*;
-import com.example.jshop.errorhandlers.exceptions.*;
-import com.google.gson.Gson;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

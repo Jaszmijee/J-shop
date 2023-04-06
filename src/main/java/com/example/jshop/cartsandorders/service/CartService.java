@@ -1,9 +1,9 @@
 package com.example.jshop.cartsandorders.service;
 
 import com.example.jshop.cartsandorders.domain.cart.*;
+import com.example.jshop.cartsandorders.domain.order.OrderStatus;
 import com.example.jshop.customer.domain.LoggedCustomer;
 import com.example.jshop.customer.service.CustomerService;
-import com.example.jshop.cartsandorders.domain.order.ORDER_STATUS;
 import com.example.jshop.customer.domain.Address;
 import com.example.jshop.cartsandorders.domain.order.Order;
 import com.example.jshop.customer.domain.AuthenticationDataDto;
@@ -91,8 +91,11 @@ public class CartService {
         } else return warehouse;
     }
 
-    public void addToCart(Long cartId, CartItemsDto cartItemsDto) throws InvalidQuantityException {
+    public void addToCart(Long cartId, CartItemsDto cartItemsDto) throws InvalidQuantityException, CartNotFoundException, NotEnoughItemsException, ProductNotFoundException {
         validateQuantityOfPurchasedProduct(cartItemsDto.getQuantity());
+        Cart cartToUpdate = findCartById(cartId);
+        validateCartForProcessing(cartToUpdate);
+        validateProductInWarehouse(cartItemsDto.getProductId(), cartItemsDto.getQuantity());
 
         Task task = taskService.createTaskQuery()
                 .processInstanceBusinessKey(String.valueOf(cartId))
@@ -109,11 +112,9 @@ public class CartService {
         taskService.complete(task.getId());
     }
 
-    public void addToCartCamunda(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException, NotEnoughItemsException, ProductNotFoundException {
-
+    public void addToCartCamunda(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException {
         Cart cartToUpdate = findCartById(cartId);
-        validateCartForProcessing(cartToUpdate);
-        Warehouse warehouse = validateProductInWarehouse(cartItemsDto.getProductId(), cartItemsDto.getQuantity());
+        Warehouse warehouse = warehouseService.findWarehouseByProductId(cartItemsDto.getProductId());
         Product product = warehouse.getProduct();
         Item item;
         List<Item> items = cartToUpdate.getListOfItems().stream().filter(i -> i.getProduct().getProductID().equals(product.getProductID()))
@@ -147,8 +148,18 @@ public class CartService {
         return cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
     }
 
-    public void removeFromCart(Long cartId, CartItemsDto cartItemsDto) throws InvalidQuantityException {
+    public void removeFromCart(Long cartId, CartItemsDto cartItemsDto) throws InvalidQuantityException, CartNotFoundException, ProductNotFoundException {
         validateQuantityOfPurchasedProduct(cartItemsDto.getQuantity());
+        Cart cartToUpdate = findCartById(cartId);
+        validateCartForProcessing(cartToUpdate);
+        if (cartToUpdate.getCartStatus() == CartStatus.EMPTY) {
+            throw new CartNotFoundException();
+        }
+        List<Item> items = cartToUpdate.getListOfItems().stream().filter(i -> i.getProduct().getProductID().equals(cartItemsDto.getProductId()))
+                .toList();
+        if (items.size() == 0) {
+            throw new ProductNotFoundException();
+        }
 
         Task task = taskService.createTaskQuery()
                 .processInstanceBusinessKey(String.valueOf(cartId))
@@ -165,20 +176,17 @@ public class CartService {
         taskService.complete(task.getId());
     }
 
-    public void removeFromCartCamunda(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException, ProductNotFoundException {
+    public void removeFromCartCamunda(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException {
         Cart cartToUpdate = findCartById(cartId);
         validateCartForProcessing(cartToUpdate);
         if (cartToUpdate.getCartStatus() == CartStatus.EMPTY) {
             throw new CartNotFoundException();
         }
         Item item;
-        List<Item> items = cartToUpdate.getListOfItems().stream().filter(i -> i.getProduct().getProductID().equals(cartItemsDto.getProductId()))
-                .toList();
-        if (items.size() == 0) {
-            throw new ProductNotFoundException();
-        }
+        item = cartToUpdate.getListOfItems().stream().filter(i -> i.getProduct().getProductID().equals(cartItemsDto.getProductId()))
+                .toList().get(0);
+
         Warehouse warehouse = warehouseService.findWarehouseByProductId(cartItemsDto.getProductId());
-        item = items.get(0);
         if (item.getQuantity() <= cartItemsDto.getQuantity()) {
             updateProductInWarehouse(warehouse, -(item.getQuantity()));
             cartToUpdate.getListOfItems().remove(item);
@@ -210,12 +218,16 @@ public class CartService {
         cartRepository.deleteById(cartId);
     }
 
-    public void decideToFinalize(Long cartId, String authenticated) throws InvalidArgumentException {
+    public void decideToFinalize(Long cartId, String authenticated) throws CartNotFoundException, InvalidDataException {
+        Cart cart = findCartById(cartId);
+        if (cart.getCartStatus() != CartStatus.PROCESSING) {
+            throw new CartNotFoundException();
+        }
         String answer = authenticated.toLowerCase();
         boolean isAuthenticated = switch (answer) {
             case "y", "yes" -> true;
             case "n", "no" -> false;
-            default -> throw new InvalidArgumentException();
+            default -> throw new InvalidDataException();
         };
 
         Task task = taskService.createTaskQuery()
@@ -245,7 +257,7 @@ public class CartService {
                 .loggedCustomer(loggedCustomer)
                 .cart(cart)
                 .created(LocalDate.now())
-                .order_status(ORDER_STATUS.UNPAID)
+                .orderStatus(OrderStatus.UNPAID)
                 .listOfProducts(listOfItems)
                 .calculatedPrice(calculatedPrice)
                 .paymentDue(LocalDate.now().plusDays(14))
@@ -258,8 +270,11 @@ public class CartService {
         return createdOrder;
     }
 
-    public void finalizeCart(Long cartId, AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, InvalidCustomerDataException {
+    public void finalizeCart(Long cartId, AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, InvalidCustomerDataException, CartNotFoundException {
         customerService.verifyLogin(authenticationDataDto.getUsername(), authenticationDataDto.getPassword());
+        findCartById(cartId);
+        Cart cart = findCartById(cartId);
+        validateCartForProcessing(cart);
 
         Task task = taskService.createTaskQuery()
                 .processInstanceBusinessKey(String.valueOf(cartId))
@@ -279,14 +294,13 @@ public class CartService {
         Order order = createNewOrder(cartId, authenticationDataDto);
         emailService.send(emailCreator.createContent(order));
         Cart cart = findCartById(cartId);
-        validateCartForProcessing(cart);
         cart.setCartStatus(CartStatus.FINALIZED);
         cartRepository.save(cart);
     }
 
     private Order validateOrderToPay(Long orderId, String username) throws OrderNotFoundException {
         Order order = orderService.findByIdAndUserName(orderId, username);
-        if (order.getOrder_status() == ORDER_STATUS.PAID) {
+        if (order.getOrderStatus() == OrderStatus.PAID) {
             throw new OrderNotFoundException();
         } else return order;
     }
@@ -296,9 +310,13 @@ public class CartService {
         return true;
     }
 
-    public void payForOrder(Long orderId, AuthenticationDataDto authenticationDataDto) throws OrderNotFoundException {
-
-        Order orderToPay = orderService.findOrderById(orderId);
+    public void payForOrder(Long orderId, AuthenticationDataDto authenticationDataDto) throws OrderNotFoundException, UserNotFoundException, AccessDeniedException, InvalidCustomerDataException, PaymentErrorException {
+        customerService.verifyLogin(authenticationDataDto.getUsername(), authenticationDataDto.getPassword());
+        Order orderToPay = validateOrderToPay(orderId, authenticationDataDto.getUsername());
+        boolean isPaid = orderIsPaid(orderToPay);
+        if (!(isPaid)) {
+            throw new PaymentErrorException();
+        }
 
         Task task = taskService.createTaskQuery()
                 .processInstanceBusinessKey(String.valueOf(orderToPay.getCart().getCartID()))
@@ -313,17 +331,16 @@ public class CartService {
         String executionId = task.getExecutionId();
         runtimeService.setVariables(executionId, variables);
 
-           taskService.complete(task.getId());
+        taskService.complete(task.getId());
     }
 
-    public void payForOrderCamunda(Long orderId, AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, OrderNotFoundException, PaymentErrorException, InvalidCustomerDataException {
-        customerService.verifyLogin(authenticationDataDto.getUsername(), authenticationDataDto.getPassword());
-        Order order = validateOrderToPay(orderId, authenticationDataDto.getUsername());
+    public void payForOrderCamunda(Long orderId) throws OrderNotFoundException, PaymentErrorException, InvalidCustomerDataException {
+        Order order = orderService.findOrderById(orderId);
         boolean isPaid = orderIsPaid(order);
         if (!(isPaid)) {
             throw new PaymentErrorException();
         } else {
-            order.setOrder_status(ORDER_STATUS.PAID);
+            order.setOrderStatus(OrderStatus.PAID);
             orderService.save(order);
             emailService.send(emailCreator.createContent(order));
             Cart cart = order.getCart();
@@ -336,8 +353,10 @@ public class CartService {
         }
     }
 
-    public void payForCartUnauthenticatedCustomer(Long cartId, UnauthenticatedCustomerDto unauthenticatedCustomerDto) throws InvalidCustomerDataException {
+    public void payForCartUnauthenticatedCustomer(Long cartId, UnauthenticatedCustomerDto unauthenticatedCustomerDto) throws InvalidCustomerDataException, CartNotFoundException {
         checkCustomerDataValidity(unauthenticatedCustomerDto);
+        Cart cart = findCartById(cartId);
+        validateCartForProcessing(cart);
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("firstName", unauthenticatedCustomerDto.getFirstName());
@@ -362,7 +381,6 @@ public class CartService {
 
     public void payForCartUnauthenticatedCustomerCamunda(Long cartId, UnauthenticatedCustomerDto unauthenticatedCustomerDto) throws CartNotFoundException, PaymentErrorException {
         Cart cart = findCartById(cartId);
-        validateCartForProcessing(cart);
         cart.setCalculatedPrice(calculateCurrentCartValue(cart));
         cartRepository.save(cart);
         String listOfItems = cart.getListOfItems().stream()
@@ -371,7 +389,7 @@ public class CartService {
                 .collect(Collectors.joining(" "));
         Order createdOrder = new Order(new LoggedCustomer(null, null, unauthenticatedCustomerDto.getFirstName(), unauthenticatedCustomerDto.getLastName(),
                 unauthenticatedCustomerDto.getEmail(), new Address(unauthenticatedCustomerDto.getStreet(), unauthenticatedCustomerDto.getHouseNo(), unauthenticatedCustomerDto.getFlatNo(), unauthenticatedCustomerDto.getZipCode(), unauthenticatedCustomerDto.getCity(), unauthenticatedCustomerDto.getCountry())),
-                LocalDate.now(), ORDER_STATUS.UNPAID, listOfItems, cart.getCalculatedPrice(), cart, cart.getCamundaProcessId());
+                LocalDate.now(), OrderStatus.UNPAID, listOfItems, cart.getCalculatedPrice(), cart, cart.getCamundaProcessId());
         customerService.updateCustomer(createdOrder.getLoggedCustomer());
         orderService.save(createdOrder);
         boolean isPaid = orderIsPaid(createdOrder);
@@ -382,7 +400,7 @@ public class CartService {
             Cart cartToPay = createdOrder.getCart();
             emailService.send(emailCreator.createContent(createdOrder));
             createdOrder.setCart(null);
-            createdOrder.setOrder_status(ORDER_STATUS.PAID);
+            createdOrder.setOrderStatus(OrderStatus.PAID);
             createdOrder.setPaid(LocalDate.now());
             orderService.save(createdOrder);
 
@@ -410,7 +428,7 @@ public class CartService {
 
     public void cancelOrder(Long orderId) throws OrderNotFoundException {
         Order orderToCancel = orderService.findOrderById(orderId);
-        if (orderToCancel.getOrder_status() == ORDER_STATUS.PAID) {
+        if (orderToCancel.getOrderStatus() == OrderStatus.PAID) {
             throw new OrderNotFoundException();
         }
         for (Item items : orderToCancel.getCart().getListOfItems()) {
@@ -434,8 +452,10 @@ public class CartService {
 
     public void cancelOrderLogged(Long orderId, AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, OrderNotFoundException, InvalidCustomerDataException {
         customerService.verifyLogin(authenticationDataDto.getUsername(), authenticationDataDto.getPassword());
+        orderService.findByIdAndUserName(orderId, authenticationDataDto.getUsername());
 
         Order order = orderService.findByIdAndUserName(orderId, authenticationDataDto.getUsername());
+
         Task task = taskService.createTaskQuery()
                 .processInstanceBusinessKey(String.valueOf(order.getCart().getCartID()))
                 .singleResult();
@@ -443,25 +463,18 @@ public class CartService {
         Map<String, Object> variables = new HashMap<>();
         variables.put("orderId", orderId);
         variables.put("activity", "cancelOrder");
-        variables.put("userName", authenticationDataDto.getUsername());
-        variables.put("password", authenticationDataDto.getPassword());
 
         String executionId = task.getExecutionId();
         runtimeService.setVariables(executionId, variables);
 
-         taskService.complete(task.getId());
-    }
-
-    public void cancelOrderLoggedCamunda(Long orderId, AuthenticationDataDto authenticationDataDto) throws OrderNotFoundException {
-        orderService.findByIdAndUserName(orderId, authenticationDataDto.getUsername());
-        cancelOrder(orderId);
+        taskService.complete(task.getId());
     }
 
     public void deleteByCartStatus(CartStatus cartStatus, String processId) {
         cartRepository.deleteByCartStatusAndAndCamundaProcessId(cartStatus, processId);
     }
 
-    public void RemoveNotFinalizedCartsCamunda(String processId) {
+    public void removeNotFinalizedCartsCamunda(String processId) {
         log.info("deleting empty carts " + LocalDate.now());
         try {
             deleteByCartStatus(CartStatus.EMPTY, processId);
@@ -478,8 +491,7 @@ public class CartService {
                     cancelCart(cart.getCartID());
                     log.info("carts with status\"PROCESSING\" deleted " + LocalDate.now());
                 }
-            }
-            else {
+            } else {
                 log.info("no carts with status\"PROCESSING\" present " + LocalDate.now());
             }
         } catch (Exception e) {

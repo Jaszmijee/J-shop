@@ -29,7 +29,7 @@ public class Order {
     private LocalDate paid;
 
     @Enumerated(value = EnumType.STRING)
-    private ORDER_STATUS order_status;
+    private OrderStatus orderStatus;
 
     @Column(name = "items", columnDefinition = "TEXT")
     private String listOfProducts;
@@ -47,19 +47,10 @@ public class Order {
     @Column(name = "camunda_process_Id")
     private String camundaProcessId;
 
-/*    public Order(LoggedCustomer loggedCustomer, Cart cart, LocalDate created, ORDER_STATUS order_status, String listOfProducts, BigDecimal calculatedPrice) {
+    public Order(LoggedCustomer loggedCustomer, LocalDate created, OrderStatus orderStatus, String listOfProducts, BigDecimal calculatedPrice, Cart cart, String camundaProcessId) {
         this.loggedCustomer = loggedCustomer;
         this.created = created;
-        this.order_status = order_status;
-        this.listOfProducts = listOfProducts;
-        this.calculatedPrice = calculatedPrice;
-        this.cart = cart;
-    }*/
-
-    public Order(LoggedCustomer loggedCustomer, LocalDate created, ORDER_STATUS order_status, String listOfProducts, BigDecimal calculatedPrice, Cart cart, String camundaProcessId) {
-        this.loggedCustomer = loggedCustomer;
-        this.created = created;
-        this.order_status = order_status;
+        this.orderStatus = orderStatus;
         this.listOfProducts = listOfProducts;
         this.calculatedPrice = calculatedPrice;
         this.cart = cart;
@@ -70,8 +61,8 @@ public class Order {
         this.paid = paid;
     }
 
-    public void setOrder_status(ORDER_STATUS order_status) {
-        this.order_status = order_status;
+    public void setOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
 
     public void setCart(Cart cart) {

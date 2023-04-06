@@ -2,7 +2,7 @@
 package com.example.jshop.cartsandorders.service;
 
 import com.example.jshop.cartsandorders.domain.cart.*;
-import com.example.jshop.cartsandorders.domain.order.ORDER_STATUS;
+import com.example.jshop.cartsandorders.domain.order.OrderStatus;
 import com.example.jshop.cartsandorders.domain.order.Order;
 import com.example.jshop.cartsandorders.domain.order.OrderDtoToCustomer;
 import com.example.jshop.cartsandorders.repository.CartRepository;
@@ -577,7 +577,7 @@ class CartServiceTest {
                     .listOfItems(List.of())
                     .build();
             cartRepository.save(cart);
-            Order order = new Order(customer_logged.get(), cart, LocalDate.of(2023, 2, 25), ORDER_STATUS.UNPAID, "dummyList", new
+            Order order = new Order(customer_logged.get(), cart, LocalDate.of(2023, 2, 25), OrderStatus.UNPAID, "dummyList", new
                     BigDecimal("25.00"));
             orderRepository.save(order);
             System.out.println(order.getOrderID());
@@ -604,7 +604,7 @@ class CartServiceTest {
                     .listOfItems(List.of())
                     .build();
             cartRepository.save(cart);
-            Order order = new Order(customer_logged.get(), cart, LocalDate.of(2023, 2, 25), ORDER_STATUS.UNPAID, "dummyList", new
+            Order order = new Order(customer_logged.get(), cart, LocalDate.of(2023, 2, 25), OrderStatus.UNPAID, "dummyList", new
                     BigDecimal("25.00"));
             orderRepository.save(order);
             System.out.println(order.getOrderID());
@@ -631,7 +631,7 @@ class CartServiceTest {
                     .listOfItems(List.of())
                     .build();
             cartRepository.save(cart);
-            Order order = new Order(customer_logged.get(), cart, LocalDate.of(2023, 2, 25), ORDER_STATUS.PAID, "dummyList", new
+            Order order = new Order(customer_logged.get(), cart, LocalDate.of(2023, 2, 25), OrderStatus.PAID, "dummyList", new
                     BigDecimal("25.00"));
             orderRepository.save(order);
             AuthenticationDataDto authenticationDataDto = new AuthenticationDataDto("user", pwwd.toCharArray());
@@ -672,7 +672,7 @@ class CartServiceTest {
                     .calculatedPrice(new BigDecimal("50.00"))
                     .build();
             cartRepository.save(cart);
-            Order order = new Order(customer_logged.get(), cart, LocalDate.of(2023, 2, 25), ORDER_STATUS.UNPAID, "dummy list", cart.getCalculatedPrice());
+            Order order = new Order(customer_logged.get(), cart, LocalDate.of(2023, 2, 25), OrderStatus.UNPAID, "dummy list", cart.getCalculatedPrice());
             orderRepository.save(order);
             AuthenticationDataDto authenticationDataDto = new AuthenticationDataDto("user", pwwd.toCharArray());
 
@@ -680,7 +680,7 @@ class CartServiceTest {
             try {
                 OrderDtoToCustomer orderDtoToCustomer = cartService.payForCart(order.getOrderID(), authenticationDataDto);
                 assertNull(order.getCart());
-                assertEquals("PAID", order.getOrder_status().toString());
+                assertEquals("PAID", order.getOrderStatus().toString());
                 assertEquals("50.00", orderDtoToCustomer.getTotalPrice());
             } catch (UserNotFoundException | AccessDeniedException | OrderNotFoundException | PaymentErrorException |
                      InvalidCustomerDataException e) {
@@ -808,7 +808,7 @@ class CartServiceTest {
             }
             Optional<LoggedCustomer> customer_logged = customerRepository.findCustomer_LoggedByUserNameEquals("user");
             cartRepository.save(cart);
-            Order order = new Order(customer_logged.get(), cart, LocalDate.of(2023, 2, 25), ORDER_STATUS.PAID, "dummyList", new
+            Order order = new Order(customer_logged.get(), cart, LocalDate.of(2023, 2, 25), OrderStatus.PAID, "dummyList", new
                     BigDecimal("25.00"));
             orderRepository.save(order);
 
@@ -848,7 +848,7 @@ class CartServiceTest {
                     .listOfItems(list)
                     .build();
             cartRepository.save(cart);
-            Order order = new Order(customer_logged.get(), cart, LocalDate.of(2023, 2, 25), ORDER_STATUS.UNPAID, "dummyList", new
+            Order order = new Order(customer_logged.get(), cart, LocalDate.of(2023, 2, 25), OrderStatus.UNPAID, "dummyList", new
                     BigDecimal("25.00"));
             orderRepository.save(order);
 
@@ -882,7 +882,7 @@ class CartServiceTest {
             cartRepository.save(cart);
             Optional<LoggedCustomer> customer_logged = customerRepository.findCustomer_LoggedByUserNameEquals("user");
             AuthenticationDataDto loggedCustomerDto = new AuthenticationDataDto("anotherUser", pwwd.toCharArray());
-            Order order = new Order(customer_logged.get(), cart, LocalDate.of(2023, 2, 25), ORDER_STATUS.UNPAID, "dummyList", new
+            Order order = new Order(customer_logged.get(), cart, LocalDate.of(2023, 2, 25), OrderStatus.UNPAID, "dummyList", new
                     BigDecimal("25.00"));
 
             orderRepository.save(order);
