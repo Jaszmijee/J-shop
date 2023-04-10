@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   db:
+    container_name: jshop-db
     image: mysql:8.0
     restart: always
     environment:
@@ -12,7 +13,57 @@ services:
       - '3308:3306'
     volumes:
       - jshop-db:/var/lib/mysql
+
+  ldap:
+    container_name:  jshop-ldap
+    image: osixia/openldap:latest
+    environment:
+      LDAP_ORGANISATION: 'Jshop'
+      LDAP_DOMAIN: jshop.com
+      LDAP_BASE_DN: 'dc=jshop,dc=com'
+      LDAP_ADMIN_PASSWORD: 'adminPassword'
+      LDAP_CONFIG_PASSWORD: 'configPassword'
+      LDAP_RFC2307BIS_SCHEMA: true
+      LDAP_REMOVE_CONFIG_AFTER_SETUP: true
+      LDAP_TLS_VERIFY_CLIENT: never
+    ports:
+      - '389:389'
+      - '636:636'
+    volumes:
+      - ldapConfig:/etc/ldap/slapd.d
+      - ldapdb:/var/lib/ldap
+    networks:
+      - 'openldap-test'
+
+  openldap-ui:
+    container_name: jshop-ldap-ui
+    image: wheelybird/ldap-user-manager:latest
+    environment:
+      # mandatory
+      LDAP_URI: ldap://ldap
+      LDAP_BASE_DN: dc=jshop,dc=com
+      LDAP_ADMIN_BIND_DN: cn=admin,dc=jshop,dc=com
+      LDAP_ADMIN_BIND_PWD: 'adminPassword'
+      LDAP_ADMINS_GROUP: 'admins'
+      # optional
+      SERVER_HOSTNAME: localhost:18080
+      ORGANISATION_NAME: 'Jshop'
+      LDAP_REQUIRE_STARTTLS: false
+      LDAP_IGNORE_CERT_ERRORS: true
+      NO_HTTPS: true
+    ports:
+      - '18080:80'
+    networks:
+      - 'openldap-test'
+    depends_on:
+      - ldap
+
 volumes:
   jshop-db:
+  ldapConfig:
+  ldapdb:
 
+networks:
+  openldap-test:
+    name: 'openldap-test'
 
