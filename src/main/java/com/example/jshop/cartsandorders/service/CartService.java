@@ -2,6 +2,7 @@ package com.example.jshop.cartsandorders.service;
 
 import com.example.jshop.cartsandorders.domain.cart.*;
 import com.example.jshop.cartsandorders.domain.order.OrderStatus;
+import com.example.jshop.cartsandorders.mapper.CartMapper;
 import com.example.jshop.customer.domain.LoggedCustomer;
 import com.example.jshop.customer.service.CustomerService;
 import com.example.jshop.customer.domain.Address;
@@ -37,6 +38,7 @@ public class CartService {
     private final TaskService taskService;
     private final RuntimeService runtimeService;
     private final CartRepository cartRepository;
+    private final CartMapper cartMapper;
     private final WarehouseService warehouseService;
     private final ItemService itemService;
     private final ItemMapper itemMapper;
@@ -49,10 +51,23 @@ public class CartService {
         return cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
     }
 
+    public void calculateDiscountCamunda(Long cartId, Long discount) throws CartNotFoundException {
+        Cart cart = findCartById(cartId);
+        cart.setDiscount(discount);
+        cart.setFinalPrice(calculatePriceWithDiscount(cartId, discount));
+        cartRepository.save(cart);
+    }
+
+    private BigDecimal calculatePriceWithDiscount(Long cartId, Long discount) throws CartNotFoundException {
+        Cart cart = findCartById(cartId);
+        return cart.getCalculatedPrice().subtract((BigDecimal.valueOf(discount).divide(BigDecimal.valueOf(100L))).multiply(cart.getCalculatedPrice()));
+    }
+
     public Cart createCart() {
         Cart newCart = new Cart();
         newCart.setCartStatus(CartStatus.EMPTY);
         newCart.setCreated(LocalDate.now());
+        newCart.setCalculatedPrice(BigDecimal.ZERO);
         cartRepository.save(newCart);
         return newCart;
     }
@@ -60,6 +75,13 @@ public class CartService {
     public void setUpProcessInstance(Long cartId, String processInstanceId) throws CartNotFoundException {
         Cart cart = findCartById(cartId);
         cart.setCamundaProcessId(processInstanceId);
+        cartRepository.save(cart);
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("cartValue", cart.getCalculatedPrice());
+        String executionId = cart.getCamundaProcessId();
+
+        runtimeService.setVariables(executionId, variables);
         cartRepository.save(cart);
     }
 
@@ -91,7 +113,7 @@ public class CartService {
         } else return warehouse;
     }
 
-    public void addToCart(Long cartId, CartItemsDto cartItemsDto) throws InvalidQuantityException, CartNotFoundException, NotEnoughItemsException, ProductNotFoundException {
+    public CartDto addToCart(Long cartId, CartItemsDto cartItemsDto) throws InvalidQuantityException, CartNotFoundException, NotEnoughItemsException, ProductNotFoundException {
         validateQuantityOfPurchasedProduct(cartItemsDto.getQuantity());
         Cart cartToUpdate = findCartById(cartId);
         validateCartForProcessing(cartToUpdate);
@@ -110,6 +132,7 @@ public class CartService {
         runtimeService.setVariables(executionId, variables);
 
         taskService.complete(task.getId());
+        return cartMapper.mapCartToCartDto(cartToUpdate);
     }
 
     public void addToCartCamunda(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException {
@@ -136,6 +159,13 @@ public class CartService {
         updateProductInWarehouse(warehouse, cartItemsDto.getQuantity());
         cartRepository.save(cartToUpdate);
         itemService.save(item);
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("cartValue", cartToUpdate.getCalculatedPrice());
+
+        String executionId = cartToUpdate.getCamundaProcessId();
+        runtimeService.setVariables(executionId, variables);
+
     }
 
     private void validateQuantityOfPurchasedProduct(int quantity) throws InvalidQuantityException {
@@ -202,6 +232,12 @@ public class CartService {
         }
         cartToUpdate.setCalculatedPrice(calculateCurrentCartValue(cartToUpdate));
         cartRepository.save(cartToUpdate);
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("cartValue", cartToUpdate.getCalculatedPrice());
+
+        String executionId = cartToUpdate.getCamundaProcessId();
+        runtimeService.setVariables(executionId, variables);
     }
 
     public void cancelCart(Long cartId) throws CartNotFoundException {

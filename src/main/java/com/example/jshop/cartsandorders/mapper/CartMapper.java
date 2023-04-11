@@ -16,7 +16,9 @@ public class CartMapper {
                 cart.getCartID(),
                 cart.getListOfItems().stream().map(items -> itemMapper.mapToItemDto(items)).toList(),
                 cart.getCartStatus(),
-                cart.getCalculatedPrice()
+                cart.getCalculatedPrice(),
+                cart.getDiscount(),
+                cart.getFinalPrice()
         );
     }
 }

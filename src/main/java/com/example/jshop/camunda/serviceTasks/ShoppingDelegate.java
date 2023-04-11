@@ -1,13 +1,22 @@
 package com.example.jshop.camunda.serviceTasks;
 
+import com.example.jshop.cartsandorders.domain.cart.Cart;
 import com.example.jshop.cartsandorders.domain.cart.CartItemsDto;
 import com.example.jshop.cartsandorders.service.CartService;
 import com.example.jshop.customer.domain.AuthenticationDataDto;
 import com.example.jshop.customer.domain.UnauthenticatedCustomerDto;
+import com.example.jshop.errorhandlers.exceptions.CartNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.dmn.engine.DmnDecisionTableResult;
+import org.camunda.bpm.engine.DecisionService;
+import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.variable.VariableMap;
+import org.camunda.bpm.engine.variable.Variables;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Slf4j
 @Service
@@ -99,4 +108,19 @@ public class ShoppingDelegate {
         cartService.removeNotFinalizedCartsCamunda(processId);
     }
 
+    public void executeCalculateDiscount(DelegateExecution execution) throws CartNotFoundException {
+        log.info("executeCalculateDiscount execution started");
+
+        Long cartId = (Long) execution.getVariable("cartId");
+
+        DecisionService decisionService = execution.getProcessEngineServices().getDecisionService();
+
+        DmnDecisionTableResult discountResult = decisionService.evaluateDecisionTableByKey("Decision_0jgczgt").evaluate();
+        Long discount = discountResult.getSingleResult().getEntry("discountPercent");
+
+        cartService.calculateDiscountCamunda(cartId, discount);
+
+    }
 }
+
+
