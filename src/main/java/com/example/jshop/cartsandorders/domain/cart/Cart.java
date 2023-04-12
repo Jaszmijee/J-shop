@@ -39,6 +39,12 @@ public class Cart {
     @Column(name = "camunda_process_Id")
     private String camundaProcessId;
 
+    @Column(name = "discount")
+    private Long discount;
+
+    @Column(name = "final_price")
+    private BigDecimal finalPrice;
+
     public Cart(CartStatus cartStatus, List<Item> listOfItems, BigDecimal calculatedPrice, LocalDate created) {
         this.cartStatus = cartStatus;
         this.listOfItems = listOfItems;
@@ -60,5 +66,13 @@ public class Cart {
 
     public void setCamundaProcessId(String camundaProcessId) {
         this.camundaProcessId = camundaProcessId;
+    }
+
+    public void setDiscount(Long discount) {
+        this.discount = discount;
+    }
+
+    public void setFinalPrice(BigDecimal finalPrice) {
+        this.finalPrice = finalPrice;
     }
 }

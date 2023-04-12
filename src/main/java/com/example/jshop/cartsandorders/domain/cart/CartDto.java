@@ -16,4 +16,6 @@ public class CartDto {
     private List<ItemDto> listOfProducts;
     private CartStatus cartStatus;
     private BigDecimal calculatedPrice;
+    private Long discount;
+    private BigDecimal finalPrice;
 }

@@ -31,9 +31,8 @@ public class CartController {
     }
 
     @PutMapping("add")
-    ResponseEntity<Void> addToCart(@RequestParam Long cartId, @RequestBody CartItemsDto cartItemsDto) throws InvalidQuantityException, NotEnoughItemsException, ProductNotFoundException, CartNotFoundException {
-        cartService.addToCart(cartId, cartItemsDto);
-        return ResponseEntity.ok().build();
+    ResponseEntity<CartDto> addToCart(@RequestParam Long cartId, @RequestBody CartItemsDto cartItemsDto) throws InvalidQuantityException, NotEnoughItemsException, ProductNotFoundException, CartNotFoundException {
+        return ResponseEntity.ok(cartService.addToCart(cartId, cartItemsDto));
     }
 
     @GetMapping
@@ -43,9 +42,9 @@ public class CartController {
     }
 
     @PutMapping("remove")
-    ResponseEntity<Void> removeFromCart(@RequestParam Long cartId, @RequestBody CartItemsDto cartItemsDto) throws InvalidQuantityException, CartNotFoundException, ProductNotFoundException {
+    ResponseEntity<CartDto> removeFromCart(@RequestParam Long cartId, @RequestBody CartItemsDto cartItemsDto) throws InvalidQuantityException, CartNotFoundException, ProductNotFoundException {
         cartService.removeFromCart(cartId, cartItemsDto);
-    return ResponseEntity.ok().build();
+        return ResponseEntity.ok(cartService.removeFromCart(cartId, cartItemsDto));
     }
 
     @DeleteMapping
@@ -75,7 +74,7 @@ public class CartController {
     @PutMapping("pay/unauthenticated")
     ResponseEntity<Void> payForCartUnauthenticated(@RequestParam Long cartId, @RequestBody UnauthenticatedCustomerDto unauthenticatedCustomerDto) throws InvalidCustomerDataException, CartNotFoundException {
         cartService.payForCartUnauthenticatedCustomer(cartId, unauthenticatedCustomerDto);
-    return ResponseEntity.ok().build();
+        return ResponseEntity.ok().build();
     }
 }
 

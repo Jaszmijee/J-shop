@@ -2,6 +2,7 @@ package com.example.jshop.cartsandorders.service;
 
 import com.example.jshop.cartsandorders.domain.cart.*;
 import com.example.jshop.cartsandorders.domain.order.OrderStatus;
+import com.example.jshop.cartsandorders.mapper.CartMapper;
 import com.example.jshop.customer.domain.LoggedCustomer;
 import com.example.jshop.customer.service.CustomerService;
 import com.example.jshop.customer.domain.Address;
@@ -18,6 +19,8 @@ import com.example.jshop.cartsandorders.repository.CartRepository;
 import com.example.jshop.warehouseandproducts.service.WarehouseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.dmn.engine.DmnDecisionTableResult;
+import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.task.Task;
@@ -36,7 +39,9 @@ import java.util.stream.Collectors;
 public class CartService {
     private final TaskService taskService;
     private final RuntimeService runtimeService;
+    private final ProcessEngine processEngine;
     private final CartRepository cartRepository;
+    private final CartMapper cartMapper;
     private final WarehouseService warehouseService;
     private final ItemService itemService;
     private final ItemMapper itemMapper;
@@ -49,10 +54,16 @@ public class CartService {
         return cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
     }
 
+     private BigDecimal calculatePriceWithDiscount(Long cartId, Long discount) throws CartNotFoundException {
+        Cart cart = findCartById(cartId);
+        return cart.getCalculatedPrice().subtract((BigDecimal.valueOf(discount).divide(BigDecimal.valueOf(100L))).multiply(cart.getCalculatedPrice()));
+    }
+
     public Cart createCart() {
         Cart newCart = new Cart();
         newCart.setCartStatus(CartStatus.EMPTY);
         newCart.setCreated(LocalDate.now());
+        newCart.setCalculatedPrice(BigDecimal.ZERO);
         cartRepository.save(newCart);
         return newCart;
     }
@@ -60,6 +71,16 @@ public class CartService {
     public void setUpProcessInstance(Long cartId, String processInstanceId) throws CartNotFoundException {
         Cart cart = findCartById(cartId);
         cart.setCamundaProcessId(processInstanceId);
+        cartRepository.save(cart);
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("cartValue", cart.getCalculatedPrice());
+
+        DmnDecisionTableResult discountResult = processEngine.getDecisionService().evaluateDecisionTableByKey("discount", variables);
+        Long discount = discountResult.getSingleResult().getEntry("discountPercent");
+
+        cart.setDiscount(discount);
+        cart.setFinalPrice(calculatePriceWithDiscount(cartId, discount));
         cartRepository.save(cart);
     }
 
@@ -91,7 +112,7 @@ public class CartService {
         } else return warehouse;
     }
 
-    public void addToCart(Long cartId, CartItemsDto cartItemsDto) throws InvalidQuantityException, CartNotFoundException, NotEnoughItemsException, ProductNotFoundException {
+    public CartDto addToCart(Long cartId, CartItemsDto cartItemsDto) throws InvalidQuantityException, CartNotFoundException, NotEnoughItemsException, ProductNotFoundException {
         validateQuantityOfPurchasedProduct(cartItemsDto.getQuantity());
         Cart cartToUpdate = findCartById(cartId);
         validateCartForProcessing(cartToUpdate);
@@ -105,11 +126,13 @@ public class CartService {
         variables.put("activity", "addToCart");
         variables.put("productId", cartItemsDto.getProductId());
         variables.put("quantity", cartItemsDto.getQuantity());
+        variables.put("cartValue", cartToUpdate.getCalculatedPrice());
 
         String executionId = task.getExecutionId();
         runtimeService.setVariables(executionId, variables);
 
         taskService.complete(task.getId());
+        return cartMapper.mapCartToCartDto(cartToUpdate);
     }
 
     public void addToCartCamunda(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException {
@@ -136,6 +159,16 @@ public class CartService {
         updateProductInWarehouse(warehouse, cartItemsDto.getQuantity());
         cartRepository.save(cartToUpdate);
         itemService.save(item);
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("cartValue", cartToUpdate.getCalculatedPrice());
+
+        DmnDecisionTableResult discountResult = processEngine.getDecisionService().evaluateDecisionTableByKey("discount", variables);
+        Long discount = discountResult.getSingleResult().getEntry("discountPercent");
+
+        cartToUpdate.setDiscount(discount);
+        cartToUpdate.setFinalPrice(calculatePriceWithDiscount(cartId, discount));
+        cartRepository.save(cartToUpdate);
     }
 
     private void validateQuantityOfPurchasedProduct(int quantity) throws InvalidQuantityException {
@@ -148,7 +181,7 @@ public class CartService {
         return cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
     }
 
-    public void removeFromCart(Long cartId, CartItemsDto cartItemsDto) throws InvalidQuantityException, CartNotFoundException, ProductNotFoundException {
+    public CartDto removeFromCart(Long cartId, CartItemsDto cartItemsDto) throws InvalidQuantityException, CartNotFoundException, ProductNotFoundException {
         validateQuantityOfPurchasedProduct(cartItemsDto.getQuantity());
         Cart cartToUpdate = findCartById(cartId);
         validateCartForProcessing(cartToUpdate);
@@ -174,6 +207,7 @@ public class CartService {
         runtimeService.setVariables(executionId, variables);
 
         taskService.complete(task.getId());
+        return cartMapper.mapCartToCartDto(cartToUpdate);
     }
 
     public void removeFromCartCamunda(Long cartId, CartItemsDto cartItemsDto) throws CartNotFoundException {
@@ -201,6 +235,16 @@ public class CartService {
             cartToUpdate.setCartStatus(CartStatus.EMPTY);
         }
         cartToUpdate.setCalculatedPrice(calculateCurrentCartValue(cartToUpdate));
+        cartRepository.save(cartToUpdate);
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("cartValue", cartToUpdate.getCalculatedPrice());
+
+        DmnDecisionTableResult discountResult = processEngine.getDecisionService().evaluateDecisionTableByKey("discount", variables);
+        Long discount = discountResult.getSingleResult().getEntry("discountPercent");
+
+        cartToUpdate.setDiscount(discount);
+        cartToUpdate.setFinalPrice(calculatePriceWithDiscount(cartId, discount));
         cartRepository.save(cartToUpdate);
     }
 
@@ -249,17 +293,16 @@ public class CartService {
         LoggedCustomer loggedCustomer = customerService.verifyLogin(authenticationDataDto.getUsername(), authenticationDataDto.getPassword());
         String listOfItems = cart.getListOfItems().stream()
                 .map(itemMapper::mapToItemDto)
-                .map(result -> "product: " + result.getProductName() + ", quantity: " + result.getProductQuantity() + ", total price: " + result.getCalculatedPrice())
+                .map(result -> "product: " + result.getProductName() + ", quantity: " + result.getProductQuantity())
                 .collect(Collectors.joining("\n"));
         cart.setCalculatedPrice(calculateCurrentCartValue(cart));
-        BigDecimal calculatedPrice = calculateCurrentCartValue(cart);
         Order createdOrder = Order.builder()
                 .loggedCustomer(loggedCustomer)
                 .cart(cart)
                 .created(LocalDate.now())
                 .orderStatus(OrderStatus.UNPAID)
                 .listOfProducts(listOfItems)
-                .calculatedPrice(calculatedPrice)
+                .calculatedPrice(cart.getFinalPrice())
                 .paymentDue(LocalDate.now().plusDays(14))
                 .camundaProcessId(cart.getCamundaProcessId())
                 .build();
@@ -386,11 +429,11 @@ public class CartService {
         cartRepository.save(cart);
         String listOfItems = cart.getListOfItems().stream()
                 .map(itemMapper::mapToItemDto)
-                .map(result -> "\nproduct: " + result.getProductName() + ", quantity: " + result.getProductQuantity() + ", total price: " + result.getCalculatedPrice())
+                .map(result -> "\nproduct: " + result.getProductName() + ", quantity: " + result.getProductQuantity())
                 .collect(Collectors.joining(" "));
         Order createdOrder = new Order(new LoggedCustomer(null, null, unauthenticatedCustomerDto.getFirstName(), unauthenticatedCustomerDto.getLastName(),
                 unauthenticatedCustomerDto.getEmail(), new Address(unauthenticatedCustomerDto.getStreet(), unauthenticatedCustomerDto.getHouseNo(), unauthenticatedCustomerDto.getFlatNo(), unauthenticatedCustomerDto.getZipCode(), unauthenticatedCustomerDto.getCity(), unauthenticatedCustomerDto.getCountry())),
-                LocalDate.now(), OrderStatus.UNPAID, listOfItems, cart.getCalculatedPrice(), cart, cart.getCamundaProcessId());
+                LocalDate.now(), OrderStatus.UNPAID, listOfItems, cart.getFinalPrice(), cart, cart.getCamundaProcessId());
         customerService.updateCustomer(createdOrder.getLoggedCustomer());
         orderService.save(createdOrder);
         boolean isPaid = orderIsPaid(createdOrder);

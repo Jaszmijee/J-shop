@@ -23,13 +23,15 @@ public class StartProcessShopping {
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("cartId", cartId);
+        variables.put("cartValue", 0L);
 
         ProcessInstance processInstance = processEngine.getRuntimeService().
-                createProcessInstanceByKey("Shopping").businessKey(businessKey).setVariablesLocal(variables)
+                createProcessInstanceByKey("Shopping").businessKey(businessKey).setVariables(variables)
                 .execute();
 
         String processInstanceId = processInstance.getProcessInstanceId();
 
         cartService.setUpProcessInstance(cartId, processInstanceId);
     }
+
 }

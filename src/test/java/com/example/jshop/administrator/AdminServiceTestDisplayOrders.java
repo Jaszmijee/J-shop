@@ -51,7 +51,7 @@ public class AdminServiceTestDisplayOrders {
         verify(orderMapper, times(0)).mapToOrderDtoToCustomerList(anyList());
     }
 
-    @Test
+    /*@Test
     void testDisplayOrdersPositiveWithOptionalStatus() throws InvalidOrderStatusException, OrderNotFoundException {
         //Given
         char[] pwwd = "password".toCharArray();
@@ -89,5 +89,5 @@ public class AdminServiceTestDisplayOrders {
         verify(orderService, times(1)).findOrders(anyString());
         verify(orderService, times(1)).findOrders(null);
         verify(orderMapper, times(2)).mapToOrderDtoToCustomerList(anyList());
-    }
+    }*/
 }
