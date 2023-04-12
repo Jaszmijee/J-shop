@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:biodi="http://bpmn.io/schema/dmn/biodi/2.0" xmlns:camunda="http://camunda.org/schema/1.0/dmn" id="calculateDiscount" name="Calculate discount" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.9.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.18.0">
-  <decision id="Decision_0jgczgt" name="discount">
+  <decision id="discount" name="discount">
     <decisionTable id="DecisionTable_0h8i8o1">
       <input id="Input_1" biodi:width="192" camunda:inputVariable="cartValue">
         <inputExpression id="InputExpression_1" typeRef="long">
@@ -10,7 +10,7 @@
       <output id="Output_1" name="discountPercent" typeRef="long" biodi:width="192" />
       <rule id="DecisionRule_0qxsacf">
         <inputEntry id="UnaryTests_048vofa">
-          <text>&gt;= 1000</text>
+          <text>]1000..5000]</text>
         </inputEntry>
         <outputEntry id="LiteralExpression_1tb302b">
           <text>5</text>
@@ -18,7 +18,7 @@
       </rule>
       <rule id="DecisionRule_0bo47gd">
         <inputEntry id="UnaryTests_15zl4kw">
-          <text>&gt;= 5000</text>
+          <text>]5000..10000]</text>
         </inputEntry>
         <outputEntry id="LiteralExpression_188xetg">
           <text>10</text>
@@ -44,7 +44,7 @@
   </decision>
   <dmndi:DMNDI>
     <dmndi:DMNDiagram>
-      <dmndi:DMNShape dmnElementRef="Decision_0jgczgt">
+      <dmndi:DMNShape dmnElementRef="discount">
         <dc:Bounds height="80" width="180" x="150" y="80" />
       </dmndi:DMNShape>
     </dmndi:DMNDiagram>

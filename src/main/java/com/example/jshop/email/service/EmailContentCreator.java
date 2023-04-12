@@ -12,7 +12,7 @@ public class EmailContentCreator {
         String subject = "Your order No: " + order.getOrderID();
         String message = "Your order No: " + order.getOrderID() + ", created on: " + order.getCreated() +
                 " " + order.getListOfProducts() + " " +
-                "\ntotal sum: " + order.getCalculatedPrice();
+                "\ntotal sum for payment: " + order.getCalculatedPrice();
         if (order.getOrderStatus() == OrderStatus.UNPAID) {
             message += "\nYour payment is due on: " + order.getCreated().plusDays(14);
             if (order.getCart().getListOfItems().isEmpty()) {

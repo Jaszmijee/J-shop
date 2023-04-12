@@ -42,9 +42,9 @@ public class CartController {
     }
 
     @PutMapping("remove")
-    ResponseEntity<Void> removeFromCart(@RequestParam Long cartId, @RequestBody CartItemsDto cartItemsDto) throws InvalidQuantityException, CartNotFoundException, ProductNotFoundException {
+    ResponseEntity<CartDto> removeFromCart(@RequestParam Long cartId, @RequestBody CartItemsDto cartItemsDto) throws InvalidQuantityException, CartNotFoundException, ProductNotFoundException {
         cartService.removeFromCart(cartId, cartItemsDto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(cartService.removeFromCart(cartId, cartItemsDto));
     }
 
     @DeleteMapping

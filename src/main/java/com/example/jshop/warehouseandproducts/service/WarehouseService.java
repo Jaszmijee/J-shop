@@ -46,7 +46,7 @@ public class WarehouseService {
     }
 
     public void sentForShipment(Order createdOrder) {
-        String shipment = createdOrder.getListOfProducts() + "\ntotal price" + createdOrder.getCalculatedPrice() +"\n" + createdOrder.getLoggedCustomer().getFirstName() + " " + createdOrder.getLoggedCustomer().getLastName() + ", " + createdOrder.getLoggedCustomer().getAddress();
+        String shipment = createdOrder.getListOfProducts() + "\ntotal price " + createdOrder.getCalculatedPrice() +"\n" + createdOrder.getLoggedCustomer().getFirstName() + " " + createdOrder.getLoggedCustomer().getLastName() + ", " + createdOrder.getLoggedCustomer().getAddress();
         System.out.println("prepare and send shipment: " + shipment);
     }
 }

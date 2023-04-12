@@ -157,7 +157,7 @@
     <bpmn:sequenceFlow id="Flow_0iu5e1w" sourceRef="StartEvent_1" targetRef="calculateDiscount" />
     <bpmn:sequenceFlow id="Flow_0d9y1xk" sourceRef="Activity_1235hfx" targetRef="calculateDiscount" />
     <bpmn:sequenceFlow id="Flow_09iel0v" sourceRef="Activity_160el9l" targetRef="calculateDiscount" />
-    <bpmn:businessRuleTask id="calculateDiscount" name="calculate discount" camunda:expression="${shoppingDelegate.executeCalculateDiscount(execution)}" camunda:resultVariable="${discountPercent}">
+    <bpmn:businessRuleTask id="calculateDiscount" name="calculate discount" camunda:resultVariable="discountPercent" camunda:decisionRef="discount" camunda:mapDecisionResult="singleResult">
       <bpmn:extensionElements />
       <bpmn:incoming>Flow_0iu5e1w</bpmn:incoming>
       <bpmn:incoming>Flow_0d9y1xk</bpmn:incoming>
