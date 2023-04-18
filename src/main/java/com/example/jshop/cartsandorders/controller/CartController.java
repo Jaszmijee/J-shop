@@ -12,6 +12,7 @@ import com.example.jshop.cartsandorders.mapper.CartMapper;
 import com.example.jshop.cartsandorders.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -59,12 +60,14 @@ public class CartController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @PutMapping("finalize/login")
     ResponseEntity<Void> finalizeCart(@RequestParam Long cartId, @RequestBody AuthenticationDataDto authenticationDataDto) throws UserNotFoundException, AccessDeniedException, InvalidCustomerDataException, CartNotFoundException {
         cartService.finalizeCart(cartId, authenticationDataDto);
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @PutMapping("pay/login")
     ResponseEntity<Void> payForOrderLogged(@RequestParam Long orderId, @RequestBody AuthenticationDataDto authenticationDataDto) throws OrderNotFoundException, UserNotFoundException, AccessDeniedException, PaymentErrorException, InvalidCustomerDataException {
         cartService.payForOrder(orderId, authenticationDataDto);

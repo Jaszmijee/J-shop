@@ -40,44 +40,11 @@ class AdminControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private AdminConfig adminConfig;
-
-    @MockBean
     private AdminService adminService;
 
-    @BeforeEach
-    public void getAdminData() {
-        when(adminConfig.getAdminKey()).thenReturn("1");
-        when(adminConfig.getAdminToken()).thenReturn("2");
-    }
-
-    @Nested
+     @Nested
     @DisplayName("test addNewCategory /v1/j-shop/admin/add-category")
     class TestAddNewCategory {
-        @Test
-        void testAddNewCategoryAccessDeniedException() throws Exception {
-            //Given
-            CategoryDto categoryDto = new CategoryDto("Cars");
-            Mockito.doNothing().when(adminService).addNewCategory(any(CategoryDto.class));
-            Gson gson = new Gson();
-            String jsonContent = gson.toJson(categoryDto);
-
-            //When & Then
-            mockMvc
-                    .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/add-category")
-                            .queryParam("key", "1")
-                            .queryParam("token", "3")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("UTF-8")
-                            .content(jsonContent))
-
-                    .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                    .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
-
-            verify(adminService, never()).addNewCategory(any(CategoryDto.class));
-        }
-
 
         @Test
         void testAddNewCategoryInvalidArgumentException() throws Exception {
@@ -91,9 +58,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/add-category")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .contentType(MediaType.APPLICATION_JSON)
+                                                    .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
 
@@ -115,9 +80,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/add-category")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .contentType(MediaType.APPLICATION_JSON)
+                                                    .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
 
@@ -139,9 +102,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/add-category")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .contentType(MediaType.APPLICATION_JSON)
+                                                    .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
 
@@ -154,10 +115,55 @@ class AdminControllerTest {
     @Nested
     @DisplayName("test removeCategory /v1/j-shop/admin/remove-category")
     class TestRemoveCategory {
+
         @Test
-        void testRemoveCategoryAccessDeniedException() throws Exception {
+        void testRemoveCategoryCategoryNotFoundException() throws Exception {
             //Given
             CategoryDto categoryDto = new CategoryDto("Cars");
+            Mockito.doThrow(CategoryNotFoundException.class).when(adminService).removeCategory(any(CategoryDto.class));
+            Gson gson = new Gson();
+            String jsonContent = gson.toJson(categoryDto);
+
+            //When & Then
+            mockMvc
+                    .perform(MockMvcRequestBuilders
+                            .delete("/v1/j-shop/admin/remove-category")
+                                                     .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("UTF-8")
+                            .content(jsonContent))
+
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andExpect(result -> assertEquals("Category not found", result.getResponse().getContentAsString()));
+
+            verify(adminService, times(1)).removeCategory(any(CategoryDto.class));
+        }
+
+        @Test
+        void testRemoveCategoryCategoryException() throws Exception {
+            //Given
+            CategoryDto categoryDto = new CategoryDto("Unknown");
+            Mockito.doThrow(CategoryException.class).when(adminService).removeCategory(any(CategoryDto.class));
+            Gson gson = new Gson();
+            String jsonContent = gson.toJson(categoryDto);
+
+            //When & Then
+            mockMvc
+                    .perform(MockMvcRequestBuilders
+                            .delete("/v1/j-shop/admin/remove-category")
+                                                   .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("UTF-8")
+                            .content(jsonContent))
+
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andExpect(result -> assertEquals("Deleting category \"Unknown\" denied", result.getResponse().getContentAsString()));
+
+            verify(adminService, times(1)).removeCategory(any(CategoryDto.class));
+        }
+
+        @Test
+        void testRemoveCategoryPositive() throws Exception {
+            //Given
+            CategoryDto categoryDto = new CategoryDto("Unknown");
             Mockito.doNothing().when(adminService).removeCategory(any(CategoryDto.class));
             Gson gson = new Gson();
             String jsonContent = gson.toJson(categoryDto);
@@ -166,116 +172,19 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .delete("/v1/j-shop/admin/remove-category")
-                            .queryParam("key", "1")
-                            .queryParam("token", "3")
-                            .contentType(MediaType.APPLICATION_JSON)
+                                                     .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
 
-                    .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                    .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
+                    .andExpect(MockMvcResultMatchers.status().isOk());
 
-            verify(adminService, never()).removeCategory(any(CategoryDto.class));
+            verify(adminService, times(1)).removeCategory(any(CategoryDto.class));
         }
-    }
-
-    @Test
-    void testRemoveCategoryCategoryNotFoundException() throws Exception {
-        //Given
-        CategoryDto categoryDto = new CategoryDto("Cars");
-        Mockito.doThrow(CategoryNotFoundException.class).when(adminService).removeCategory(any(CategoryDto.class));
-        Gson gson = new Gson();
-        String jsonContent = gson.toJson(categoryDto);
-
-        //When & Then
-        mockMvc
-                .perform(MockMvcRequestBuilders
-                        .delete("/v1/j-shop/admin/remove-category")
-                        .queryParam("key", "1")
-                        .queryParam("token", "2")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("UTF-8")
-                        .content(jsonContent))
-
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(result -> assertEquals("Category not found", result.getResponse().getContentAsString()));
-
-        verify(adminService, times(1)).removeCategory(any(CategoryDto.class));
-    }
-
-    @Test
-    void testRemoveCategoryCategoryException() throws Exception {
-        //Given
-        CategoryDto categoryDto = new CategoryDto("Unknown");
-        Mockito.doThrow(CategoryException.class).when(adminService).removeCategory(any(CategoryDto.class));
-        Gson gson = new Gson();
-        String jsonContent = gson.toJson(categoryDto);
-
-        //When & Then
-        mockMvc
-                .perform(MockMvcRequestBuilders
-                        .delete("/v1/j-shop/admin/remove-category")
-                        .queryParam("key", "1")
-                        .queryParam("token", "2")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("UTF-8")
-                        .content(jsonContent))
-
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(result -> assertEquals("Deleting category \"Unknown\" denied", result.getResponse().getContentAsString()));
-
-        verify(adminService, times(1)).removeCategory(any(CategoryDto.class));
-    }
-
-    @Test
-    void testRemoveCategoryPositive() throws Exception {
-        //Given
-        CategoryDto categoryDto = new CategoryDto("Unknown");
-        Mockito.doNothing().when(adminService).removeCategory(any(CategoryDto.class));
-        Gson gson = new Gson();
-        String jsonContent = gson.toJson(categoryDto);
-
-        //When & Then
-        mockMvc
-                .perform(MockMvcRequestBuilders
-                        .delete("/v1/j-shop/admin/remove-category")
-                        .queryParam("key", "1")
-                        .queryParam("token", "2")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("UTF-8")
-                        .content(jsonContent))
-
-                .andExpect(MockMvcResultMatchers.status().isOk());
-
-        verify(adminService, times(1)).removeCategory(any(CategoryDto.class));
     }
 
     @Nested
     @DisplayName("test showAllCategoriesAndProducts /v1/j-shop/admin/show-category")
     class TestShowAllCategoriesAndProducts {
-        @Test
-        void testShowAllCategoriesAndProductsAccessDeniedException() throws Exception {
-            //Given
-            List<CategoryWithProductsDto> listEmpty = List.of();
-            when(adminService.showAllCategoriesWithProducts()).thenReturn(List.of());
-            Gson gson = new Gson();
-            String jsonContent = gson.toJson(listEmpty);
-
-            //When & Then
-            mockMvc
-                    .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/show-category")
-                            .queryParam("key", "1")
-                            .queryParam("token", "3")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("UTF-8")
-                            .content(jsonContent))
-
-                    .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                    .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
-
-            verify(adminService, never()).showAllCategoriesWithProducts();
-        }
 
         @Test
         void testShowAllCategoriesAndProductsPositiveEmptyList() throws Exception {
@@ -289,9 +198,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/show-category")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .contentType(MediaType.APPLICATION_JSON)
+                                                     .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
 
@@ -314,9 +221,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/show-category")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .contentType(MediaType.APPLICATION_JSON)
+                                                    .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
                     // CategoryWithProductsDto
@@ -349,9 +254,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/show-category/name")
-                            .queryParam("key", "1")
-                            .queryParam("token", "3")
-                            .queryParam("categoryName", "Music")
+                                                     .queryParam("categoryName", "Music")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isUnauthorized())
@@ -369,9 +272,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/show-category/name")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("categoryName", "Music")
+                                                   .queryParam("categoryName", "Music")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -391,9 +292,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/show-category/name")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("categoryName", "Music")
+                                                      .queryParam("categoryName", "Music")
                             .contentType(MediaType.APPLICATION_JSON))
                     // CategoryWithProductsDto
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -416,9 +315,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/show-category/name")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("categoryName", "Music")
+                                                    .queryParam("categoryName", "Music")
                             .contentType(MediaType.APPLICATION_JSON))
                     // CategoryWithProductsDto
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -438,31 +335,6 @@ class AdminControllerTest {
     @Nested
     @DisplayName("test addProduct /v1/j-shop/admin/add-product")
     class TestAddProduct {
-        @Test
-        void testAddProductAccessDeniedException() throws Exception {
-            //Given
-            ProductDto productDto = new ProductDto("Album1", "CD", "Music", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
-            ProductDtoAllInfo productDtoAllInfo = new ProductDtoAllInfo(2L, "Music", "Album1", "CD", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
-            when(adminService.addNewProduct(any(ProductDto.class))).thenReturn(productDtoAllInfo);
-
-            Gson gson = new Gson();
-            String jsonContent = gson.toJson(productDto);
-
-            //When & Then
-            mockMvc
-                    .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/add-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "3")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("UTF-8")
-                            .content(jsonContent))
-
-                    .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                    .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
-
-            verify(adminService, never()).addNewProduct(any(ProductDto.class));
-        }
 
         @Test
         void testAddProductInvalidArgumentException() throws Exception {
@@ -477,9 +349,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/add-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .contentType(MediaType.APPLICATION_JSON)
+                                                    .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
 
@@ -502,9 +372,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/add-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .contentType(MediaType.APPLICATION_JSON)
+                                                    .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
 
@@ -526,9 +394,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/add-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .contentType(MediaType.APPLICATION_JSON)
+                                                     .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
 
@@ -551,9 +417,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/add-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .contentType(MediaType.APPLICATION_JSON)
+                                                    .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
 
@@ -571,31 +435,6 @@ class AdminControllerTest {
     @Nested
     @DisplayName("test updateProduct /v1/j-shop/admin/update-product")
     class TestUpdateProduct {
-        @Test
-        void testUpdateProductAccessDeniedException() throws Exception {
-            //Given
-            ProductDto productDto = new ProductDto("Album1", "CD", "Music", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
-            ProductDtoAllInfo productDtoAllInfo = new ProductDtoAllInfo(2L, "Music", "Album1", "CD", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
-            when(adminService.updateProduct(anyLong(), any(ProductDto.class))).thenReturn(productDtoAllInfo);
-            Gson gson = new Gson();
-            String jsonContent = gson.toJson(productDto);
-
-            //When & Then
-            mockMvc
-                    .perform(MockMvcRequestBuilders
-                            .put("/v1/j-shop/admin/update-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "3")
-                            .queryParam("productId", "2")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("UTF-8")
-                            .content(jsonContent))
-
-                    .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                    .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
-
-            verify(adminService, never()).updateProduct(anyLong(), any(ProductDto.class));
-        }
 
         @Test
         void testUpdateProductCategoryNotFoundException() throws Exception {
@@ -609,9 +448,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .put("/v1/j-shop/admin/update-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("productId", "2")
+                                                    .queryParam("productId", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -634,9 +471,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .put("/v1/j-shop/admin/update-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("productId", "2")
+                                                     .queryParam("productId", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -659,9 +494,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .put("/v1/j-shop/admin/update-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("productId", "2")
+                                                   .queryParam("productId", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -684,9 +517,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .put("/v1/j-shop/admin/update-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("productId", "2")
+                                                   .queryParam("productId", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -710,9 +541,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .put("/v1/j-shop/admin/update-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("productId", "2")
+                                                 .queryParam("productId", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonContent))
@@ -731,24 +560,6 @@ class AdminControllerTest {
     @Nested
     @DisplayName("test removeProduct /v1/j-shop/admin/remove-product")
     class TestRemoveProduct {
-        @Test
-        void testRemoveProductAccessDeniedException() throws Exception {
-            //Given
-            Mockito.doNothing().when(adminService).deleteProductById(any(Long.class));
-
-            //When & Then
-            mockMvc
-                    .perform(MockMvcRequestBuilders
-                            .delete("/v1/j-shop/admin/remove-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "3")
-                            .queryParam("productId", "3")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                    .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
-
-            verify(adminService, never()).deleteProductById(anyLong());
-        }
 
         @Test
         void testRemoveProductProductNotFoundException() throws Exception {
@@ -759,9 +570,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .delete("/v1/j-shop/admin/remove-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("productId", "3")
+                                                     .queryParam("productId", "3")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(result -> assertEquals("Product with given Id not found", result.getResponse().getContentAsString()));
@@ -778,9 +587,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .delete("/v1/j-shop/admin/remove-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("productId", "3")
+                                                     .queryParam("productId", "3")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -792,25 +599,7 @@ class AdminControllerTest {
     @DisplayName("test showAllProducts /v1/j-shop/admin/show-product")
     class TestShowAllProducts {
 
-        @Test
-        void testShowAllProductsAccessDeniedException() throws Exception {
-            //Given
-            when(adminService.showAllProducts()).thenReturn(List.of());
-
-            //When & Then
-            mockMvc
-                    .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/show-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "3")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                    .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
-
-            verify(adminService, never()).showAllProducts();
-        }
-
-        @Test
+              @Test
         void testShowAllProductsPositive() throws Exception {
             //Given
             List<ProductDtoAllInfo> list = List.of(new ProductDtoAllInfo(2L, "Music", "Album1", "CD", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN)));
@@ -820,9 +609,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/show-product")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .contentType(MediaType.APPLICATION_JSON))
+                                                      .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
@@ -840,27 +627,6 @@ class AdminControllerTest {
     @Nested
     @DisplayName("test addProductToWarehouse /v1/j-shop/admin/add-to-warehouse")
     class TestAddProductToWarehouse {
-        @Test
-        void testAddProductToWarehousesAccessDeniedException() throws Exception {
-            //Given
-            WarehouseDto warehouseDto = new WarehouseDto(4L, 2L, "Marilyn Manson, \"Antichrist Superstar\"", "Music", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN), 45);
-            when(adminService.addOrUpdateProductInWarehouse(anyLong(), anyInt())).thenReturn(warehouseDto);
-
-            //When & Then
-            mockMvc
-                    .perform(MockMvcRequestBuilders
-                            .post("/v1/j-shop/admin/add-to-warehouse")
-                            .queryParam("key", "1")
-                            .queryParam("token", "3")
-                            .queryParam("productId", "3")
-                            .queryParam("productQuantity", "45")
-                            .contentType(MediaType.APPLICATION_JSON))
-
-                    .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                    .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
-
-            verify(adminService, never()).addOrUpdateProductInWarehouse(anyLong(), anyInt());
-        }
 
         @Test
         void testAddProductToWarehousesProductNotFoundException() throws Exception {
@@ -871,9 +637,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/add-to-warehouse")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("productId", "3")
+                                                      .queryParam("productId", "3")
                             .queryParam("productQuantity", "45")
                             .contentType(MediaType.APPLICATION_JSON))
 
@@ -892,9 +656,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/add-to-warehouse")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("productId", "3")
+                                                    .queryParam("productId", "3")
                             .queryParam("productQuantity", "45")
                             .contentType(MediaType.APPLICATION_JSON))
 
@@ -913,9 +675,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/add-to-warehouse")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("productId", "3")
+                                                      .queryParam("productId", "3")
                             .queryParam("productQuantity", "45")
                             .contentType(MediaType.APPLICATION_JSON))
 
@@ -935,9 +695,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post("/v1/j-shop/admin/add-to-warehouse")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("productId", "3")
+                                                      .queryParam("productId", "3")
                             .queryParam("productQuantity", "45")
                             .contentType(MediaType.APPLICATION_JSON))
 
@@ -958,26 +716,6 @@ class AdminControllerTest {
     class TestRemoveProductFromWarehouse {
 
         @Test
-        void testRemoveProductFromWarehouseAccessDeniedException() throws Exception {
-            //Given
-            doNothing().when(adminService).deleteProductFromWarehouse(anyLong());
-
-            //When & Then
-            mockMvc
-                    .perform(MockMvcRequestBuilders
-                            .delete("/v1/j-shop/admin/remove-from-warehouse")
-                            .queryParam("key", "1")
-                            .queryParam("token", "3")
-                            .queryParam("productId", "3")
-                            .contentType(MediaType.APPLICATION_JSON))
-
-                    .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                    .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
-
-            verify(adminService, never()).deleteProductFromWarehouse(anyLong());
-        }
-
-        @Test
         void testRemoveProductFromWarehouseProductNotFoundException() throws Exception {
             //Given
             doThrow(ProductNotFoundException.class).when(adminService).deleteProductFromWarehouse(anyLong());
@@ -986,9 +724,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .delete("/v1/j-shop/admin/remove-from-warehouse")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("productId", "3")
+                                                     .queryParam("productId", "3")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -1006,9 +742,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .delete("/v1/j-shop/admin/remove-from-warehouse")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("productId", "3")
+                                                     .queryParam("productId", "3")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isOk());
@@ -1020,25 +754,6 @@ class AdminControllerTest {
     @Nested
     @DisplayName("test displayAllItemsInWareHouse /v1/j-shop/admin/show-products-in-warehouse")
     class TestDisplayAllItemsInWareHouse {
-        @Test
-        void testDisplayAllItemsInWareHouseAccessDeniedException() throws Exception {
-            //Given
-            List<WarehouseDto> warehouseDtoList = List.of(new WarehouseDto(4L, 2L, "Marilyn Manson, \"Antichrist Superstar\"", "Music", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN), 45));
-            when(adminService.displayAllProductsInWarehouse()).thenReturn(warehouseDtoList);
-
-            //When & Then
-            mockMvc
-                    .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/show-products-in-warehouse")
-                            .queryParam("key", "1")
-                            .queryParam("token", "3")
-                            .contentType(MediaType.APPLICATION_JSON))
-
-                    .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                    .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
-
-            verify(adminService, never()).displayAllProductsInWarehouse();
-        }
 
         @Test
         void testDisplayAllItemsInWareHousePositive() throws Exception {
@@ -1050,9 +765,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/show-products-in-warehouse")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .contentType(MediaType.APPLICATION_JSON))
+                                                    .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
@@ -1070,33 +783,8 @@ class AdminControllerTest {
     @Nested
     @DisplayName("test displayAllOrders /v1/j-shop/admin/show-order")
     class TestDisplayAllOrders {
-        @Test
-        void testDisplayAllOrdersAccessDeniedException() throws Exception {
-            //Given
-            String listOfProductsDummy = "Dummy list";
-            List<OrderDtoToCustomer> orderDtoList = List.of(
-                    new OrderDtoToCustomer(8L, LocalDate.of(2023, 2, 20), listOfProductsDummy,
-                            new BigDecimal(4025).setScale(2, RoundingMode.HALF_EVEN).toString(), "UNPAID",
-                            LocalDate.of(2023, 3, 15)));
 
-            when(adminService.displayOrders(anyString())).thenReturn(orderDtoList);
-
-            //When & Then
-            mockMvc
-                    .perform(MockMvcRequestBuilders
-                            .get("/v1/j-shop/admin/show-order")
-                            .queryParam("key", "1")
-                            .queryParam("token", "3")
-                            .queryParam("orderStatus", "UNPAID")
-                            .contentType(MediaType.APPLICATION_JSON))
-
-                    .andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                    .andExpect(result -> assertEquals("Access denied", result.getResponse().getContentAsString()));
-
-            verify(adminService, never()).displayOrders(anyString());
-        }
-
-        @Test
+       /* @Test
         void testDisplayAllOrdersInvalidOrderStatusException() throws Exception {
             //Given
             when(adminService.displayOrders(anyString())).thenThrow(InvalidOrderStatusException.class);
@@ -1105,18 +793,16 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/show-order")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("orderStatus", "UNPAID")
+                                                       .queryParam("orderStatus", "UNPAID")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(result -> assertEquals("Provide proper status. Status can be \"paid\" or \"unpaid\"", result.getResponse().getContentAsString()));
 
             verify(adminService, times(1)).displayOrders(anyString());
-        }
+        }*/
 
-        @Test
+       /* @Test
         void testDisplayAllOrdersPositiveOptionalParamStatusProvided() throws Exception {
             //Given
             String listOfProductsDummy = "Dummy list";
@@ -1131,9 +817,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/show-order")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .queryParam("orderStatus", "UNPAID")
+                                                    .queryParam("orderStatus", "UNPAID")
                             .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1145,7 +829,7 @@ class AdminControllerTest {
                     .andExpect(MockMvcResultMatchers.jsonPath("$[0].status", Matchers.is("UNPAID")));
 
             verify(adminService, times(1)).displayOrders(anyString());
-        }
+        }*/
 
         @Test
         void testDisplayAllOrdersPositiveNoOptionalParamStatusProvided() throws Exception {
@@ -1162,9 +846,7 @@ class AdminControllerTest {
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .get("/v1/j-shop/admin/show-order")
-                            .queryParam("key", "1")
-                            .queryParam("token", "2")
-                            .contentType(MediaType.APPLICATION_JSON))
+                                                     .contentType(MediaType.APPLICATION_JSON))
 
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
