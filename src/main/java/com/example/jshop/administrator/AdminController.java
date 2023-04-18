@@ -10,6 +10,7 @@ import com.example.jshop.warehouseandproducts.domain.category.CategoryDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,88 +21,70 @@ import java.util.List;
 @RequestMapping("v1/j-shop/admin")
 public class AdminController {
 
-    private final AdminConfig adminConfig;
     private final AdminService adminService;
 
-    private void verifyAdmin(@RequestParam String key, @RequestParam String token) throws AccessDeniedException {
-        if (!(adminConfig.getAdminKey().equals(key) && adminConfig.getAdminToken().equals(token))) {
-            throw new AccessDeniedException();
-        }
-    }
-
     @PostMapping("add-category")
-    ResponseEntity<Void> addNewCategory(@RequestParam String key, @RequestParam String token, @RequestBody CategoryDto categoryDto) throws AccessDeniedException, InvalidCategoryNameException, CategoryExistsException {
-        verifyAdmin(key, token);
+    ResponseEntity<Void> addNewCategory(@RequestBody CategoryDto categoryDto) throws InvalidCategoryNameException, CategoryExistsException {
         adminService.addNewCategory(categoryDto);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("remove-category")
-    ResponseEntity<Void> removeCategory(@RequestParam String key, @RequestParam String token, @RequestBody CategoryDto categoryDto) throws AccessDeniedException, CategoryNotFoundException, CategoryException {
-        verifyAdmin(key, token);
+    ResponseEntity<Void> removeCategory(@RequestBody CategoryDto categoryDto) throws CategoryNotFoundException, CategoryException {
         adminService.removeCategory(categoryDto);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("show-category")
-    ResponseEntity<List<CategoryWithProductsDto>> showAllCategoriesAndProducts(@RequestParam String key, @RequestParam String token) throws AccessDeniedException {
-        verifyAdmin(key, token);
+    ResponseEntity<List<CategoryWithProductsDto>> showAllCategoriesAndProducts() {
         return ResponseEntity.ok(adminService.showAllCategoriesWithProducts());
     }
 
     @GetMapping("show-category/name")
-    ResponseEntity<CategoryWithProductsDto> showCategoriesByName(@RequestParam String key, @RequestParam String token, @RequestParam String categoryName) throws CategoryNotFoundException, AccessDeniedException {
-        verifyAdmin(key, token);
+    ResponseEntity<CategoryWithProductsDto> showCategoriesByName(@RequestParam String categoryName) throws CategoryNotFoundException {
         return ResponseEntity.ok(adminService.showCategoryByNameWithProducts(categoryName));
     }
 
     @PostMapping("add-product")
-    ResponseEntity<ProductDtoAllInfo> addProduct(@RequestParam String key, @RequestParam String token, @RequestBody ProductDto productDto) throws AccessDeniedException, InvalidCategoryNameException, CategoryExistsException, InvalidPriceException {
-        verifyAdmin(key, token);
+    ResponseEntity<ProductDtoAllInfo> addProduct(@RequestBody ProductDto productDto) throws InvalidCategoryNameException, CategoryExistsException, InvalidPriceException {
         return ResponseEntity.ok(adminService.addNewProduct(productDto));
     }
 
     @PutMapping("update-product")
-    ResponseEntity<ProductDtoAllInfo> updateProduct(@RequestParam String key, @RequestParam String token, @RequestParam Long productId, @RequestBody ProductDto productDto) throws AccessDeniedException, ProductNotFoundException, InvalidCategoryNameException, CategoryExistsException, InvalidPriceException {
-        verifyAdmin(key, token);
+    ResponseEntity<ProductDtoAllInfo> updateProduct(@RequestParam Long productId, @RequestBody ProductDto productDto) throws ProductNotFoundException, InvalidCategoryNameException, CategoryExistsException, InvalidPriceException {
         return ResponseEntity.ok(adminService.updateProduct(productId, productDto));
     }
 
     @DeleteMapping("remove-product")
-    ResponseEntity<Void> removeProduct(@RequestParam String key, @RequestParam String token, @RequestParam Long productId) throws AccessDeniedException, ProductNotFoundException {
-        verifyAdmin(key, token);
+    ResponseEntity<Void> removeProduct(@RequestParam Long productId) throws ProductNotFoundException {
         adminService.deleteProductById(productId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("show-product")
-    ResponseEntity<List<ProductDtoAllInfo>> showAllProducts(@RequestParam String key, @RequestParam String token) throws AccessDeniedException {
-        verifyAdmin(key, token);
+    ResponseEntity<List<ProductDtoAllInfo>> showAllProducts() {
         return ResponseEntity.ok(adminService.showAllProducts());
     }
 
     @PostMapping("add-to-warehouse")
-    ResponseEntity<WarehouseDto> addProductToWarehouse(@RequestParam String key, @RequestParam String token, @RequestParam Long productId, @RequestParam Integer productQuantity) throws AccessDeniedException, ProductNotFoundException, InvalidQuantityException, CategoryNotFoundException {
-        verifyAdmin(key, token);
+    ResponseEntity<WarehouseDto> addProductToWarehouse(@RequestParam Long productId, @RequestParam Integer productQuantity) throws ProductNotFoundException, InvalidQuantityException, CategoryNotFoundException {
         return ResponseEntity.ok(adminService.addOrUpdateProductInWarehouse(productId, productQuantity));
     }
 
     @DeleteMapping("remove-from-warehouse")
-    ResponseEntity<Void> removeProductFromWarehouse(@RequestParam String key, @RequestParam String token, @RequestParam Long productId) throws AccessDeniedException, ProductNotFoundException {
-        verifyAdmin(key, token);
+    ResponseEntity<Void> removeProductFromWarehouse(@RequestParam Long productId) throws ProductNotFoundException {
         adminService.deleteProductFromWarehouse(productId);
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("show-products-in-warehouse")
-    ResponseEntity<List<WarehouseDto>> displayAllProductsInWarehouse(@RequestParam String key, @RequestParam String token) throws AccessDeniedException {
-        verifyAdmin(key, token);
+    ResponseEntity<List<WarehouseDto>> displayAllProductsInWarehouse() {
         return ResponseEntity.ok(adminService.displayAllProductsInWarehouse());
     }
 
     @GetMapping("show-order")
-    ResponseEntity<List<OrderDtoToCustomer>> displayAllOrders(@RequestParam String key, @RequestParam String token, @RequestParam(required = false) String order_status) throws AccessDeniedException, InvalidOrderStatusException, OrderNotFoundException {
-        verifyAdmin(key, token);
+    ResponseEntity<List<OrderDtoToCustomer>> displayAllOrders(@RequestParam(required = false) String order_status) throws InvalidOrderStatusException, OrderNotFoundException {
         return ResponseEntity.ok(adminService.displayOrders(order_status));
     }
 }

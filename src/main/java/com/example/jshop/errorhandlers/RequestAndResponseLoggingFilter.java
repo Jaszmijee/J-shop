@@ -25,14 +25,10 @@ public class RequestAndResponseLoggingFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(cachedHttpServletRequest, cachedHttpServletResponse);
             String path = getRequestedPath(cachedHttpServletRequest);
-            if (path.contains("/j-shop/admin")) {
-                path = validatePathInfo(path);
-            }
             log.info("REQUEST PATH: {}", path);
             if ((path.contains("login") || path.contains("customer"))) {
                 log.info("sensitive data");
-            }
-            else {
+            } else {
                 log.info("REQUEST DATA: {}", new String(cachedHttpServletRequest.getContentAsByteArray(), StandardCharsets.UTF_8));
             }
         } catch (IOException | ServletException e) {
@@ -44,7 +40,6 @@ public class RequestAndResponseLoggingFilter extends OncePerRequestFilter {
         cachedHttpServletResponse.copyBodyToResponse();
     }
 
-
     private static String getRequestedPath(HttpServletRequest request) {
         val queryString = request.getQueryString();
         if (queryString == null) {
@@ -52,14 +47,5 @@ public class RequestAndResponseLoggingFilter extends OncePerRequestFilter {
         } else {
             return (request.getMethod() + " " + request.getRequestURI() + "?" + queryString);
         }
-    }
-
-    private static String validatePathInfo(String path) {
-        String subStringKey = path.substring(path.indexOf("?key=") + 5, path.indexOf("&token"));
-        String subStringToken = path.substring(path.indexOf("&token=") + 7);
-        if (subStringToken.contains("&")) {
-            subStringToken = subStringToken.substring(0, subStringToken.indexOf("&"));
-        }
-        return path.replace(subStringKey, "xxx").replace(subStringToken, "xxx");
     }
 }
