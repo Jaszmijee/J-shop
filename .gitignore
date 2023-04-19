@@ -5,6 +5,7 @@ storage/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+ldap_config_volume
 
 ### STS ###
 .apt_generated
