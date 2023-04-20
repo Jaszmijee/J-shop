@@ -15,7 +15,7 @@ services:
       - jshop-db:/var/lib/mysql
 
   ldap:
-    container_name:  jshop-ldap
+    container_name: jshop-ldap
     image: osixia/openldap:latest
     restart: always
     environment:
@@ -75,15 +75,59 @@ services:
       - '8443:8443'
     volumes:
       - keycloakConfig:/opt/keycloak/conf/
-   # - /home/keycloak/realm.json:/opt/keycloak/data/import/realm.json
     networks:
       - 'openldap-test'
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:8.7.0
+    restart: always
+    environment:
+      ES_PORT: '127.0.0.1:9200'
+      ELASTIC_PASSWORD: 'ELASTIC_PASSWORD'
+      LICENSE: basic
+      KIBANA_PASSWORD: 'KIBANA_PASSWORD'
+      discovery.type: single-node
+      xpack.security.enabled: false
+    ports:
+      - '9200:9200'
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - 'openldap-test'
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.7.0
+    ports:
+      - 12201:12201/udp
+    #  volumes:
+    #  - ~/logstashpipeline:/usr/share/logstash/pipeline/
+    #  - ~/logstashconfig:/usr/share/logstash/config/
+
+    networks:
+      - 'openldap-test'
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.7.0
+    ports:
+      - 5601:5601
+    #  volumes:
+    #   -./kibana.yml:/usr/share/kibana/config/kibana.yml
+    networks:
+      - 'openldap-test'
+    depends_on:
+      - logstash
 
 volumes:
   jshop-db:
   ldapConfig:
   ldapdb:
   keycloakConfig:
+  certs:
+  esdata:
 
 networks:
   openldap-test:
