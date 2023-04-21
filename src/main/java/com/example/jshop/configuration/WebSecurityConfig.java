@@ -38,10 +38,10 @@ public class WebSecurityConfig {
     @Lazy
     private final AuthenticationManager authManager;
 
-    @Bean
+   /* @Bean
     public KeycloakConfigResolver KeycloakConfigResolver() {
         return new KeycloakSpringBootConfigResolver();
-    }
+    }*/
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -62,7 +62,10 @@ public class WebSecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .antMatchers("/v1/j-shop/cart*").hasAuthority("CLIENT_GROUP")
+                        .antMatchers("/v1/j-shop/admin/*").hasAuthority("managerGroup")
+                        .antMatchers("/v1/j-shop/customer/*").hasAuthority("clientGroup")
+                        .antMatchers("/v1/j-shop/cart/pay/login").authenticated()
+                        .antMatchers("/v1/j-shop/cart/finalize/login").authenticated()
                         .anyRequest().permitAll()
                 )
                 .httpBasic(Customizer.withDefaults())

@@ -1,3 +1,4 @@
+/*
 package com.example.jshop.configuration;
 
 import org.keycloak.adapters.springsecurity.KeycloakConfiguration;
@@ -98,3 +99,4 @@ public class KeycloakSecurityConfig extends KeycloakWebSecurityConfigurerAdapter
     }
 }
 
+*/

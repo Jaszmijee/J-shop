@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class TokenContent {
-    private List<String> groups;
+    private List<String> member_of_group;
 }

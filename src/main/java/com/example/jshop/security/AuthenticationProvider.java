@@ -38,7 +38,7 @@ public class AuthenticationProvider implements org.springframework.security.auth
         return new UsernamePasswordAuthenticationToken(
                 username,
                 password,
-                content.getGroups().stream().map(SimpleGrantedAuthority::new).toList()
+                content.getMember_of_group().stream().map(SimpleGrantedAuthority::new).toList()
         );
     }
 
