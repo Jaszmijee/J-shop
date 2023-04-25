@@ -22,20 +22,22 @@ public class RequestAndResponseLoggingFilter extends OncePerRequestFilter {
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException {
         val cachedHttpServletRequest = new ContentCachingRequestWrapper(request);
         val cachedHttpServletResponse = new ContentCachingResponseWrapper(response);
+        var logs = new StringBuilder();
         try {
             filterChain.doFilter(cachedHttpServletRequest, cachedHttpServletResponse);
             String path = getRequestedPath(cachedHttpServletRequest);
-            log.info("REQUEST PATH: {}", path);
+            logs.append("REQUEST PATH: {} ").append(path).append("\n" + "REQUEST DATA: {} ");
             if ((path.contains("login") || path.contains("customer"))) {
-                log.info("sensitive data");
+                logs.append("sensitive data");
             } else {
-                log.info("REQUEST DATA: {}", new String(cachedHttpServletRequest.getContentAsByteArray(), StandardCharsets.UTF_8));
+                logs.append(new String(cachedHttpServletRequest.getContentAsByteArray(), StandardCharsets.UTF_8));
             }
         } catch (IOException | ServletException e) {
             e.printStackTrace();
         } finally {
-            log.info("RESPONSE STATUS: {}", cachedHttpServletResponse.getStatus());
-            log.info("RESPONSE DATA: {}", new String(cachedHttpServletResponse.getContentAsByteArray(), StandardCharsets.UTF_8));
+            logs.append("\n" + "RESPONSE STATUS: {} ").append(cachedHttpServletResponse.getStatus())
+                    .append("\n" + "RESPONSE DATA: {} ").append(new String(cachedHttpServletResponse.getContentAsByteArray(), StandardCharsets.UTF_8));
+            log.info(logs.toString());
         }
         cachedHttpServletResponse.copyBodyToResponse();
     }
