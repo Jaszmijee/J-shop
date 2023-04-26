@@ -32,7 +32,8 @@ services:
     restart: always
     ports:
       - 5601:5601
-
+    depends_on:
+      - logstash
     networks:
       - elk-test
 
