@@ -38,11 +38,6 @@ public class WebSecurityConfig {
     @Lazy
     private final AuthenticationManager authManager;
 
-   /* @Bean
-    public KeycloakConfigResolver KeycloakConfigResolver() {
-        return new KeycloakSpringBootConfigResolver();
-    }*/
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -64,8 +59,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .antMatchers("/v1/j-shop/admin/*").hasAuthority("managerGroup")
                         .antMatchers("/v1/j-shop/customer/*").hasAuthority("clientGroup")
-                        .antMatchers("/v1/j-shop/cart/pay/login").authenticated()
-                        .antMatchers("/v1/j-shop/cart/finalize/login").authenticated()
+                        .antMatchers("/v1/j-shop/cart/pay/login").hasAuthority("clientGroup")
+                        .antMatchers("/v1/j-shop/cart/finalize/login").hasAuthority("clientGroup")
                         .anyRequest().permitAll()
                 )
                 .httpBasic(Customizer.withDefaults())
