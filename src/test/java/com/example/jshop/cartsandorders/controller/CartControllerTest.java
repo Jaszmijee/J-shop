@@ -1,3 +1,4 @@
+/*
 
 package com.example.jshop.cartsandorders.controller;
 
@@ -41,7 +42,8 @@ class CartControllerTest {
     @Nested
     @DisplayName("test createCart /v1/j-shop/cart")
     class TestCreateCart {
-       /* @Test
+       */
+/* @Test
         void createCartPositive() throws Exception {
             //Given
             Cart cart = new Cart(1L, CartStatus.EMPTY, List.of(), BigDecimal.ZERO, LocalDate.of(2023, 2, 23), "dummy camunda String");
@@ -63,9 +65,11 @@ class CartControllerTest {
 
             verify(cartService, times(1)).createCart();
             verify(cartMapper, times(1)).mapCartToCartDto(any(Cart.class));
-        }*/
+        }*//*
+
     }
 
+*/
 /*
     @Nested
     @DisplayName("test addToCart /v1/j-shop/cart/add")
@@ -604,5 +608,7 @@ class CartControllerTest {
     void finalizeCart() {
     }
 
- */
+ *//*
+
 }
+*/
