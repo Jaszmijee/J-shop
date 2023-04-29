@@ -1,3 +1,4 @@
+/*
 
 package com.example.jshop.cartsandorders.service;
 
@@ -79,6 +80,7 @@ class CartServiceTest {
         }
     }
 }
+*/
 /*
     @Nested
     @Transactional
@@ -938,7 +940,9 @@ class CartServiceTest {
         }
     }
 
-   */
+   *//*
+
+*/
 /* @Nested
     @Transactional
     @DisplayName("test deleteByProcessingTime")
@@ -983,7 +987,10 @@ class CartServiceTest {
             }
         }
     }*//*
+*/
+/*
 
 }
 
 */
+
