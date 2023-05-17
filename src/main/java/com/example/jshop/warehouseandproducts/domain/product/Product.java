@@ -1,10 +1,16 @@
 package com.example.jshop.warehouseandproducts.domain.product;
 
-import com.example.jshop.warehouseandproducts.domain.category.Category;
-import lombok.*;
-
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import java.math.BigDecimal;
+import com.example.jshop.warehouseandproducts.domain.category.Category;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
@@ -28,7 +34,7 @@ public class Product {
     @JoinColumn(name = "categories_categoryID")
     private Category category;
 
-    @Column(name = "price", precision = 19, scale = 2, columnDefinition="DECIMAL(19,2)")
+    @Column(name = "price", precision = 19, scale = 2, columnDefinition = "DECIMAL(19,2)")
     private BigDecimal price;
 
     public Product(String productName, String description, Category category, BigDecimal price) {

@@ -1,31 +1,37 @@
 package com.example.jshop.administrator;
 
-import com.example.jshop.errorhandlers.exceptions.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import com.example.jshop.cartsandorders.domain.order.Order;
+import com.example.jshop.cartsandorders.domain.order.OrderDtoToCustomer;
+import com.example.jshop.cartsandorders.mapper.OrderMapper;
+import com.example.jshop.cartsandorders.service.OrderService;
+import com.example.jshop.errorhandlers.exceptions.CategoryException;
+import com.example.jshop.errorhandlers.exceptions.CategoryExistsException;
+import com.example.jshop.errorhandlers.exceptions.CategoryNotFoundException;
+import com.example.jshop.errorhandlers.exceptions.InvalidCategoryNameException;
+import com.example.jshop.errorhandlers.exceptions.InvalidOrderStatusException;
+import com.example.jshop.errorhandlers.exceptions.InvalidPriceException;
+import com.example.jshop.errorhandlers.exceptions.InvalidQuantityException;
+import com.example.jshop.errorhandlers.exceptions.OrderNotFoundException;
+import com.example.jshop.errorhandlers.exceptions.ProductNotFoundException;
 import com.example.jshop.warehouseandproducts.domain.category.Category;
 import com.example.jshop.warehouseandproducts.domain.category.CategoryDto;
 import com.example.jshop.warehouseandproducts.domain.category.CategoryWithProductsDto;
-import com.example.jshop.cartsandorders.domain.order.Order;
-import com.example.jshop.cartsandorders.domain.order.OrderDtoToCustomer;
 import com.example.jshop.warehouseandproducts.domain.product.Product;
 import com.example.jshop.warehouseandproducts.domain.product.ProductDto;
 import com.example.jshop.warehouseandproducts.domain.product.ProductDtoAllInfo;
 import com.example.jshop.warehouseandproducts.domain.warehouse.Warehouse;
 import com.example.jshop.warehouseandproducts.domain.warehouse.WarehouseDto;
 import com.example.jshop.warehouseandproducts.mapper.CategoryMapper;
-import com.example.jshop.cartsandorders.mapper.OrderMapper;
 import com.example.jshop.warehouseandproducts.mapper.ProductMapper;
 import com.example.jshop.warehouseandproducts.mapper.WarehouseMapper;
 import com.example.jshop.warehouseandproducts.service.CategoryService;
-import com.example.jshop.cartsandorders.service.OrderService;
 import com.example.jshop.warehouseandproducts.service.ProductService;
 import com.example.jshop.warehouseandproducts.service.WarehouseService;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +60,8 @@ public class AdminService {
         return categoryMapper.mapToCategoryDtoListAllInfo(listCategories);
     }
 
-    public CategoryWithProductsDto showCategoryByNameWithProducts(String categoryName) throws CategoryNotFoundException {
+    public CategoryWithProductsDto showCategoryByNameWithProducts(String categoryName)
+        throws CategoryNotFoundException {
         Category category = categoryService.findByName(categoryName);
         if (category == null) {
             throw new CategoryNotFoundException();
@@ -68,7 +75,8 @@ public class AdminService {
         }
     }
 
-    private Category setUpCategoryNameForNewProduct(Product product) throws InvalidCategoryNameException, CategoryExistsException {
+    private Category setUpCategoryNameForNewProduct(Product product)
+        throws InvalidCategoryNameException, CategoryExistsException {
         Category category = categoryService.findByName(product.getCategory().getName());
         if (category != null) {
             category.getListOfProducts().add(product);
@@ -82,7 +90,8 @@ public class AdminService {
         return category;
     }
 
-    public ProductDtoAllInfo addNewProduct(ProductDto productDto) throws InvalidPriceException, InvalidCategoryNameException, CategoryExistsException {
+    public ProductDtoAllInfo addNewProduct(ProductDto productDto)
+        throws InvalidPriceException, InvalidCategoryNameException, CategoryExistsException {
         validatePrice(productDto.getPrice());
         Product product = productMapper.mapToProduct(productDto);
         Category category = setUpCategoryNameForNewProduct(product);
@@ -93,7 +102,8 @@ public class AdminService {
         return productMapper.mapToProductDtoAllInfo(savedProduct);
     }
 
-    public ProductDtoAllInfo updateProduct(Long productId, ProductDto productDto) throws ProductNotFoundException, InvalidCategoryNameException, CategoryExistsException, InvalidPriceException {
+    public ProductDtoAllInfo updateProduct(Long productId, ProductDto productDto)
+        throws ProductNotFoundException, InvalidCategoryNameException, CategoryExistsException, InvalidPriceException {
         validatePrice(productDto.getPrice());
         Product productToUpdate = productService.findProductById(productId);
         Product product = productMapper.mapToProduct(productDto);
@@ -132,7 +142,8 @@ public class AdminService {
         }
     }
 
-    public WarehouseDto addOrUpdateProductInWarehouse(Long productId, Integer productQuantity) throws InvalidQuantityException, ProductNotFoundException, CategoryNotFoundException {
+    public WarehouseDto addOrUpdateProductInWarehouse(Long productId, Integer productQuantity)
+        throws InvalidQuantityException, ProductNotFoundException, CategoryNotFoundException {
         validateQuantity(productQuantity);
         Product product = productService.findProductById(productId);
         if (product.getCategory().getName().equalsIgnoreCase("Unknown")) {
@@ -160,7 +171,8 @@ public class AdminService {
         return warehouseMapper.mapToWarehouseDtoList(listOfAllItems);
     }
 
-    public List<OrderDtoToCustomer> displayOrders(String order_status) throws InvalidOrderStatusException, OrderNotFoundException {
+    public List<OrderDtoToCustomer> displayOrders(String order_status)
+        throws InvalidOrderStatusException, OrderNotFoundException {
         List<Order> listOfOrders = orderService.findOrders(order_status);
         if (listOfOrders.isEmpty()) {
             throw new OrderNotFoundException();

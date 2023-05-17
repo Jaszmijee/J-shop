@@ -1,14 +1,30 @@
 package com.example.jshop.errorhandlers;
 
+import java.sql.SQLException;
+import com.example.jshop.errorhandlers.exceptions.AccessDeniedException;
+import com.example.jshop.errorhandlers.exceptions.CartNotFoundException;
+import com.example.jshop.errorhandlers.exceptions.CategoryException;
+import com.example.jshop.errorhandlers.exceptions.CategoryExistsException;
+import com.example.jshop.errorhandlers.exceptions.CategoryNotFoundException;
+import com.example.jshop.errorhandlers.exceptions.InvalidCategoryNameException;
 import com.example.jshop.errorhandlers.exceptions.InvalidCustomerDataException;
-import com.example.jshop.errorhandlers.exceptions.*;
+import com.example.jshop.errorhandlers.exceptions.InvalidDataException;
+import com.example.jshop.errorhandlers.exceptions.InvalidOrderStatusException;
+import com.example.jshop.errorhandlers.exceptions.InvalidPriceException;
+import com.example.jshop.errorhandlers.exceptions.InvalidQuantityException;
+import com.example.jshop.errorhandlers.exceptions.ItemNotAvailableException;
+import com.example.jshop.errorhandlers.exceptions.LimitException;
+import com.example.jshop.errorhandlers.exceptions.NotEnoughItemsException;
+import com.example.jshop.errorhandlers.exceptions.OrderNotFoundException;
+import com.example.jshop.errorhandlers.exceptions.PaymentErrorException;
+import com.example.jshop.errorhandlers.exceptions.ProductAlreadyExistsException;
+import com.example.jshop.errorhandlers.exceptions.ProductNotFoundException;
+import com.example.jshop.errorhandlers.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import java.sql.SQLException;
 
 @ControllerAdvice
 public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
@@ -50,7 +66,8 @@ public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(NotEnoughItemsException.class)
     public ResponseEntity<Object> handleNotEnoughItemsException(NotEnoughItemsException exception) {
-        return new ResponseEntity<>("The quantity of selected items is currently not available", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("The quantity of selected items is currently not available",
+            HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
@@ -100,7 +117,8 @@ public class GlobalHttpErrorHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(InvalidOrderStatusException.class)
     public ResponseEntity<Object> handleLimitException(InvalidOrderStatusException exception) {
-        return new ResponseEntity<>("Provide proper status. Status can be \"paid\" or \"unpaid\"", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Provide proper status. Status can be \"paid\" or \"unpaid\"",
+            HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(InvalidCustomerDataException.class)

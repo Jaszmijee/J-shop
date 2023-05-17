@@ -1,5 +1,6 @@
 package com.example.jshop.security;
 
+import java.util.Base64;
 import camundajar.impl.com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -12,11 +13,10 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.stereotype.Component;
 
-import java.util.Base64;
-
 @Component
 @RequiredArgsConstructor
 public class AuthenticationProvider implements org.springframework.security.authentication.AuthenticationProvider {
+
     @Lazy
     private final OAuth2AuthorizedClientManager authorizedClientManager;
 
@@ -26,19 +26,20 @@ public class AuthenticationProvider implements org.springframework.security.auth
         String password = authentication.getCredentials().toString();
 
         val authorizeRequest = OAuth2AuthorizeRequest
-                .withClientRegistrationId("keycloak")
-                .principal(authentication)
-                .build();
+            .withClientRegistrationId("keycloak")
+            .principal(authentication)
+            .build();
         val authorize = authorizedClientManager.authorize(authorizeRequest);
 
-        val tokenContent = new String(Base64.getUrlDecoder().decode(authorize.getAccessToken().getTokenValue().split("\\.")[1]));
+        val tokenContent = new String(
+            Base64.getUrlDecoder().decode(authorize.getAccessToken().getTokenValue().split("\\.")[1]));
         val gson = new Gson();
         val content = gson.fromJson(tokenContent, TokenContent.class);
 
         return new UsernamePasswordAuthenticationToken(
-                username,
-                password,
-                content.getMember_of_group().stream().map(SimpleGrantedAuthority::new).toList()
+            username,
+            password,
+            content.getMember_of_group().stream().map(SimpleGrantedAuthority::new).toList()
         );
     }
 

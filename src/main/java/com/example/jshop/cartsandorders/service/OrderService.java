@@ -1,13 +1,12 @@
 package com.example.jshop.cartsandorders.service;
 
+import java.util.List;
 import com.example.jshop.cartsandorders.domain.order.Order;
+import com.example.jshop.cartsandorders.repository.OrderRepository;
 import com.example.jshop.errorhandlers.exceptions.InvalidOrderStatusException;
 import com.example.jshop.errorhandlers.exceptions.OrderNotFoundException;
-import com.example.jshop.cartsandorders.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class OrderService {
@@ -28,13 +27,16 @@ public class OrderService {
     }
 
     public Order findByIdAndUserName(Long orderId, String username) throws OrderNotFoundException {
-        return orderRepository.findByOrderIDAndLoggedCustomer_UserName(orderId, username).orElseThrow(OrderNotFoundException::new);
+        return orderRepository.findByOrderIDAndLoggedCustomer_UserName(orderId, username)
+            .orElseThrow(OrderNotFoundException::new);
     }
 
     public List<Order> findOrders(String order_status) throws InvalidOrderStatusException {
-        if (order_status != null && !(order_status.equalsIgnoreCase("paid") || order_status.equalsIgnoreCase("unpaid")))
+        if (order_status != null && !(order_status.equalsIgnoreCase("paid") || order_status.equalsIgnoreCase(
+            "unpaid"))) {
             throw new InvalidOrderStatusException();
-        if (order_status != null){
+        }
+        if (order_status != null) {
             order_status = order_status.toUpperCase();
         }
         return orderRepository.findOrders(order_status);
@@ -52,9 +54,11 @@ public class OrderService {
         return orderRepository.findOrdersCloseToPayment(processId);
     }
 
-    public List<Order> findUnpaidOrders(String processId)  {
-        return orderRepository.findUnpaidOrders(processId);
+    public Order findOrderBycartId(Long cartId) {
+        return orderRepository.findByCart_CartID(cartId);
+
     }
-    }
+
+}
 
 

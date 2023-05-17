@@ -2,7 +2,6 @@ package com.example.jshop.camunda.serviceTasks;
 
 import com.example.jshop.cartsandorders.domain.cart.CartItemsDto;
 import com.example.jshop.cartsandorders.service.CartService;
-import com.example.jshop.customer.domain.AuthenticationDataDto;
 import com.example.jshop.customer.domain.UnauthenticatedCustomerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +51,8 @@ public class ShoppingDelegate {
         String city = (String) execution.getVariable("city");
         String country = (String) execution.getVariable("country");
 
-        var data = new UnauthenticatedCustomerDto(firstName, lastName, email, street, houseNo, flatNo, zipCode, city, country);
+        var data = new UnauthenticatedCustomerDto(firstName, lastName, email, street, houseNo, flatNo, zipCode, city,
+            country);
         cartService.payForCartUnauthenticatedCustomerCamunda(cartId, data);
     }
 
@@ -60,11 +60,9 @@ public class ShoppingDelegate {
         log.info("FinalizeCartAuthenticated execution started");
 
         Long cartId = Long.valueOf(execution.getProcessBusinessKey());
+        Long orderId = (Long) execution.getVariable("orderId");
         String user = (String) execution.getVariable("userName");
-        char[] pwwd = (char[]) execution.getVariable("password");
-
-        AuthenticationDataDto data = new AuthenticationDataDto(user, pwwd);
-        cartService.finalizeCartAuthenticatedCamunda(cartId, data);
+        cartService.finalizeCartAuthenticatedCamunda(orderId, cartId, user);
     }
 
     public void executePayForOrderAuthenticated(DelegateExecution execution) throws Exception {

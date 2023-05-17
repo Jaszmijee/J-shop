@@ -1,6 +1,15 @@
 package com.example.jshop.administrator;
 
-import com.example.jshop.errorhandlers.exceptions.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import com.example.jshop.errorhandlers.exceptions.CategoryException;
+import com.example.jshop.errorhandlers.exceptions.CategoryExistsException;
+import com.example.jshop.errorhandlers.exceptions.CategoryNotFoundException;
+import com.example.jshop.errorhandlers.exceptions.InvalidCategoryNameException;
+import com.example.jshop.errorhandlers.exceptions.InvalidPriceException;
+import com.example.jshop.errorhandlers.exceptions.InvalidQuantityException;
+import com.example.jshop.errorhandlers.exceptions.ProductNotFoundException;
 import com.example.jshop.warehouseandproducts.domain.category.Category;
 import com.example.jshop.warehouseandproducts.domain.category.CategoryDto;
 import com.example.jshop.warehouseandproducts.domain.category.CategoryWithProductsDto;
@@ -12,6 +21,10 @@ import com.example.jshop.warehouseandproducts.repository.CategoryRepository;
 import com.example.jshop.warehouseandproducts.repository.ProductRepository;
 import com.example.jshop.warehouseandproducts.repository.WarehouseRepository;
 import com.example.jshop.warehouseandproducts.service.ProductService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,14 +34,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 class AdminServiceTest {
+
     @Autowired
     private AdminService adminService;
     @Autowired
@@ -45,6 +53,7 @@ class AdminServiceTest {
     @Transactional
     @DisplayName("test addNewCategory")
     class TestAddNewCategory {
+
         @ParameterizedTest
         @ValueSource(strings = {"", "aa", "", "%t54"})
         void testAddNewCategoryInvalidCategoryNameException() {
@@ -85,6 +94,7 @@ class AdminServiceTest {
     @Transactional
     @DisplayName("test removeCategory")
     class TestRemoveCategory {
+
         @Test
         void testRemoveCategoryCategoryNotFoundException() {
             //Given
@@ -106,7 +116,8 @@ class AdminServiceTest {
         }
 
         @Test
-        void testRemoveCategoryPositive() throws CategoryException, CategoryNotFoundException, InvalidCategoryNameException, CategoryExistsException {
+        void testRemoveCategoryPositive()
+            throws CategoryException, CategoryNotFoundException, InvalidCategoryNameException, CategoryExistsException {
             //Given
             CategoryDto categoryDto = new CategoryDto("Car");
             adminService.addNewCategory(categoryDto);
@@ -118,10 +129,31 @@ class AdminServiceTest {
             assertEquals(0, categoryRepository.findAll().size());
         }
 
+        @Test
+        void testShowCategoryByNameWithProductsPositive() throws CategoryNotFoundException {
+            //Given
+            Category category = new Category("Car");
+            Category category1 = new Category("Music");
+            categoryRepository.save(category);
+            categoryRepository.save(category1);
+            Product product = new Product("Album1", "CD", category1,
+                new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
+            productRepository.save(product);
+            category1.getListOfProducts().add(product);
+            categoryRepository.save(category1);
+
+            //When & Then
+            assertInstanceOf(CategoryWithProductsDto.class, adminService.showCategoryByNameWithProducts("Music"));
+            assertEquals(1, adminService.showCategoryByNameWithProducts("Music").getListOfProducts().size());
+            assertEquals("Album1",
+                adminService.showCategoryByNameWithProducts("Music").getListOfProducts().get(0).getProductName());
+        }
+
         @Nested
         @Transactional
         @DisplayName("test showAllCategoriesWithProducts")
         class TestShowAllCategoriesWithProducts {
+
             @Transactional
             @Test
             void testShowAllCategoriesWithProducts() {
@@ -130,7 +162,8 @@ class AdminServiceTest {
                 Category category1 = new Category("Music");
                 categoryRepository.save(category);
                 categoryRepository.save(category1);
-                Product product = new Product("Album1", "CD", category1, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
+                Product product = new Product("Album1", "CD", category1,
+                    new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
                 productRepository.save(product);
                 category1.getListOfProducts().add(product);
                 categoryRepository.save(category1);
@@ -140,7 +173,8 @@ class AdminServiceTest {
                 assertInstanceOf(CategoryWithProductsDto.class, adminService.showAllCategoriesWithProducts().get(0));
                 assertEquals(0, adminService.showAllCategoriesWithProducts().get(0).getListOfProducts().size());
                 assertEquals(1, adminService.showAllCategoriesWithProducts().get(1).getListOfProducts().size());
-                assertEquals("Album1", adminService.showAllCategoriesWithProducts().get(1).getListOfProducts().get(0).getProductName());
+                assertEquals("Album1", adminService.showAllCategoriesWithProducts().get(1).getListOfProducts().get(0)
+                    .getProductName());
             }
         }
 
@@ -148,6 +182,7 @@ class AdminServiceTest {
         @Transactional
         @DisplayName("test showCategoryByNameWithProducts")
         class TestShowCategoryByNameWithProducts {
+
             @Test
             void testShowCategoryByNameWithProductsCategoryNotFoundException() {
                 //Given
@@ -157,26 +192,9 @@ class AdminServiceTest {
                 categoryRepository.save(category1);
 
                 //When & Then
-                assertThrows(CategoryNotFoundException.class, () -> adminService.showCategoryByNameWithProducts("anyString"));
+                assertThrows(CategoryNotFoundException.class,
+                    () -> adminService.showCategoryByNameWithProducts("anyString"));
             }
-        }
-
-        @Test
-        void testShowCategoryByNameWithProductsPositive() throws CategoryNotFoundException {
-            //Given
-            Category category = new Category("Car");
-            Category category1 = new Category("Music");
-            categoryRepository.save(category);
-            categoryRepository.save(category1);
-            Product product = new Product("Album1", "CD", category1, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
-            productRepository.save(product);
-            category1.getListOfProducts().add(product);
-            categoryRepository.save(category1);
-
-            //When & Then
-            assertInstanceOf(CategoryWithProductsDto.class, adminService.showCategoryByNameWithProducts("Music"));
-            assertEquals(1, adminService.showCategoryByNameWithProducts("Music").getListOfProducts().size());
-            assertEquals("Album1", adminService.showCategoryByNameWithProducts("Music").getListOfProducts().get(0).getProductName());
         }
     }
 
@@ -184,10 +202,12 @@ class AdminServiceTest {
     @Transactional
     @DisplayName("test addNewProduct")
     class TestAddNewProduct {
+
         @Test
         void testAddNewProductInvalidPriceException() {
             //Given
-            ProductDto productDto = new ProductDto("testProduct", "testDescription", "testCategory", new BigDecimal(-25.12).setScale(2, RoundingMode.HALF_EVEN));
+            ProductDto productDto = new ProductDto("testProduct", "testDescription", "testCategory",
+                new BigDecimal(-25.12).setScale(2, RoundingMode.HALF_EVEN));
 
             //When & Then
             assertThrows(InvalidPriceException.class, () -> adminService.addNewProduct(productDto));
@@ -196,7 +216,8 @@ class AdminServiceTest {
         @Test
         void testAddNewProductInvalidCategoryException() {
             //Given
-            ProductDto productDto = new ProductDto("testProduct", "testDescription", "%%%", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
+            ProductDto productDto = new ProductDto("testProduct", "testDescription", "%%%",
+                new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
 
             //When & Then
             try {
@@ -216,7 +237,8 @@ class AdminServiceTest {
             //Given
             Category category = new Category("Unknown");
             categoryRepository.save(category);
-            ProductDto productDto = new ProductDto("testProduct", "testDescription", "%%%", new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
+            ProductDto productDto = new ProductDto("testProduct", "testDescription", "%%%",
+                new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
 
             //When & Then
             try {
@@ -236,7 +258,8 @@ class AdminServiceTest {
             //Given
             Category category = new Category("Pets");
             categoryRepository.save(category);
-            ProductDto productDto = new ProductDto("testProduct", "testDescription", "Pets", new BigDecimal(30.455).setScale(2, RoundingMode.HALF_EVEN));
+            ProductDto productDto = new ProductDto("testProduct", "testDescription", "Pets",
+                new BigDecimal(30.455).setScale(2, RoundingMode.HALF_EVEN));
 
             //When & Then
             try {
@@ -256,12 +279,15 @@ class AdminServiceTest {
     @Transactional
     @DisplayName("test updateProduct")
     class TestUpdateProduct {
+
         @Test
-        void updateProductProductNotFoundException() throws InvalidPriceException, InvalidCategoryNameException, CategoryExistsException {
+        void updateProductProductNotFoundException()
+            throws InvalidPriceException, InvalidCategoryNameException, CategoryExistsException {
             //Given
             Category category = new Category("Pets");
             categoryRepository.save(category);
-            ProductDto productDto = new ProductDto("testProduct", "testDescription", "Pets", new BigDecimal(30.455).setScale(2, RoundingMode.HALF_EVEN));
+            ProductDto productDto = new ProductDto("testProduct", "testDescription", "Pets",
+                new BigDecimal(30.455).setScale(2, RoundingMode.HALF_EVEN));
             adminService.addNewProduct(productDto);
             Long productId = productRepository.findByProductName("testProduct").getProductID();
 
@@ -270,14 +296,17 @@ class AdminServiceTest {
         }
 
         @Test
-        void updateProductInvalidCategoryNameException() throws InvalidPriceException, InvalidCategoryNameException, CategoryExistsException {
+        void updateProductInvalidCategoryNameException()
+            throws InvalidPriceException, InvalidCategoryNameException, CategoryExistsException {
             //Given
             Category category = new Category("Pets");
             categoryRepository.save(category);
-            ProductDto productDto = new ProductDto("testProduct", "testDescription", "Pets", new BigDecimal(30.455).setScale(2, RoundingMode.HALF_EVEN));
+            ProductDto productDto = new ProductDto("testProduct", "testDescription", "Pets",
+                new BigDecimal(30.455).setScale(2, RoundingMode.HALF_EVEN));
             adminService.addNewProduct(productDto);
             Long productId = productRepository.findByProductName("testProduct").getProductID();
-            ProductDto productDtoForUpdate = new ProductDto("testProduct", "testDescription", "Music", new BigDecimal(200).setScale(2, RoundingMode.HALF_EVEN));
+            ProductDto productDtoForUpdate = new ProductDto("testProduct", "testDescription", "Music",
+                new BigDecimal(200).setScale(2, RoundingMode.HALF_EVEN));
 
             //When & Then
             try {
@@ -292,16 +321,19 @@ class AdminServiceTest {
 
         @Transactional
         @Test
-        void updateProductPositive() throws InvalidPriceException, InvalidCategoryNameException, CategoryExistsException {
+        void updateProductPositive()
+            throws InvalidPriceException, InvalidCategoryNameException, CategoryExistsException {
             //Given
             Category category = new Category("Pets");
             Category category1 = new Category("Music");
             categoryRepository.save(category);
             categoryRepository.save(category1);
-            ProductDto productDto = new ProductDto("testProduct", "testDescription", "Pets", new BigDecimal(30.455).setScale(2, RoundingMode.HALF_EVEN));
+            ProductDto productDto = new ProductDto("testProduct", "testDescription", "Pets",
+                new BigDecimal(30.455).setScale(2, RoundingMode.HALF_EVEN));
             adminService.addNewProduct(productDto);
             Long productId = productRepository.findByProductName("testProduct").getProductID();
-            ProductDto productDtoForUpdate = new ProductDto("testProduct", "testDescription", "Music", new BigDecimal(200).setScale(2, RoundingMode.HALF_EVEN));
+            ProductDto productDtoForUpdate = new ProductDto("testProduct", "testDescription", "Music",
+                new BigDecimal(200).setScale(2, RoundingMode.HALF_EVEN));
 
             //When & Then
             try {
@@ -319,19 +351,22 @@ class AdminServiceTest {
     @Transactional
     @DisplayName("test deleteProductById")
     class TestDeleteProductById {
+
         @Transactional
         @Test
         void deleteProductByIdProductNotFoundException() {
             //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
-            Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
+            Product product = new Product("Album1", "CD", category,
+                new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             category.getListOfProducts().add(product);
             categoryRepository.save(category);
 
             //When & Then
-            assertThrows(ProductNotFoundException.class, () -> adminService.deleteProductById((product.getProductID() + 1)));
+            assertThrows(ProductNotFoundException.class,
+                () -> adminService.deleteProductById((product.getProductID() + 1)));
             assertEquals(1, category.getListOfProducts().size());
         }
 
@@ -341,7 +376,8 @@ class AdminServiceTest {
             //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
-            Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
+            Product product = new Product("Album1", "CD", category,
+                new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             category.getListOfProducts().add(product);
             categoryRepository.save(category);
@@ -369,9 +405,11 @@ class AdminServiceTest {
             //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
-            Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
+            Product product = new Product("Album1", "CD", category,
+                new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
-            Product product1 = new Product("Album2", "MP3", category, new BigDecimal(10.25).setScale(2, RoundingMode.HALF_EVEN));
+            Product product1 = new Product("Album2", "MP3", category,
+                new BigDecimal(10.25).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product1);
             category.getListOfProducts().add(product);
             category.getListOfProducts().add(product1);
@@ -391,17 +429,20 @@ class AdminServiceTest {
     @Transactional
     @DisplayName("test addOrUpdateProductInWarehouse")
     class TestAddOrUpdateProductInWarehouse {
+
         @Test
         void addOrUpdateProductInWarehouseInvalidQuantityException() {
             //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
-            Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
+            Product product = new Product("Album1", "CD", category,
+                new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             Long productId = product.getProductID();
 
             //When & Then
-            assertThrows(InvalidQuantityException.class, () -> adminService.addOrUpdateProductInWarehouse(productId, -10));
+            assertThrows(InvalidQuantityException.class,
+                () -> adminService.addOrUpdateProductInWarehouse(productId, -10));
         }
 
         @Test
@@ -409,12 +450,14 @@ class AdminServiceTest {
             //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
-            Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
+            Product product = new Product("Album1", "CD", category,
+                new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             Long productId = product.getProductID();
 
             //When & Then
-            assertThrows(ProductNotFoundException.class, () -> adminService.addOrUpdateProductInWarehouse((productId + 1), 10));
+            assertThrows(ProductNotFoundException.class,
+                () -> adminService.addOrUpdateProductInWarehouse((productId + 1), 10));
         }
 
         @Test
@@ -422,12 +465,14 @@ class AdminServiceTest {
             //Given
             Category category = new Category("Unknown");
             categoryRepository.save(category);
-            Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
+            Product product = new Product("Album1", "CD", category,
+                new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             Long productId = product.getProductID();
 
             //When & Then
-            assertThrows(CategoryNotFoundException.class, () -> adminService.addOrUpdateProductInWarehouse(productId, 10));
+            assertThrows(CategoryNotFoundException.class,
+                () -> adminService.addOrUpdateProductInWarehouse(productId, 10));
         }
 
         @Test
@@ -435,7 +480,8 @@ class AdminServiceTest {
             //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
-            Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
+            Product product = new Product("Album1", "CD", category,
+                new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             Long productId = product.getProductID();
 
@@ -454,7 +500,8 @@ class AdminServiceTest {
             //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
-            Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
+            Product product = new Product("Album1", "CD", category,
+                new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             Long productId = product.getProductID();
             try {
@@ -478,13 +525,15 @@ class AdminServiceTest {
     @Transactional
     @DisplayName("test deleteProductFromWarehouse")
     class TestDeleteProductFromWarehouse {
+
         @Transactional
         @Test
         void testDeleteProductFromWarehouseProductNotFoundException() {
             //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
-            Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
+            Product product = new Product("Album1", "CD", category,
+                new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             Long productId = product.getProductID();
             try {
@@ -504,7 +553,8 @@ class AdminServiceTest {
             //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
-            Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
+            Product product = new Product("Album1", "CD", category,
+                new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
             Long productId = product.getProductID();
             try {
@@ -534,15 +584,18 @@ class AdminServiceTest {
             //Given
             Category category = new Category("Music");
             categoryRepository.save(category);
-            Product product = new Product("Album1", "CD", category, new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
+            Product product = new Product("Album1", "CD", category,
+                new BigDecimal(25.12).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product);
-            Product product1 = new Product("Album2", "MP3", category, new BigDecimal(10.25).setScale(2, RoundingMode.HALF_EVEN));
+            Product product1 = new Product("Album2", "MP3", category,
+                new BigDecimal(10.25).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product1);
             category.getListOfProducts().add(product);
             category.getListOfProducts().add(product1);
             Category category2 = new Category("Pets");
             categoryRepository.save(category2);
-            Product product2 = new Product("CatFood", "granules 5kg", category2, new BigDecimal(125.1).setScale(2, RoundingMode.HALF_EVEN));
+            Product product2 = new Product("CatFood", "granules 5kg", category2,
+                new BigDecimal(125.1).setScale(2, RoundingMode.HALF_EVEN));
             productRepository.save(product2);
             category2.getListOfProducts().add(product2);
             categoryRepository.save(category2);

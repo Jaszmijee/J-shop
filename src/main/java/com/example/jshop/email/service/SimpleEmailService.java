@@ -23,7 +23,7 @@ public class SimpleEmailService {
         log.info("Starting email preparation...");
         try {
             SimpleMailMessage mailMessage = createMailMessage(mail);
-            if (sendmail){
+            if (sendmail) {
                 javaMailSender.send(mailMessage);
             }
             log.info("Email has been sent.");

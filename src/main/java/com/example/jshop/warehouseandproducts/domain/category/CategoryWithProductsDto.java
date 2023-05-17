@@ -1,10 +1,9 @@
 package com.example.jshop.warehouseandproducts.domain.category;
 
+import java.util.List;
 import com.example.jshop.warehouseandproducts.domain.product.ProductDtoAllInfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.util.List;
 
 @Getter
 @AllArgsConstructor

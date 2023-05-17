@@ -1,5 +1,15 @@
 package com.example.jshop.security;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import camundajar.impl.com.google.gson.Gson;
 import com.example.jshop.cartsandorders.controller.LoginRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -11,44 +21,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 @Slf4j
 public class AuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
 
     public AuthenticationProcessingFilter(String defaultFilterProcessesUrl) {
         super(defaultFilterProcessesUrl);
-    }
-
-    @Override
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) req;
-        HttpServletResponse response = (HttpServletResponse) res;
-        if (!requiresAuthentication(request, response)) {
-            super.doFilter(req, res, chain);
-        } else {
-            super.doFilter(new ContentCachingRequestWrapper(request), res, chain);
-        }
-    }
-
-    @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        if (!request.getMethod().equals("POST")) {
-            throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
-        }
-
-        val loginRequest = getLoginRequest(request);
-        val authRequest = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
-        return this.getAuthenticationManager().authenticate(authRequest);
     }
 
     public static LoginRequest getLoginRequest(HttpServletRequest request) {
@@ -60,8 +37,9 @@ public class AuthenticationProcessingFilter extends AbstractAuthenticationProces
                 return gson.fromJson(reader, LoginRequest.class);
             } else {
                 return gson.fromJson(
-                        new InputStreamReader(new ByteArrayInputStream(((ContentCachingRequestWrapper) request).getContentAsByteArray())),
-                        LoginRequest.class
+                    new InputStreamReader(new ByteArrayInputStream(
+                        ((ContentCachingRequestWrapper) request).getContentAsByteArray())),
+                    LoginRequest.class
                 );
             }
         } catch (IOException ex) {
@@ -76,5 +54,30 @@ public class AuthenticationProcessingFilter extends AbstractAuthenticationProces
                 log.warn("Closing reader error", ex);
             }
         }
+    }
+
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+        throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
+        if (!requiresAuthentication(request, response)) {
+            super.doFilter(req, res, chain);
+        } else {
+            super.doFilter(new ContentCachingRequestWrapper(request), res, chain);
+        }
+    }
+
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+        throws AuthenticationException {
+        if (!request.getMethod().equals("POST")) {
+            throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
+        }
+
+        val loginRequest = getLoginRequest(request);
+        val authRequest = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
+            loginRequest.getPassword());
+        return this.getAuthenticationManager().authenticate(authRequest);
     }
 }

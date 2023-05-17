@@ -11,14 +11,15 @@ public class CartMapper {
 
     @Autowired
     ItemMapper itemMapper;
-    public CartDto mapCartToCartDto(Cart cart){
+
+    public CartDto mapCartToCartDto(Cart cart) {
         return new CartDto(
-                cart.getCartID(),
-                cart.getListOfItems().stream().map(items -> itemMapper.mapToItemDto(items)).toList(),
-                cart.getCartStatus(),
-                cart.getCalculatedPrice(),
-                cart.getDiscount(),
-                cart.getFinalPrice()
+            cart.getCartID(),
+            cart.getListOfItems().stream().map(items -> itemMapper.mapToItemDto(items)).toList(),
+            cart.getCartStatus(),
+            cart.getCalculatedPrice(),
+            cart.getDiscount(),
+            cart.getFinalPrice()
         );
     }
 }

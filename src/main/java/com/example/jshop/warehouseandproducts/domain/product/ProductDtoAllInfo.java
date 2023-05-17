@@ -1,9 +1,8 @@
 package com.example.jshop.warehouseandproducts.domain.product;
 
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.math.BigDecimal;
 
 @Getter
 @AllArgsConstructor
