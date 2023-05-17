@@ -1,8 +1,15 @@
 package com.example.jshop.customer.domain;
 
-import lombok.*;
-
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.ToString;
 
 @Getter
 @ToString
@@ -32,7 +39,8 @@ public class Address {
     @JoinColumn(name = "logged_customers_customerID")
     private LoggedCustomer _Logged_Customer;
 
-    public Address(@NonNull String street, @NonNull String houseNo, @NonNull String flatNo, @NonNull String zipCode, @NonNull String city, @NonNull String country) {
+    public Address(@NonNull String street, @NonNull String houseNo, @NonNull String flatNo, @NonNull String zipCode,
+        @NonNull String city, @NonNull String country) {
         this.street = street;
         this.houseNo = houseNo;
         this.flatNo = flatNo;

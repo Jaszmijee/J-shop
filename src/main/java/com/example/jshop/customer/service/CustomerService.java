@@ -1,23 +1,22 @@
 package com.example.jshop.customer.service;
 
+import java.util.List;
+import com.example.jshop.cartsandorders.domain.order.OrderDtoToCustomer;
+import com.example.jshop.cartsandorders.mapper.OrderMapper;
+import com.example.jshop.cartsandorders.service.OrderService;
+import com.example.jshop.customer.domain.AuthenticationDataDto;
 import com.example.jshop.customer.domain.LoggedCustomer;
 import com.example.jshop.customer.domain.LoggedCustomerDto;
-import com.example.jshop.customer.domain.AuthenticationDataDto;
-import com.example.jshop.cartsandorders.domain.order.OrderDtoToCustomer;
+import com.example.jshop.customer.mapper.CustomerMapper;
+import com.example.jshop.customer.repository.CustomerRepository;
 import com.example.jshop.errorhandlers.exceptions.AccessDeniedException;
 import com.example.jshop.errorhandlers.exceptions.InvalidCustomerDataException;
 import com.example.jshop.errorhandlers.exceptions.UserNotFoundException;
-import com.example.jshop.customer.mapper.CustomerMapper;
-import com.example.jshop.cartsandorders.mapper.OrderMapper;
-import com.example.jshop.customer.repository.CustomerRepository;
-import com.example.jshop.cartsandorders.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -41,18 +40,19 @@ public class CustomerService {
         return customerRepository.save(loggedCustomer);
     }
 
-    private void checkLoggedCustomerDataValidity(LoggedCustomerDto loggedCustomerDto) throws InvalidCustomerDataException {
+    private void checkLoggedCustomerDataValidity(LoggedCustomerDto loggedCustomerDto)
+        throws InvalidCustomerDataException {
         if ((loggedCustomerDto.getUserName() == null || loggedCustomerDto.getUserName().isEmpty())
-                || (loggedCustomerDto.getPassword() == null || loggedCustomerDto.getPassword().isEmpty()
-                || (loggedCustomerDto.getFirstName() == null || loggedCustomerDto.getFirstName().isEmpty())
-                || (loggedCustomerDto.getLastName() == null || loggedCustomerDto.getLastName().isEmpty())
-                || (loggedCustomerDto.getStreet() == null || loggedCustomerDto.getStreet().isEmpty())
-                || (loggedCustomerDto.getHouseNo() == null || loggedCustomerDto.getHouseNo().isEmpty())
-                || (loggedCustomerDto.getCity() == null || loggedCustomerDto.getCity().isEmpty())
-                || (loggedCustomerDto.getZipCode() == null || loggedCustomerDto.getZipCode().isEmpty()
-                || !loggedCustomerDto.getZipCode().matches("^[0-9]{2}[-]?[0-9]{3}$"))
-                || (loggedCustomerDto.getEmail() == null || loggedCustomerDto.getEmail().isEmpty()
-                || !loggedCustomerDto.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")))) {
+            || (loggedCustomerDto.getPassword() == null || loggedCustomerDto.getPassword().isEmpty()
+            || (loggedCustomerDto.getFirstName() == null || loggedCustomerDto.getFirstName().isEmpty())
+            || (loggedCustomerDto.getLastName() == null || loggedCustomerDto.getLastName().isEmpty())
+            || (loggedCustomerDto.getStreet() == null || loggedCustomerDto.getStreet().isEmpty())
+            || (loggedCustomerDto.getHouseNo() == null || loggedCustomerDto.getHouseNo().isEmpty())
+            || (loggedCustomerDto.getCity() == null || loggedCustomerDto.getCity().isEmpty())
+            || (loggedCustomerDto.getZipCode() == null || loggedCustomerDto.getZipCode().isEmpty()
+            || !loggedCustomerDto.getZipCode().matches("^[0-9]{2}[-]?[0-9]{3}$"))
+            || (loggedCustomerDto.getEmail() == null || loggedCustomerDto.getEmail().isEmpty()
+            || !loggedCustomerDto.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")))) {
             throw new InvalidCustomerDataException();
         }
     }
@@ -61,9 +61,10 @@ public class CustomerService {
         return customerRepository.findCustomer_LoggedByUserNameEquals(userName).orElseThrow(UserNotFoundException::new);
     }
 
-    public LoggedCustomer verifyLogin(String userName, char[] pwwd) throws UserNotFoundException, AccessDeniedException, InvalidCustomerDataException {
+    public LoggedCustomer verifyLogin(String userName, char[] pwwd)
+        throws UserNotFoundException, AccessDeniedException, InvalidCustomerDataException {
         if (userName == null || userName.isEmpty()
-                || pwwd == null || pwwd.length == 0) {
+            || pwwd == null || pwwd.length == 0) {
             throw new InvalidCustomerDataException();
         }
         LoggedCustomer _Logged_Customer = findCustomerByName(userName);
@@ -78,18 +79,30 @@ public class CustomerService {
         if (!bCryptPasswordEncoder.matches(request.toString(), response.toString())) {
             LOGGER.error("Unauthorized access attempt for " + userName);
             throw new AccessDeniedException();
-        } else return _Logged_Customer;
+        } else {
+            return _Logged_Customer;
+        }
     }
 
-    public void removeCustomer(AuthenticationDataDto customerDto) throws UserNotFoundException, AccessDeniedException, InvalidCustomerDataException {
+    public LoggedCustomer verifyLogin1(String userName) throws UserNotFoundException, InvalidCustomerDataException {
+/*        if (userName == null || userName.isEmpty()) {
+            throw new InvalidCustomerDataException();
+        }*/
+        return findCustomerByName(userName);
+    }
+
+
+    public void removeCustomer(AuthenticationDataDto customerDto)
+        throws UserNotFoundException, AccessDeniedException, InvalidCustomerDataException {
         checkValidityOfAuthenticationData(customerDto);
         verifyLogin(customerDto.getUsername(), customerDto.getPassword());
         customerRepository.deleteById(findCustomerByName(customerDto.getUsername()).getCustomerID());
     }
 
-    private void checkValidityOfAuthenticationData(AuthenticationDataDto customerDto) throws InvalidCustomerDataException {
+    private void checkValidityOfAuthenticationData(AuthenticationDataDto customerDto)
+        throws InvalidCustomerDataException {
         if (customerDto.getUsername() == null || customerDto.getUsername().isEmpty()
-                || customerDto.getPassword() == null || customerDto.getPassword().length == 0) {
+            || customerDto.getPassword() == null || customerDto.getPassword().length == 0) {
             throw new InvalidCustomerDataException();
         }
     }
@@ -98,9 +111,11 @@ public class CustomerService {
         customerRepository.deleteById(customerId);
     }
 
-    public List<OrderDtoToCustomer> showMyOrders(AuthenticationDataDto customerDto) throws UserNotFoundException, AccessDeniedException, InvalidCustomerDataException {
-        checkValidityOfAuthenticationData(customerDto);
-        verifyLogin(customerDto.getUsername(), customerDto.getPassword());
-        return orderMapper.mapToOrderDtoToCustomerList(orderService.findOrdersOfCustomer(customerDto.getUsername()));
+    public List<OrderDtoToCustomer> showMyOrders(String userName)
+        //AuthenticationDataDto customerDto)
+        throws UserNotFoundException, AccessDeniedException, InvalidCustomerDataException {
+        //     checkValidityOfAuthenticationData(customerDto);
+        verifyLogin1(userName); //customerDto.getUsername(), customerDto.getPassword());
+        return orderMapper.mapToOrderDtoToCustomerList(orderService.findOrdersOfCustomer(userName));
     }
 }

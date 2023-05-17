@@ -11,11 +11,11 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
 
-    public Item save(Item item){
+    public Item save(Item item) {
         return itemRepository.save(item);
     }
 
-    public void delete(Item item){
+    public void delete(Item item) {
         itemRepository.delete(item);
     }
 }

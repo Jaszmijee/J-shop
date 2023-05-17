@@ -1,5 +1,8 @@
 package com.example.jshop.configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 import com.example.jshop.security.AuthenticationProcessingFilter;
 import com.example.jshop.security.AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +26,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.web.SecurityFilterChain;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 @Configuration
 @EnableWebSecurity
@@ -55,39 +54,41 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // prettier-ignore
         return http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .antMatchers("/v1/j-shop/admin/*").hasAuthority("managerGroup")
-                        .antMatchers("/v1/j-shop/customer/*").hasAuthority("clientGroup")
-                        .antMatchers("/v1/j-shop/cart/pay/login").hasAuthority("clientGroup")
-                        .antMatchers("/v1/j-shop/cart/finalize/login").hasAuthority("clientGroup")
-                        .anyRequest().permitAll()
-                )
-                .httpBasic(Customizer.withDefaults())
-                .formLogin().disable()
-                .oauth2Login().and()
-                .build();
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .antMatchers("/v1/j-shop/admin/*").hasAuthority("managerGroup")
+                .antMatchers("/v1/j-shop/customer/*").hasAuthority("clientGroup")
+                .antMatchers("/v1/j-shop/cart/pay/login").hasAuthority("clientGroup")
+                .antMatchers("/v1/j-shop/cart/finalize/login").hasAuthority("clientGroup")
+                .anyRequest().permitAll()
+            )
+            .httpBasic(Customizer.withDefaults())
+            .formLogin().disable()
+            .oauth2Login().and()
+            .build();
     }
 
     @Bean
     public AuthenticationManager authManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(
+            AuthenticationManagerBuilder.class);
         authenticationManagerBuilder.authenticationProvider(authProvider);
         return authenticationManagerBuilder.build();
     }
 
     @Bean
     public OAuth2AuthorizedClientManager authorizedClientManager(
-            ClientRegistrationRepository clientRegistrationRepository,
-            OAuth2AuthorizedClientRepository authorizedClientRepository
+        ClientRegistrationRepository clientRegistrationRepository,
+        OAuth2AuthorizedClientRepository authorizedClientRepository
     ) {
         val authorizedClientProvider =
-                OAuth2AuthorizedClientProviderBuilder.builder()
-                        .password()
-                        .refreshToken()
-                        .build();
+            OAuth2AuthorizedClientProviderBuilder.builder()
+                .password()
+                .refreshToken()
+                .build();
 
-        val authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(clientRegistrationRepository, authorizedClientRepository);
+        val authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(clientRegistrationRepository,
+            authorizedClientRepository);
         authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 
         authorizedClientManager.setContextAttributesMapper(contextAttributesMapper());
@@ -98,8 +99,10 @@ public class WebSecurityConfig {
     private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper() {
         return authorizeRequest -> {
             val contextAttributes = new HashMap<String, Object>();
-            contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, authorizeRequest.getPrincipal().getPrincipal());
-            contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, authorizeRequest.getPrincipal().getCredentials());
+            contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME,
+                authorizeRequest.getPrincipal().getPrincipal());
+            contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME,
+                authorizeRequest.getPrincipal().getCredentials());
             return contextAttributes;
         };
     }

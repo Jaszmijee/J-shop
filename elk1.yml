@@ -1,42 +1,42 @@
 version: '3.8'
 services:
-  elasticsearch:
-    container_name: elasticsearch
-    image: elasticsearch:7.9.2
-    restart: always
-    environment:
-      discovery.type: single-node
-    ports:
-      - 9200:9200
-      - 9300:9300
-    networks:
-      - 'elk-test'
+    elasticsearch:
+        container_name: elasticsearch
+        image: elasticsearch:7.9.2
+        restart: always
+        environment:
+            discovery.type: single-node
+        ports:
+            - 9200:9200
+            - 9300:9300
+        networks:
+            - 'elk-test'
 
-  logstash:
-    image: docker.elastic.co/logstash/logstash:7.9.2
-    container_name: logstash
-    restart: always
-    ports:
-      - 5044:5044
-    volumes:
-      - C:/Users/jaszmije/ELK/config:/usr/share/logstash/pipeline/
-    depends_on:
-      - elasticsearch
+    logstash:
+        image: docker.elastic.co/logstash/logstash:7.9.2
+        container_name: logstash
+        restart: always
+        ports:
+            - 5044:5044
+        volumes:
+            - C:/Users/jaszmije/ELK/config:/usr/share/logstash/pipeline/
+        depends_on:
+            - elasticsearch
 
-    networks:
-      - elk-test
+        networks:
+            - elk-test
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.9.2
-    container_name: kibana
-    restart: always
-    ports:
-      - 5601:5601
-    depends_on:
-      - logstash
-    networks:
-      - elk-test
+    kibana:
+        image: docker.elastic.co/kibana/kibana:7.9.2
+        container_name: kibana
+        restart: always
+        ports:
+            - 5601:5601
+        depends_on:
+            - logstash
+        networks:
+            - elk-test
 
 networks:
-  elk-test:
-    name: elk-test
+    elk-test:
+        name: elk-test

@@ -1,11 +1,10 @@
 package com.example.jshop.customer.repository;
 
+import java.util.Optional;
 import com.example.jshop.customer.domain.LoggedCustomer;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Repository
 @Transactional

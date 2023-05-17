@@ -1,31 +1,19 @@
 package com.example.jshop.administrator;
 
-import com.example.jshop.cartsandorders.domain.cart.Cart;
-import com.example.jshop.cartsandorders.domain.cart.CartStatus;
-import com.example.jshop.cartsandorders.domain.order.OrderStatus;
-import com.example.jshop.cartsandorders.domain.order.Order;
-import com.example.jshop.cartsandorders.domain.order.OrderDtoToCustomer;
 import com.example.jshop.cartsandorders.mapper.OrderMapper;
 import com.example.jshop.cartsandorders.service.OrderService;
-import com.example.jshop.customer.domain.Address;
-import com.example.jshop.customer.domain.LoggedCustomer;
 import com.example.jshop.errorhandlers.exceptions.InvalidOrderStatusException;
-import com.example.jshop.errorhandlers.exceptions.OrderNotFoundException;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class AdminServiceTestDisplayOrders {

@@ -1,12 +1,11 @@
 package com.example.jshop.warehouseandproducts.service;
 
-import com.example.jshop.warehouseandproducts.domain.product.Product;
+import java.util.List;
 import com.example.jshop.errorhandlers.exceptions.ProductNotFoundException;
+import com.example.jshop.warehouseandproducts.domain.product.Product;
 import com.example.jshop.warehouseandproducts.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

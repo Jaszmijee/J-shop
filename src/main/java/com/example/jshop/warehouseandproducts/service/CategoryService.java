@@ -1,17 +1,16 @@
 package com.example.jshop.warehouseandproducts.service;
 
-import com.example.jshop.errorhandlers.exceptions.InvalidCategoryNameException;
-import com.example.jshop.warehouseandproducts.domain.category.Category;
-import com.example.jshop.warehouseandproducts.domain.product.Product;
+import java.util.List;
+import java.util.regex.Pattern;
 import com.example.jshop.errorhandlers.exceptions.CategoryException;
 import com.example.jshop.errorhandlers.exceptions.CategoryExistsException;
 import com.example.jshop.errorhandlers.exceptions.CategoryNotFoundException;
+import com.example.jshop.errorhandlers.exceptions.InvalidCategoryNameException;
+import com.example.jshop.warehouseandproducts.domain.category.Category;
+import com.example.jshop.warehouseandproducts.domain.product.Product;
 import com.example.jshop.warehouseandproducts.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -30,10 +29,10 @@ public class CategoryService {
 
     public Category addCategory(Category category) throws InvalidCategoryNameException, CategoryExistsException {
         if ((category.getName() == null)
-                || (category.getName().isEmpty())
-                || (category.getName().trim().isEmpty())
-                || (category.getName().length() < 3)
-                || (Pattern.compile("\\W").matcher(category.getName()).find())) {
+            || (category.getName().isEmpty())
+            || (category.getName().trim().isEmpty())
+            || (category.getName().length() < 3)
+            || (Pattern.compile("\\W").matcher(category.getName()).find())) {
             throw new InvalidCategoryNameException();
         }
         if (findByName(category.getName()) != null) {
@@ -68,7 +67,7 @@ public class CategoryService {
         categoryRepository.deleteByNameEqualsIgnoreCase(name);
     }
 
-    public List<Category> showAllCategories(){
+    public List<Category> showAllCategories() {
         return categoryRepository.findAll();
     }
 }

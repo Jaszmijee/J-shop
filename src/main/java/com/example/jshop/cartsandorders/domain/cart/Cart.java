@@ -1,12 +1,22 @@
 package com.example.jshop.cartsandorders.domain.cart;
 
-import lombok.*;
-
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
@@ -25,9 +35,9 @@ public class Cart {
 
     @Column(name = "items_cart")
     @OneToMany(targetEntity = Item.class,
-            mappedBy = "cart",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER)
+        mappedBy = "cart",
+        cascade = CascadeType.ALL,
+        fetch = FetchType.EAGER)
     private List<Item> listOfItems = new ArrayList<>();
 
     @Column(name = "total")

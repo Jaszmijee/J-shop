@@ -1,5 +1,6 @@
 package com.example.jshop.warehouseandproducts.service;
 
+import java.math.BigDecimal;
 import com.example.jshop.errorhandlers.exceptions.CategoryException;
 import com.example.jshop.errorhandlers.exceptions.CategoryExistsException;
 import com.example.jshop.errorhandlers.exceptions.CategoryNotFoundException;
@@ -7,16 +8,17 @@ import com.example.jshop.errorhandlers.exceptions.InvalidCategoryNameException;
 import com.example.jshop.warehouseandproducts.domain.category.Category;
 import com.example.jshop.warehouseandproducts.domain.product.Product;
 import com.example.jshop.warehouseandproducts.repository.CategoryRepository;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class CategoryServiceTest {
@@ -33,6 +35,7 @@ class CategoryServiceTest {
     @Transactional
     @DisplayName("test findByName")
     class TestFindByName {
+
         @Test
         void findByNamePositiveNull() {
             // Given
@@ -60,6 +63,7 @@ class CategoryServiceTest {
     @Transactional
     @DisplayName("test save")
     class TestSave {
+
         @Test
         void savePositive() {
             //Given
@@ -75,6 +79,7 @@ class CategoryServiceTest {
     @Transactional
     @DisplayName("test addCategory")
     class TestAddCategory {
+
         @Test
         void addCategoryInvalidCategoryNameException() {
             // Given
@@ -99,7 +104,8 @@ class CategoryServiceTest {
             categoryRepository.save(category);
 
             //When & Then
-            assertThrows(CategoryExistsException.class, () -> categoryService.addCategory(new Category("testCategory")));
+            assertThrows(CategoryExistsException.class,
+                () -> categoryService.addCategory(new Category("testCategory")));
         }
 
         @Test
@@ -118,6 +124,7 @@ class CategoryServiceTest {
     @Transactional
     @DisplayName("test deleteCategory")
     class TestDeleteCategory {
+
         @Test
         void deleteCategoryCategoryNotFoundException() {
             //Given
@@ -159,6 +166,7 @@ class CategoryServiceTest {
     @Transactional
     @DisplayName("test showAllCategories")
     class TestShowAllCategories {
+
         @Test
         void showAllCategories() {
             //Given
